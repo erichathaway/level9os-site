@@ -828,8 +828,8 @@ export default function Home() {
         <div className="max-w-6xl mx-auto px-6 sm:px-12">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 via-cyan-500 to-fuchsia-500 flex items-center justify-center text-white text-[11px] font-black">
-                L9
+              <div className="w-8 h-8 rounded-lg overflow-hidden">
+                <img src="/logo-9.svg" alt="Level9OS" className="w-full h-full" />
               </div>
               <div>
                 <div className="text-white/50 text-xs font-semibold tracking-wide">Level9OS</div>
