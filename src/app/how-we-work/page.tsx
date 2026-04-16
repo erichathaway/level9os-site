@@ -24,8 +24,8 @@ const tiers = [
     includes: [
       "LinkupOS signal pod (from $29/mo)",
       "StratOS decision runs (~$5.89/run)",
-      "COO Playbook — full 4-part methodology",
-      "LucidORG diagnostic — ECI assessment",
+      "COO Playbook: full 4-part methodology",
+      "LucidORG diagnostic: ECI assessment",
       "Training curriculum (101/200/300 levels)",
       "Self-serve support via docs + community",
     ],
@@ -70,7 +70,7 @@ const tiers = [
     price: "Custom",
     duration: "Ongoing",
     description:
-      "The full autonomous loop. StratOS deliberates your strategic decisions. Commandos orchestrates execution across pods. LucidORG measures friction in real time. You become the governance layer — approval at the gates, not the keyboard.",
+      "The full autonomous loop. StratOS deliberates your strategic decisions. Commandos orchestrates execution across pods. LucidORG measures friction in real time. You become the governance layer. Approval at the gates, not the keyboard.",
     includes: [
       "Full StratOS deliberation loop on your decisions",
       "CommandOS orchestration across all execution pods",
@@ -396,14 +396,14 @@ export default function HowWeWorkPage() {
                 on Level9.
               </h2>
               <p className="text-white/50 text-base leading-relaxed mb-5">
-                Every product we sell runs our own company first. LinkupOS handles our marketing —
+                Every product we sell runs our own company first. LinkupOS handles our marketing,
                 zero daily intervention, around $5/month. StratOS makes our strategic decisions.
                 CommandOS coordinates our 48 domain officers. COO Playbook is the methodology we
                 actually execute.
               </p>
               <p className="text-white/35 text-sm leading-relaxed">
                 If it breaks for us, it never ships to you. If it works for us, we know exactly
-                what it takes to make it work for you — because we did it first.
+                what it takes to make it work for you, because we did it first.
               </p>
             </FadeIn>
 

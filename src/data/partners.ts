@@ -24,7 +24,7 @@ export const partners: Partner[] = [
     type: "Non-profit",
     tagline: "The 501(c)(3) home for AI careers and individual learning.",
     description:
-      "Our non-profit education arm. NextGenIntern is the front door for individuals who want a career in AI operations — high schoolers exploring, college students upskilling, and career changers looking for an entry point that actually leads somewhere. All learning content for individuals lives here.",
+      "Our non-profit education arm. NextGenIntern is the front door for individuals who want a career in AI operations: high schoolers exploring, college students upskilling, and career changers looking for an entry point that actually leads somewhere. All learning content for individuals lives here.",
     href: "https://nextgenintern.com/individual-learning",
     external: true,
     featured: true,
@@ -47,7 +47,7 @@ export const partners: Partner[] = [
     type: "Regional",
     tagline: "Mid-market growth program for Montana operators.",
     description:
-      "Regional partnership bringing AI-native operations to Montana-based companies in the scale-up phase. Operational diagnostics, pod deployment, and the COO Playbook methodology — adapted for the Mountain West operating context.",
+      "Regional partnership bringing AI-native operations to Montana-based companies in the scale-up phase. Operational diagnostics, pod deployment, and the COO Playbook methodology, adapted for the Mountain West operating context.",
     href: "#",
     external: false,
     color: "#06b6d4",

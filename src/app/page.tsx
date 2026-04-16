@@ -75,17 +75,17 @@ export default function Home() {
 
           <div className="space-y-2 mb-12">
             <RevealMask>
-              <h1 className="text-[clamp(2.5rem,6vw,5.5rem)] font-black leading-[0.88] tracking-tight text-white/95">
+              <h1 className="text-[clamp(2.5rem,6vw,5.5rem)] font-black leading-[0.95] tracking-tight text-white/95">
                 AI is a gold rush.
               </h1>
             </RevealMask>
             <RevealMask delay={140}>
-              <h1 className="text-[clamp(2rem,5vw,4.5rem)] font-black leading-[0.88] tracking-tight text-white/55">
+              <h1 className="text-[clamp(2rem,5vw,4.5rem)] font-black leading-[0.95] tracking-tight text-white/55">
                 Everyone&apos;s building it to make more money.
               </h1>
             </RevealMask>
             <RevealMask delay={280}>
-              <h1 className="text-[clamp(2.5rem,6vw,5.5rem)] font-black leading-[0.88] tracking-tight pt-4">
+              <h1 className="text-[clamp(2.5rem,6vw,5.5rem)] font-black leading-[0.95] tracking-tight pt-4">
                 <span className="bg-gradient-to-r from-violet-400 via-cyan-400 to-fuchsia-400 bg-clip-text text-transparent">
                   We build it for the side
                 </span>
@@ -101,7 +101,7 @@ export default function Home() {
             <p className="text-white/50 text-lg sm:text-xl leading-relaxed max-w-2xl mb-12 font-light">
               Save the money. Save the time. Control the outcome.{" "}
               <span className="text-white/80">
-                AI for operations — the function that connects everything and determines whether
+                AI for operations. The function that connects everything and determines whether
                 strategy actually survives contact with reality.
               </span>
             </p>
@@ -237,8 +237,8 @@ export default function Home() {
           <FadeIn delay={0.4}>
             <div className="text-center">
               <p className="text-white/55 text-lg max-w-2xl mx-auto leading-relaxed">
-                Sales AI helps you sell more — but the market decides if it works. Operations AI
-                helps you spend less and waste less —{" "}
+                Sales AI helps you sell more, but the market decides if it works. Operations AI
+                helps you spend less and waste less,{" "}
                 <span className="text-white/85">and you decide every input.</span>
               </p>
             </div>
@@ -266,7 +266,7 @@ export default function Home() {
             </RevealMask>
             <RevealMask delay={200}>
               <p className="text-white/40 text-lg max-w-2xl">
-                Every layer of how an organization actually runs — covered by AI we&apos;ve built,
+                Every layer of how an organization actually runs. Covered by AI we&apos;ve built,
                 governed, and proven on ourselves first.
               </p>
             </RevealMask>
@@ -397,7 +397,7 @@ export default function Home() {
             <RevealMask delay={200}>
               <p className="text-white/40 text-lg max-w-2xl mx-auto">
                 Marketing has automation. Sales has CRM. Finance has models. The function that
-                connects everything — that actually executes strategy — is still spreadsheets,
+                connects everything, that actually executes strategy, is still spreadsheets,
                 offsites, and hope.
               </p>
             </RevealMask>
@@ -417,7 +417,7 @@ export default function Home() {
                     </div>
                     <div className="text-white/60 text-sm mb-4 leading-relaxed">{item.label}</div>
                     <div className="text-white/20 text-[9px] font-mono uppercase tracking-wider">
-                      — {item.src}
+                      {item.src}
                     </div>
                   </div>
                 </MagneticCard>
@@ -448,12 +448,12 @@ export default function Home() {
               </h2>
               <p className="text-white/50 text-base leading-relaxed mb-5">
                 That&apos;s why we build for the operations side of the house. The function where
-                30 years of pattern recognition meets modern AI architecture — and where leverage
+                30 years of pattern recognition meets modern AI architecture, and where leverage
                 actually compounds, because you decide every input.
               </p>
               <p className="text-white/35 text-sm leading-relaxed mb-10">
                 Sales AI helps you sell more. Marketing AI helps you generate more. Both are
-                useful. Neither controls the outcome. Operations AI controls the outcome — because
+                useful. Neither controls the outcome. Operations AI controls the outcome, because
                 operations is the only thing inside your perimeter.
               </p>
               <div className="flex flex-wrap gap-3">
@@ -799,7 +799,7 @@ export default function Home() {
             </h2>
             <p className="text-white/45 text-lg mb-12 max-w-xl mx-auto">
               Whether you need a fractional COO with an AI stack behind them, a single pod
-              deployed, or the full operating system installed — start with a conversation.
+              deployed, or the full operating system installed, start with a conversation.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4">
               <MagneticButton

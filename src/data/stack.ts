@@ -55,9 +55,9 @@ export const stack: StackLayer[] = [
     problem: "Functional teams burn budget on work that could run itself.",
     answer: "Autonomous execution pods. One human manager. Zero daily intervention.",
     capabilities: [
-      "LinkupOS — signal / marketing pod",
-      "ABM Engine — outbound pod",
-      "Auto-CS — customer success monitoring",
+      "LinkupOS: signal / marketing pod",
+      "ABM Engine: outbound pod",
+      "Auto-CS: customer success monitoring",
       "Marketing Engine pipelines",
     ],
   },
@@ -98,9 +98,9 @@ export const stack: StackLayer[] = [
     audience: "The voice · Everyone",
     color: "#ec4899",
     problem: "You have data but you can't ask it questions.",
-    answer: "Conversational ops — natural-language Q&A across every metric.",
+    answer: "Conversational ops. Natural-language Q&A across every metric.",
     capabilities: [
-      "MAX — talk to your operation",
+      "MAX: talk to your operation",
       "Live dashboards",
       "Slack ops bridge",
       "Voice-first option",
@@ -115,7 +115,7 @@ export const stack: StackLayer[] = [
     problem: "AI without guardrails is a liability waiting to bill you.",
     answer: "Every action audited, every dollar tracked, every output gated.",
     capabilities: [
-      "Secrets vault — RLS-locked, scoped",
+      "Secrets vault: RLS-locked, scoped",
       "Budget enforcement at task / agent / system",
       "Quality audit on every output",
       "Full audit trail across the stack",

@@ -8,7 +8,7 @@ import MagneticButton from "@/components/motion/MagneticButton";
 import LiveTicker from "@/components/motion/LiveTicker";
 import MagneticCard from "@/components/motion/MagneticCard";
 import RevealMask from "@/components/motion/RevealMask";
-import { partners, learningCapabilities } from "@/data/partners";
+import { partners } from "@/data/partners";
 
 export default function PartnershipsPage() {
   const featured = partners.find((p) => p.featured);
@@ -59,21 +59,21 @@ export default function PartnershipsPage() {
             <div className="inline-flex items-center gap-3 mb-8 px-4 py-2 rounded-full border border-white/[0.08] bg-white/[0.02] backdrop-blur-sm">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
               <span className="text-[10px] font-mono tracking-[0.3em] uppercase text-white/60">
-                The Partner Network · Education · 501(c)(3)
+                The Partner Network · Distribution · Install
               </span>
             </div>
           </FadeIn>
 
           <div className="space-y-2 mb-10">
             <RevealMask>
-              <h1 className="text-[clamp(2.5rem,6vw,5rem)] font-black leading-[0.9] tracking-tight text-white/95">
-                We don&apos;t sell to individuals.
+              <h1 className="text-[clamp(2.5rem,6vw,5rem)] font-black leading-[0.95] tracking-tight text-white/95">
+                Level9 is a product company.
               </h1>
             </RevealMask>
             <RevealMask delay={150}>
-              <h1 className="text-[clamp(2.5rem,6vw,5rem)] font-black leading-[0.9] tracking-tight">
+              <h1 className="text-[clamp(2.5rem,6vw,5rem)] font-black leading-[0.95] tracking-tight">
                 <span className="bg-gradient-to-r from-emerald-400 via-cyan-400 to-violet-400 bg-clip-text text-transparent">
-                  We partner with the people who do.
+                  Our partners install, distribute, and teach it.
                 </span>
               </h1>
             </RevealMask>
@@ -81,10 +81,9 @@ export default function PartnershipsPage() {
 
           <FadeIn delay={0.4}>
             <p className="text-white/50 text-lg max-w-2xl mb-8 font-light leading-relaxed">
-              Level9 is a product company. The methodology, the curriculum, and the AI career
-              track all reach individuals through our partner network — non-profits,
-              accelerators, and education programs that already speak to the people who&apos;ll run
-              tomorrow&apos;s operations.
+              We build the AI. Our partners put it in front of the operators who use it.
+              Accelerators, regional growth programs, executive education, and a 501(c)(3) career
+              on-ramp. Each one a different distribution path into a different operating context.
             </p>
           </FadeIn>
         </div>
@@ -101,7 +100,7 @@ export default function PartnershipsPage() {
                 className="text-[9px] tracking-[0.5em] uppercase font-mono font-semibold mb-6"
                 style={{ color: `${featured.color}80` }}
               >
-                The Education Arm · 501(c)(3)
+                Featured Partner · Career On-Ramp
               </div>
             </RevealMask>
 
@@ -274,141 +273,74 @@ export default function PartnershipsPage() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════════
-          LEARNING CAPABILITIES
-          ═══════════════════════════════════════════════════════════ */}
-      <section className="py-32 relative" style={{ background: "#060610" }}>
-        <div className="max-w-6xl mx-auto px-6 sm:px-12">
-          <div className="mb-16">
-            <RevealMask>
-              <div className="text-cyan-400/50 text-[9px] tracking-[0.5em] uppercase font-mono font-semibold mb-4">
-                Learning Capabilities
-              </div>
-            </RevealMask>
-            <RevealMask delay={100}>
-              <h2 className="text-3xl sm:text-4xl font-black text-white/90 mb-6 leading-[1.1] max-w-3xl">
-                What gets taught,
-                <br />
-                <span className="text-white/40">and to whom.</span>
-              </h2>
-            </RevealMask>
-            <RevealMask delay={200}>
-              <p className="text-white/40 text-base max-w-2xl">
-                The methodology, the products, and the operating model — adapted for four
-                different audiences, delivered through the partner network.
-              </p>
-            </RevealMask>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            {learningCapabilities.map((cap, i) => (
-              <FadeIn key={cap.title} delay={i * 0.1}>
-                <MagneticCard
-                  className="rounded-2xl h-full"
-                  glowColor={`${cap.color}20`}
-                  maxTilt={3}
-                >
-                  <div
-                    className="rounded-2xl p-7 h-full border bg-[#0a0a14]/40 backdrop-blur-sm group"
-                    style={{ borderColor: `${cap.color}18` }}
-                  >
-                    <div className="flex items-start justify-between mb-4">
-                      <div>
-                        <h3 className="text-xl font-black text-white/90 mb-2 group-hover:text-white transition-colors">
-                          {cap.title}
-                        </h3>
-                        <div
-                          className="text-[9px] font-mono tracking-wider uppercase"
-                          style={{ color: `${cap.color}aa` }}
-                        >
-                          {cap.audience}
-                        </div>
-                      </div>
-                      <div
-                        className="w-1.5 h-1.5 rounded-full mt-2"
-                        style={{ background: cap.color }}
-                      />
-                    </div>
-
-                    <p className="text-white/50 text-sm leading-relaxed mb-5">{cap.desc}</p>
-
-                    {cap.external ? (
-                      <a
-                        href={cap.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-xs font-semibold inline-flex items-center gap-2 transition-transform group-hover:translate-x-1"
-                        style={{ color: cap.color }}
-                      >
-                        Learn more →
-                      </a>
-                    ) : (
-                      <span className="text-[10px] font-mono text-white/30 tracking-wider uppercase">
-                        Active program
-                      </span>
-                    )}
-                  </div>
-                </MagneticCard>
-              </FadeIn>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════════════════════
-          FOR INDIVIDUALS / FOR INSTITUTIONS
+          PARTNER PATHS — How partners use Level9OS
           ═══════════════════════════════════════════════════════════ */}
       <section className="py-32 relative" style={{ background: "var(--bg-root)" }}>
         <div className="max-w-6xl mx-auto px-6 sm:px-12">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* For Individuals */}
-            <FadeIn direction="left">
-              <div className="rounded-3xl p-10 border border-emerald-500/20 bg-gradient-to-br from-emerald-500/[0.06] to-transparent h-full">
-                <div className="text-emerald-400/70 text-[9px] tracking-[0.3em] uppercase font-mono mb-4">
-                  For Individuals
-                </div>
-                <h3 className="text-3xl font-black text-white/95 mb-4 leading-tight">
-                  Want a career
-                  <br />
-                  in AI operations?
-                </h3>
-                <p className="text-white/55 text-sm leading-relaxed mb-8">
-                  All individual learning lives on our 501(c)(3) education arm. High school
-                  exploration, college upskilling, career changes, mentorship — start here.
-                </p>
-                <a
-                  href="https://nextgenintern.com/individual-learning"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-3 px-7 py-4 rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold hover:shadow-2xl hover:shadow-emerald-500/30 transition-all hover:scale-[1.02]"
-                >
-                  <span className="w-2 h-2 rounded-full bg-white/90 animate-pulse" />
-                  nextgenintern.com →
-                </a>
+          <div className="mb-16">
+            <RevealMask>
+              <div className="text-violet-400/50 text-[9px] tracking-[0.5em] uppercase font-mono font-semibold mb-4">
+                How Partners Use Level9OS
               </div>
-            </FadeIn>
+            </RevealMask>
+            <RevealMask delay={100}>
+              <h2 className="text-3xl sm:text-4xl font-black text-white/90 leading-[1.15] max-w-3xl">
+                Two ways the operating system
+                <br />
+                <span className="text-white/40">moves through the network.</span>
+              </h2>
+            </RevealMask>
+          </div>
 
-            {/* For Institutions */}
-            <FadeIn direction="right" delay={0.15}>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Distribution Partners */}
+            <FadeIn direction="left">
               <div className="rounded-3xl p-10 border border-violet-500/20 bg-gradient-to-br from-violet-500/[0.06] to-transparent h-full">
                 <div className="text-violet-400/70 text-[9px] tracking-[0.3em] uppercase font-mono mb-4">
-                  For Institutions
+                  Distribution & Install Partners
                 </div>
                 <h3 className="text-3xl font-black text-white/95 mb-4 leading-tight">
-                  Bringing AI ops
+                  Put Level9OS
                   <br />
-                  to your students?
+                  in front of operators.
                 </h3>
                 <p className="text-white/55 text-sm leading-relaxed mb-8">
-                  We partner with universities, business schools, accelerators, and high schools.
-                  Curriculum modules, guest lectures, executive education programs — let&apos;s
-                  talk.
+                  Accelerators, regional growth programs, executive networks, consulting partners.
+                  You already work with the people who&apos;d run pods, install the methodology,
+                  and pressure-test decisions. We give you the products and the install protocol.
                 </p>
                 <MagneticButton
-                  href="mailto:partnerships@level9os.com?subject=Partnership%20Inquiry"
+                  href="mailto:partnerships@level9os.com?subject=Distribution%20Partnership%20-%20Level9OS"
                   className="inline-flex items-center gap-3 px-7 py-4 rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-600 text-white font-semibold hover:shadow-2xl hover:shadow-violet-500/30 transition-shadow"
                 >
                   <span className="w-2 h-2 rounded-full bg-white/90 animate-pulse" />
-                  Partner With Us →
+                  Become a Distribution Partner →
+                </MagneticButton>
+              </div>
+            </FadeIn>
+
+            {/* Education / Career Partners */}
+            <FadeIn direction="right" delay={0.15}>
+              <div className="rounded-3xl p-10 border border-emerald-500/20 bg-gradient-to-br from-emerald-500/[0.06] to-transparent h-full">
+                <div className="text-emerald-400/70 text-[9px] tracking-[0.3em] uppercase font-mono mb-4">
+                  Education & Career Partners
+                </div>
+                <h3 className="text-3xl font-black text-white/95 mb-4 leading-tight">
+                  Train the next
+                  <br />
+                  generation of operators.
+                </h3>
+                <p className="text-white/55 text-sm leading-relaxed mb-8">
+                  Universities, business schools, and the 501(c)(3) career on-ramp. Curriculum
+                  modules, guest lectures, the COO Playbook taught as executive education, and
+                  the AI operations career track hosted on NextGenIntern.
+                </p>
+                <MagneticButton
+                  href="mailto:partnerships@level9os.com?subject=Education%20Partnership%20-%20Level9OS"
+                  className="inline-flex items-center gap-3 px-7 py-4 rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold hover:shadow-2xl hover:shadow-emerald-500/30 transition-shadow"
+                >
+                  <span className="w-2 h-2 rounded-full bg-white/90 animate-pulse" />
+                  Become an Education Partner →
                 </MagneticButton>
               </div>
             </FadeIn>
@@ -436,12 +368,12 @@ export default function PartnershipsPage() {
               We bring the AI.
               <br />
               <span className="bg-gradient-to-r from-emerald-400 via-cyan-400 to-violet-400 bg-clip-text text-transparent">
-                You bring the audience.
+                You bring the relationships.
               </span>
             </h2>
             <p className="text-white/45 text-base mb-12 max-w-xl mx-auto">
-              If you train, accelerate, or educate operators — let&apos;s build something
-              together.
+              If you install, distribute, accelerate, or teach operations, let&apos;s build
+              something together.
             </p>
             <MagneticButton
               href="mailto:partnerships@level9os.com?subject=Partnership%20-%20Level9OS"

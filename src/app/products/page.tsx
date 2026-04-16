@@ -81,8 +81,8 @@ export default function ProductsPage() {
 
           <FadeIn delay={0.4}>
             <p className="text-white/50 text-lg max-w-2xl mb-12 font-light leading-relaxed">
-              These are the named products. Behind them sits a much wider operating system —
-              auto-fix agents, governance gates, multi-model decisioning, measurement layers — but
+              These are the named products. Behind them sits a much wider operating system:
+              auto-fix agents, governance gates, multi-model decisioning, measurement layers. But
               these six are how anyone new to the stack starts thinking about it.
             </p>
           </FadeIn>

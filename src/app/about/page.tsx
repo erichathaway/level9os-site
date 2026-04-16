@@ -68,7 +68,7 @@ export default function AboutPage() {
           <FadeIn delay={0.4}>
             <p className="text-white/50 text-lg max-w-2xl mb-8 font-light leading-relaxed">
               Level9 is a product company, not a consulting practice. We build production-grade AI
-              systems for the operational layer — the function that connects everything and
+              systems for the operational layer. The function that connects everything and
               determines whether strategy actually survives contact with reality.
             </p>
           </FadeIn>
@@ -104,8 +104,8 @@ export default function AboutPage() {
             </FadeIn>
             <FadeIn delay={0.3}>
               <p>
-                Marketing has automation. Sales has CRM. Finance has models. Operations — the
-                function that ties all of those together — is still running on spreadsheets,
+                Marketing has automation. Sales has CRM. Finance has models. Operations, the
+                function that ties all of those together, is still running on spreadsheets,
                 offsites, and hope. That&apos;s where Level9 was built.
               </p>
             </FadeIn>
@@ -113,7 +113,7 @@ export default function AboutPage() {
               <p className="text-white/70">
                 Level9 exists because the operational layer finally deserves the same AI
                 investment every other function already has. And because decades of pattern
-                recognition inside global enterprises deserves to be productized — not sold by
+                recognition inside global enterprises deserves to be productized, not sold by
                 the hour.
               </p>
             </FadeIn>
@@ -253,7 +253,7 @@ export default function AboutPage() {
           <FadeIn delay={0.5}>
             <p className="text-white/45 text-base max-w-2xl mx-auto leading-relaxed">
               If it breaks for us, it never ships to you. If it works for us, we know exactly what
-              it takes to make it work for you — because we did it first.
+              it takes to make it work for you, because we did it first.
             </p>
           </FadeIn>
         </div>
@@ -281,7 +281,7 @@ export default function AboutPage() {
             </RevealMask>
             <RevealMask delay={200}>
               <p className="text-white/40 text-base max-w-2xl mx-auto leading-relaxed">
-                Level9&apos;s operating model wasn&apos;t theorized — it was extracted from three
+                Level9&apos;s operating model wasn&apos;t theorized. It was extracted from three
                 decades of running operations inside global enterprises. The frameworks we sell
                 are the ones we actually used.
               </p>

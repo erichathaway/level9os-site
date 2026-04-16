@@ -74,7 +74,7 @@ export default function ContactPage() {
           <FadeIn delay={0.5}>
             <p className="text-white/50 text-lg leading-relaxed mb-14 max-w-xl mx-auto">
               Whether you need a fractional COO, strategic advisory, a pod deployment, or just want
-              to know which product solves your problem — start here.
+              to know which product solves your problem, start here.
             </p>
           </FadeIn>
 
