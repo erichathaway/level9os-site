@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  LinkedIn Company Page Banner — Level9OS
+  ───────────────────────────────────────────────────────────────────────────
+  Spec: 1584 × 396 (LinkedIn renders at 1128 × 191 desktop, 2x retina).
+  Brand source: live level9os.com hero + the canonical "9" obsidian chip mark
+                from /logo-9.svg ("Obsidian glass chip with hairline cool-
+                gradient edge. Bold white 9 tilted -14°, Inter 900.").
+
+  Headline: "AI is a gold rush." / "Operations is the only side you control."
+  Footer thesis: "Save the money. Save the time. Control the outcome."
+
+  Palette (from logo-9.svg + level9os.com):
+    bg          #030306
+    obsidian    #14082E → #041521 (chip fill)
+    cool edge   #8B5CF6 → #06B6D4 → #0D9488 (chip stroke + accent gradient)
+    headline    Inter Black 900, white/95
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1584 396" width="1584" height="396">
+  <defs>
+    <!-- Canonical Level9 cool gradient (from logo-9.svg) -->
+    <linearGradient id="cool" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"  stop-color="#8B5CF6"/>
+      <stop offset="55%" stop-color="#06B6D4"/>
+      <stop offset="100%" stop-color="#0D9488"/>
+    </linearGradient>
+    <linearGradient id="obsidian" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"  stop-color="#14082E"/>
+      <stop offset="100%" stop-color="#041521"/>
+    </linearGradient>
+    <linearGradient id="glassHi" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"  stop-color="#FFFFFF" stop-opacity="0.14"/>
+      <stop offset="40%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+
+    <!-- Ambient scene blobs -->
+    <radialGradient id="violetBlob" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#8B5CF6" stop-opacity="0.16"/>
+      <stop offset="60%" stop-color="#8B5CF6" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="cyanBlob" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#06B6D4" stop-opacity="0.12"/>
+      <stop offset="60%" stop-color="#06B6D4" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="tealBlob" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#0D9488" stop-opacity="0.08"/>
+      <stop offset="60%" stop-color="#0D9488" stop-opacity="0"/>
+    </radialGradient>
+
+    <radialGradient id="gridFade" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="white" stop-opacity="1"/>
+      <stop offset="80%" stop-color="white" stop-opacity="0"/>
+    </radialGradient>
+    <mask id="gridMask">
+      <rect width="1584" height="396" fill="url(#gridFade)"/>
+    </mask>
+    <filter id="softBlur" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="60"/>
+    </filter>
+  </defs>
+
+  <!-- Base -->
+  <rect width="1584" height="396" fill="#030306"/>
+
+  <!-- Ambient blobs (matching live site hero) -->
+  <g filter="url(#softBlur)">
+    <circle cx="1280" cy="120" r="380" fill="url(#violetBlob)"/>
+    <circle cx="320" cy="320" r="320" fill="url(#cyanBlob)"/>
+    <circle cx="200" cy="180" r="240" fill="url(#tealBlob)"/>
+  </g>
+
+  <!-- Faint grid -->
+  <g mask="url(#gridMask)" opacity="0.04">
+    <g stroke="#8B5CF6" stroke-width="1">
+      <line x1="64"   y1="0" x2="64"   y2="396"/>
+      <line x1="128"  y1="0" x2="128"  y2="396"/>
+      <line x1="192"  y1="0" x2="192"  y2="396"/>
+      <line x1="256"  y1="0" x2="256"  y2="396"/>
+      <line x1="320"  y1="0" x2="320"  y2="396"/>
+      <line x1="384"  y1="0" x2="384"  y2="396"/>
+      <line x1="448"  y1="0" x2="448"  y2="396"/>
+      <line x1="512"  y1="0" x2="512"  y2="396"/>
+      <line x1="576"  y1="0" x2="576"  y2="396"/>
+      <line x1="640"  y1="0" x2="640"  y2="396"/>
+      <line x1="704"  y1="0" x2="704"  y2="396"/>
+      <line x1="768"  y1="0" x2="768"  y2="396"/>
+      <line x1="832"  y1="0" x2="832"  y2="396"/>
+      <line x1="896"  y1="0" x2="896"  y2="396"/>
+      <line x1="960"  y1="0" x2="960"  y2="396"/>
+      <line x1="1024" y1="0" x2="1024" y2="396"/>
+      <line x1="1088" y1="0" x2="1088" y2="396"/>
+      <line x1="1152" y1="0" x2="1152" y2="396"/>
+      <line x1="1216" y1="0" x2="1216" y2="396"/>
+      <line x1="1280" y1="0" x2="1280" y2="396"/>
+      <line x1="1344" y1="0" x2="1344" y2="396"/>
+      <line x1="1408" y1="0" x2="1408" y2="396"/>
+      <line x1="1472" y1="0" x2="1472" y2="396"/>
+      <line x1="1536" y1="0" x2="1536" y2="396"/>
+      <line x1="0" y1="64"  x2="1584" y2="64"/>
+      <line x1="0" y1="128" x2="1584" y2="128"/>
+      <line x1="0" y1="192" x2="1584" y2="192"/>
+      <line x1="0" y1="256" x2="1584" y2="256"/>
+      <line x1="0" y1="320" x2="1584" y2="320"/>
+    </g>
+  </g>
+
+  <!-- Eyebrow pill -->
+  <g transform="translate(120, 100)">
+    <rect x="0" y="0" rx="16" ry="16" width="320" height="32" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+    <circle cx="18" cy="16" r="3" fill="#34D399"/>
+    <text x="34" y="20" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" font-size="10" letter-spacing="3" fill="rgba(255,255,255,0.6)" font-weight="500">
+      AI · OPERATIONS · OUTCOMES
+    </text>
+  </g>
+
+  <!-- Headline (verbatim from live level9os.com hero) -->
+  <text x="120" y="200" font-family="Inter, -apple-system, sans-serif" font-size="60" font-weight="900" letter-spacing="-1.8" fill="rgba(255,255,255,0.95)">
+    AI is a gold rush.
+  </text>
+  <text x="120" y="262" font-family="Inter, -apple-system, sans-serif" font-size="42" font-weight="900" letter-spacing="-1" fill="rgba(255,255,255,0.55)">
+    Everyone&apos;s building it to make more money.
+  </text>
+
+  <!-- Accent line: gradient -->
+  <text x="120" y="320" font-family="Inter, -apple-system, sans-serif" font-size="22" font-weight="800" letter-spacing="-0.3" fill="url(#cool)">
+    Operations is the only side you actually control.
+  </text>
+
+  <!-- Footer line -->
+  <text x="120" y="350" font-family="Inter, -apple-system, sans-serif" font-size="13" font-weight="400" fill="rgba(255,255,255,0.4)" letter-spacing="0.3">
+    Save the money. Save the time. Control the outcome.
+  </text>
+
+  <!-- ═══════════ RIGHT: Real Level9 obsidian chip mark ═══════════ -->
+  <!-- Ported verbatim from /logo-9.svg, scaled to 200×200 within banner -->
+  <g transform="translate(1280, 198)">
+    <!-- Chip group, centered around (0,0). Source rect is 240x240 in 320 viewBox.
+         Target: 200x200 chip → scale = 200/240 = 0.833. Offset to center: -100,-100. -->
+    <g transform="scale(0.833) translate(-160, -160)">
+      <!-- 1. Obsidian fill + cool gradient hairline edge -->
+      <rect x="40" y="40" width="240" height="240" rx="56" fill="url(#obsidian)" stroke="url(#cool)" stroke-width="1.5"/>
+      <!-- 2. Glass highlight -->
+      <rect x="40" y="40" width="240" height="240" rx="56" fill="url(#glassHi)"/>
+      <!-- 3. White 9, Inter 900, tilted -14° -->
+      <text x="160" y="162" text-anchor="middle" dominant-baseline="central"
+            font-family="Inter, system-ui, sans-serif" font-weight="900" font-size="180"
+            fill="#FFFFFF" transform="rotate(-14 160 162)" style="letter-spacing:-0.04em">9</text>
+    </g>
+
+    <!-- Wordmark beneath chip (tighter, brand-safe) -->
+    <text x="0" y="135" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="14" font-weight="800" letter-spacing="4" fill="rgba(255,255,255,0.85)">
+      LEVEL9OS
+    </text>
+  </g>
+</svg>

@@ -41,7 +41,7 @@ export default function LiveTicker({
       </div>
       <div className="w-px h-4 bg-white/10" />
       <div className="flex items-center gap-2 min-w-[160px]">
-        <span className="text-[9px] font-mono text-white/40 tracking-wider">{current.label}</span>
+        <span className="text-[11px] font-mono text-white/40 tracking-wider">{current.label}</span>
         <span className="text-xs font-bold tracking-wider" style={{ color: current.color }}>
           · {current.value}
         </span>

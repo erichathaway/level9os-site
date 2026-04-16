@@ -56,11 +56,11 @@ export default function FloatingNav() {
           scrolled ? "scale-95" : "scale-100"
         }`}
       >
-        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500 via-cyan-500 to-fuchsia-500 flex items-center justify-center text-white text-[10px] font-black shadow-lg shadow-violet-500/20 group-hover:shadow-violet-500/40 transition-shadow">
+        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500 via-cyan-500 to-fuchsia-500 flex items-center justify-center text-white text-[12px] font-black shadow-lg shadow-violet-500/20 group-hover:shadow-violet-500/40 transition-shadow">
           L9
         </div>
         <div className="hidden sm:block">
-          <div className="text-[9px] tracking-[0.3em] uppercase font-semibold text-white/50 group-hover:text-white/80 transition-colors">
+          <div className="text-[11px] tracking-[0.3em] uppercase font-semibold text-white/50 group-hover:text-white/80 transition-colors">
             Level9<span className="text-white/30">OS</span>
           </div>
           <div className="text-[8px] text-white/20 tracking-wide">AI for Operations</div>
@@ -70,12 +70,12 @@ export default function FloatingNav() {
       {/* Top-right menu trigger */}
       <button
         onClick={() => setOpen(!open)}
-        className="fixed top-6 right-6 sm:right-8 z-[60] w-11 h-11 rounded-full border border-white/[0.08] bg-[#0a0a14]/80 backdrop-blur-xl flex flex-col items-center justify-center gap-[5px] transition-all hover:scale-110 hover:border-violet-500/40 hover:shadow-lg hover:shadow-violet-500/20"
+        className="fixed top-6 right-6 sm:right-8 z-[60] w-11 h-11 rounded-full border border-white/[0.3] bg-[#1a1a2e]/95 backdrop-blur-xl flex flex-col items-center justify-center gap-[5px] transition-all hover:scale-110 hover:border-violet-400/70 hover:shadow-lg hover:shadow-violet-500/30 shadow-lg shadow-black/40"
         aria-label={open ? "Close menu" : "Open menu"}
       >
-        <span className={`w-4 h-[1.5px] bg-white/60 transition-all duration-300 ${open ? "rotate-45 translate-y-[6.5px]" : ""}`} />
-        <span className={`w-4 h-[1.5px] bg-white/60 transition-all duration-300 ${open ? "opacity-0" : ""}`} />
-        <span className={`w-4 h-[1.5px] bg-white/60 transition-all duration-300 ${open ? "-rotate-45 -translate-y-[6.5px]" : ""}`} />
+        <span className={`w-4 h-[2px] bg-white/90 rounded transition-all duration-300 ${open ? "rotate-45 translate-y-[7px]" : ""}`} />
+        <span className={`w-4 h-[2px] bg-white/90 rounded transition-all duration-300 ${open ? "opacity-0" : ""}`} />
+        <span className={`w-4 h-[2px] bg-white/90 rounded transition-all duration-300 ${open ? "-rotate-45 -translate-y-[7px]" : ""}`} />
       </button>
 
       {/* Fullscreen menu overlay */}
@@ -102,7 +102,7 @@ export default function FloatingNav() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-12 sm:gap-16 max-w-6xl w-full py-24 sm:py-0">
             {/* Primary nav */}
             <div>
-              <div className="text-[9px] tracking-[0.3em] uppercase font-mono text-white/25 mb-8">
+              <div className="text-[11px] tracking-[0.3em] uppercase font-mono text-white/25 mb-8">
                 Navigate
               </div>
               <div className="space-y-4">
@@ -141,7 +141,7 @@ export default function FloatingNav() {
 
             {/* Products */}
             <div>
-              <div className="text-[9px] tracking-[0.3em] uppercase font-mono text-white/25 mb-8">
+              <div className="text-[11px] tracking-[0.3em] uppercase font-mono text-white/25 mb-8">
                 Products
               </div>
               <div className="space-y-3">
@@ -166,7 +166,7 @@ export default function FloatingNav() {
                       <h4 className="text-base sm:text-lg font-bold text-white/60 group-hover:text-white transition-colors">
                         {p.label}
                       </h4>
-                      <p className="text-[10px] transition-colors" style={{ color: `${p.color}80` }}>
+                      <p className="text-[12px] transition-colors" style={{ color: `${p.color}80` }}>
                         {p.desc}
                       </p>
                     </div>
@@ -177,7 +177,7 @@ export default function FloatingNav() {
 
             {/* Thinking / Resources */}
             <div>
-              <div className="text-[9px] tracking-[0.3em] uppercase font-mono text-white/25 mb-8">
+              <div className="text-[11px] tracking-[0.3em] uppercase font-mono text-white/25 mb-8">
                 Our Thinking
               </div>
               <div className="space-y-4">
@@ -199,7 +199,7 @@ export default function FloatingNav() {
                           </span>
                         )}
                       </div>
-                      <div className="text-white/25 text-[10px] uppercase tracking-wider font-mono">
+                      <div className="text-white/25 text-[12px] uppercase tracking-wider font-mono">
                         {item.desc}
                       </div>
                     </a>
@@ -208,7 +208,7 @@ export default function FloatingNav() {
               </div>
 
               <div className="mt-10 pt-6 border-t border-white/[0.06]">
-                <div className="text-[9px] tracking-[0.3em] uppercase font-mono text-white/25 mb-3">
+                <div className="text-[11px] tracking-[0.3em] uppercase font-mono text-white/25 mb-3">
                   Get In Touch
                 </div>
                 <a

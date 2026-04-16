@@ -58,7 +58,7 @@ export default function PartnershipsPage() {
           <FadeIn>
             <div className="inline-flex items-center gap-3 mb-8 px-4 py-2 rounded-full border border-white/[0.08] bg-white/[0.02] backdrop-blur-sm">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-[10px] font-mono tracking-[0.3em] uppercase text-white/60">
+              <span className="text-[12px] font-mono tracking-[0.3em] uppercase text-white/60">
                 The Partner Network · Distribution · Install
               </span>
             </div>
@@ -66,12 +66,12 @@ export default function PartnershipsPage() {
 
           <div className="space-y-2 mb-10">
             <RevealMask>
-              <h1 className="text-[clamp(2.5rem,6vw,5rem)] font-black leading-[0.95] tracking-tight text-white/95">
+              <h1 className="text-[clamp(2.5rem,6vw,5rem)] font-black leading-[1.05] tracking-tight text-white/95">
                 Level9 is a product company.
               </h1>
             </RevealMask>
             <RevealMask delay={150}>
-              <h1 className="text-[clamp(2.5rem,6vw,5rem)] font-black leading-[0.95] tracking-tight">
+              <h1 className="text-[clamp(2.5rem,6vw,5rem)] font-black leading-[1.05] tracking-tight">
                 <span className="bg-gradient-to-r from-emerald-400 via-cyan-400 to-violet-400 bg-clip-text text-transparent">
                   Our partners install, distribute, and teach it.
                 </span>
@@ -97,7 +97,7 @@ export default function PartnershipsPage() {
           <div className="max-w-6xl mx-auto px-6 sm:px-12">
             <RevealMask>
               <div
-                className="text-[9px] tracking-[0.5em] uppercase font-mono font-semibold mb-6"
+                className="text-[11px] tracking-[0.5em] uppercase font-mono font-semibold mb-6"
                 style={{ color: `${featured.color}80` }}
               >
                 Featured Partner · Career On-Ramp
@@ -127,12 +127,12 @@ export default function PartnershipsPage() {
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
                     <div>
                       <div className="flex items-center gap-3 mb-6">
-                        <div className="text-[9px] font-mono tracking-[0.2em] uppercase px-3 py-1 rounded-full border" style={{ borderColor: `${featured.color}40`, background: `${featured.color}10`, color: featured.color }}>
+                        <div className="text-[11px] font-mono tracking-[0.2em] uppercase px-3 py-1 rounded-full border" style={{ borderColor: `${featured.color}40`, background: `${featured.color}10`, color: featured.color }}>
                           {featured.type}
                         </div>
                         <div className="flex items-center gap-1.5">
                           <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: featured.color }} />
-                          <span className="text-[9px] font-mono tracking-wider" style={{ color: `${featured.color}aa` }}>FEATURED</span>
+                          <span className="text-[11px] font-mono tracking-wider" style={{ color: `${featured.color}aa` }}>FEATURED</span>
                         </div>
                       </div>
 
@@ -176,7 +176,7 @@ export default function PartnershipsPage() {
                           style={{ borderColor: `${featured.color}15` }}
                         >
                           <div
-                            className="text-[9px] font-mono tracking-wider uppercase mb-1"
+                            className="text-[11px] font-mono tracking-wider uppercase mb-1"
                             style={{ color: `${featured.color}80` }}
                           >
                             {row.label}
@@ -200,7 +200,7 @@ export default function PartnershipsPage() {
         <div className="max-w-6xl mx-auto px-6 sm:px-12">
           <div className="mb-16">
             <RevealMask>
-              <div className="text-violet-400/50 text-[9px] tracking-[0.5em] uppercase font-mono font-semibold mb-4">
+              <div className="text-violet-400/50 text-[11px] tracking-[0.5em] uppercase font-mono font-semibold mb-4">
                 The Network
               </div>
             </RevealMask>
@@ -231,7 +231,7 @@ export default function PartnershipsPage() {
                     />
 
                     <div
-                      className="text-[9px] font-mono tracking-[0.2em] uppercase mb-4"
+                      className="text-[11px] font-mono tracking-[0.2em] uppercase mb-4"
                       style={{ color: `${partner.color}aa` }}
                     >
                       {partner.type}
@@ -260,7 +260,7 @@ export default function PartnershipsPage() {
                         Visit {partner.name} →
                       </a>
                     ) : (
-                      <span className="text-[10px] font-mono text-white/30 tracking-wider uppercase">
+                      <span className="text-[12px] font-mono text-white/30 tracking-wider uppercase">
                         Active partnership
                       </span>
                     )}
@@ -279,7 +279,7 @@ export default function PartnershipsPage() {
         <div className="max-w-6xl mx-auto px-6 sm:px-12">
           <div className="mb-16">
             <RevealMask>
-              <div className="text-violet-400/50 text-[9px] tracking-[0.5em] uppercase font-mono font-semibold mb-4">
+              <div className="text-violet-400/50 text-[11px] tracking-[0.5em] uppercase font-mono font-semibold mb-4">
                 How Partners Use Level9OS
               </div>
             </RevealMask>
@@ -296,7 +296,7 @@ export default function PartnershipsPage() {
             {/* Distribution Partners */}
             <FadeIn direction="left">
               <div className="rounded-3xl p-10 border border-violet-500/20 bg-gradient-to-br from-violet-500/[0.06] to-transparent h-full">
-                <div className="text-violet-400/70 text-[9px] tracking-[0.3em] uppercase font-mono mb-4">
+                <div className="text-violet-400/70 text-[11px] tracking-[0.3em] uppercase font-mono mb-4">
                   Distribution & Install Partners
                 </div>
                 <h3 className="text-3xl font-black text-white/95 mb-4 leading-tight">
@@ -322,7 +322,7 @@ export default function PartnershipsPage() {
             {/* Education / Career Partners */}
             <FadeIn direction="right" delay={0.15}>
               <div className="rounded-3xl p-10 border border-emerald-500/20 bg-gradient-to-br from-emerald-500/[0.06] to-transparent h-full">
-                <div className="text-emerald-400/70 text-[9px] tracking-[0.3em] uppercase font-mono mb-4">
+                <div className="text-emerald-400/70 text-[11px] tracking-[0.3em] uppercase font-mono mb-4">
                   Education & Career Partners
                 </div>
                 <h3 className="text-3xl font-black text-white/95 mb-4 leading-tight">
@@ -364,7 +364,7 @@ export default function PartnershipsPage() {
         </div>
         <div className="max-w-3xl mx-auto px-6 sm:px-12 text-center relative z-10">
           <FadeIn>
-            <h2 className="text-[clamp(2rem,5vw,4rem)] font-black text-white/95 leading-[0.95] tracking-tight mb-8">
+            <h2 className="text-[clamp(2rem,5vw,4rem)] font-black text-white/95 leading-[1.05] tracking-tight mb-8">
               We bring the AI.
               <br />
               <span className="bg-gradient-to-r from-emerald-400 via-cyan-400 to-violet-400 bg-clip-text text-transparent">
@@ -390,15 +390,15 @@ export default function PartnershipsPage() {
       <footer className="py-12 border-t border-white/[0.04]" style={{ background: "var(--bg-root)" }}>
         <div className="max-w-6xl mx-auto px-6 sm:px-12 flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 via-cyan-500 to-fuchsia-500 flex items-center justify-center text-white text-[9px] font-black">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 via-cyan-500 to-fuchsia-500 flex items-center justify-center text-white text-[11px] font-black">
               L9
             </div>
             <div>
               <div className="text-white/50 text-xs font-semibold tracking-wide">Level9OS</div>
-              <div className="text-white/20 text-[9px] font-mono">AI for Operations</div>
+              <div className="text-white/20 text-[11px] font-mono">AI for Operations</div>
             </div>
           </div>
-          <div className="flex items-center gap-6 text-[10px] font-mono tracking-wider uppercase flex-wrap justify-center">
+          <div className="flex items-center gap-6 text-[12px] font-mono tracking-wider uppercase flex-wrap justify-center">
             <Link href="/" className="text-white/30 hover:text-white/70 transition-colors">
               Home
             </Link>
@@ -415,7 +415,7 @@ export default function PartnershipsPage() {
               Contact
             </Link>
           </div>
-          <div className="text-white/20 text-[9px] font-mono">
+          <div className="text-white/20 text-[11px] font-mono">
             &copy; 2026 Level9 ·{" "}
             <a
               href="https://erichathaway.com"

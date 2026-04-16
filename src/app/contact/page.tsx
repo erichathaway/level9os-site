@@ -50,7 +50,7 @@ export default function ContactPage() {
           <FadeIn>
             <div className="inline-flex items-center gap-3 mb-10 px-4 py-2 rounded-full border border-white/[0.08] bg-white/[0.02] backdrop-blur-sm">
               <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
-              <span className="text-[10px] font-mono tracking-[0.3em] uppercase text-white/60">
+              <span className="text-[12px] font-mono tracking-[0.3em] uppercase text-white/60">
                 Start a Conversation
               </span>
             </div>
@@ -58,12 +58,12 @@ export default function ContactPage() {
 
           <div className="space-y-2 mb-10">
             <RevealMask>
-              <h1 className="text-[clamp(2.5rem,6vw,5rem)] font-black leading-[0.9] tracking-tight text-white/95">
+              <h1 className="text-[clamp(2.5rem,6vw,5rem)] font-black leading-[1.05] tracking-tight text-white/95">
                 Let&apos;s talk about
               </h1>
             </RevealMask>
             <RevealMask delay={150}>
-              <h1 className="text-[clamp(2.5rem,6vw,5rem)] font-black leading-[0.9] tracking-tight">
+              <h1 className="text-[clamp(2.5rem,6vw,5rem)] font-black leading-[1.05] tracking-tight">
                 <span className="bg-gradient-to-r from-violet-400 via-cyan-400 to-fuchsia-400 bg-clip-text text-transparent">
                   what&apos;s not working.
                 </span>
@@ -124,7 +124,7 @@ export default function ContactPage() {
                   className="p-5 rounded-xl border border-white/[0.06] bg-white/[0.01] hover:border-white/[0.15] hover:bg-white/[0.03] transition-all group text-left"
                 >
                   <div
-                    className="text-[9px] font-mono tracking-wider uppercase mb-1"
+                    className="text-[11px] font-mono tracking-wider uppercase mb-1"
                     style={{ color: `${item.color}80` }}
                   >
                     {item.label}
@@ -143,10 +143,10 @@ export default function ContactPage() {
       <footer className="py-8 border-t border-white/[0.04]" style={{ background: "#060610" }}>
         <div className="max-w-6xl mx-auto px-6 sm:px-12 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-violet-500 via-cyan-500 to-fuchsia-500 flex items-center justify-center text-white text-[9px] font-black">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-violet-500 via-cyan-500 to-fuchsia-500 flex items-center justify-center text-white text-[11px] font-black">
               L9
             </div>
-            <div className="text-white/30 text-[10px] font-mono">
+            <div className="text-white/30 text-[12px] font-mono">
               &copy; 2026 Level9OS ·{" "}
               <a
                 href="https://erichathaway.com"
@@ -158,7 +158,7 @@ export default function ContactPage() {
               </a>
             </div>
           </div>
-          <div className="text-white/20 text-[9px] font-mono tracking-wider">
+          <div className="text-white/20 text-[11px] font-mono tracking-wider">
             Built, not advised.
           </div>
         </div>

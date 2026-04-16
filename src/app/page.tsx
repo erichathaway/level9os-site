@@ -67,7 +67,7 @@ export default function Home() {
           <FadeIn>
             <div className="inline-flex items-center gap-3 mb-10 px-4 py-2 rounded-full border border-white/[0.08] bg-white/[0.02] backdrop-blur-sm">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-[10px] font-mono tracking-[0.3em] uppercase text-white/60">
+              <span className="text-[12px] font-mono tracking-[0.3em] uppercase text-white/60">
                 Operations is the only side you actually control
               </span>
             </div>
@@ -75,17 +75,17 @@ export default function Home() {
 
           <div className="space-y-2 mb-12">
             <RevealMask>
-              <h1 className="text-[clamp(2.5rem,6vw,5.5rem)] font-black leading-[0.95] tracking-tight text-white/95">
+              <h1 className="text-[clamp(2.5rem,6vw,5.5rem)] font-black leading-[1.05] tracking-tight text-white/95">
                 AI is a gold rush.
               </h1>
             </RevealMask>
             <RevealMask delay={140}>
-              <h1 className="text-[clamp(2rem,5vw,4.5rem)] font-black leading-[0.95] tracking-tight text-white/55">
+              <h1 className="text-[clamp(2rem,5vw,4.5rem)] font-black leading-[1.05] tracking-tight text-white/55">
                 Everyone&apos;s building it to make more money.
               </h1>
             </RevealMask>
             <RevealMask delay={280}>
-              <h1 className="text-[clamp(2.5rem,6vw,5.5rem)] font-black leading-[0.95] tracking-tight pt-4">
+              <h1 className="text-[clamp(2.5rem,6vw,5.5rem)] font-black leading-[1.05] tracking-tight pt-4">
                 <span className="bg-gradient-to-r from-violet-400 via-cyan-400 to-fuchsia-400 bg-clip-text text-transparent">
                   We build it for the side
                 </span>
@@ -129,7 +129,7 @@ export default function Home() {
 
         {/* Scroll indicator */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce">
-          <span className="text-[9px] font-mono tracking-[0.3em] uppercase text-white/20">
+          <span className="text-[11px] font-mono tracking-[0.3em] uppercase text-white/20">
             Scroll
           </span>
           <div className="w-px h-8 bg-gradient-to-b from-white/20 to-transparent" />
@@ -143,7 +143,7 @@ export default function Home() {
         <div className="max-w-6xl mx-auto px-6 sm:px-12">
           <div className="mb-20 text-center">
             <RevealMask>
-              <div className="text-white/40 text-[9px] tracking-[0.5em] uppercase font-mono font-semibold mb-4">
+              <div className="text-white/40 text-[11px] tracking-[0.5em] uppercase font-mono font-semibold mb-4">
                 Two Halves of the Gold Rush
               </div>
             </RevealMask>
@@ -160,7 +160,7 @@ export default function Home() {
             {/* The Other Half */}
             <FadeIn direction="left">
               <div className="rounded-2xl p-10 h-full border border-white/[0.06] bg-gradient-to-br from-white/[0.02] to-transparent">
-                <div className="text-[9px] font-mono tracking-[0.3em] uppercase text-white/30 mb-4">
+                <div className="text-[11px] font-mono tracking-[0.3em] uppercase text-white/30 mb-4">
                   {twoHalves.other.label}
                 </div>
                 <h3 className="text-3xl font-black text-white/50 mb-6 line-through decoration-white/15 decoration-[1px]">
@@ -195,7 +195,7 @@ export default function Home() {
                   style={{ borderColor: "rgba(139,92,246,0.3)" }}
                 >
                   <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-violet-500 via-cyan-500 to-fuchsia-500" />
-                  <div className="text-[9px] font-mono tracking-[0.3em] uppercase mb-4 bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">
+                  <div className="text-[11px] font-mono tracking-[0.3em] uppercase mb-4 bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">
                     {twoHalves.ours.label}
                   </div>
                   <h3 className="text-3xl font-black mb-6">
@@ -253,7 +253,7 @@ export default function Home() {
         <div className="max-w-6xl mx-auto px-6 sm:px-12">
           <div className="mb-16">
             <RevealMask>
-              <div className="text-violet-400/50 text-[9px] tracking-[0.5em] uppercase font-mono font-semibold mb-4">
+              <div className="text-violet-400/50 text-[11px] tracking-[0.5em] uppercase font-mono font-semibold mb-4">
                 The Operating System
               </div>
             </RevealMask>
@@ -296,7 +296,7 @@ export default function Home() {
                       {/* Number + Title */}
                       <div className="md:col-span-3">
                         <div
-                          className="text-[9px] font-mono tracking-[0.3em] mb-2"
+                          className="text-[11px] font-mono tracking-[0.3em] mb-2"
                           style={{ color: `${layer.color}aa` }}
                         >
                           LAYER {layer.number}
@@ -307,7 +307,7 @@ export default function Home() {
                         >
                           {layer.title}
                         </h3>
-                        <div className="text-white/30 text-[10px] uppercase tracking-wider font-mono">
+                        <div className="text-white/30 text-[12px] uppercase tracking-wider font-mono">
                           {layer.audience}
                         </div>
                       </div>
@@ -315,7 +315,7 @@ export default function Home() {
                       {/* Problem + Answer */}
                       <div className="md:col-span-5">
                         <div className="mb-4">
-                          <div className="text-white/25 text-[9px] uppercase tracking-wider font-mono mb-1.5">
+                          <div className="text-white/25 text-[11px] uppercase tracking-wider font-mono mb-1.5">
                             Problem
                           </div>
                           <p className="text-white/55 text-sm leading-relaxed">
@@ -324,7 +324,7 @@ export default function Home() {
                         </div>
                         <div>
                           <div
-                            className="text-[9px] uppercase tracking-wider font-mono mb-1.5"
+                            className="text-[11px] uppercase tracking-wider font-mono mb-1.5"
                             style={{ color: `${layer.color}80` }}
                           >
                             Answer
@@ -337,7 +337,7 @@ export default function Home() {
 
                       {/* Capabilities */}
                       <div className="md:col-span-4">
-                        <div className="text-white/25 text-[9px] uppercase tracking-wider font-mono mb-3">
+                        <div className="text-white/25 text-[11px] uppercase tracking-wider font-mono mb-3">
                           Capabilities
                         </div>
                         <div className="space-y-2">
@@ -383,7 +383,7 @@ export default function Home() {
         <div className="max-w-5xl mx-auto px-6 sm:px-12">
           <div className="text-center mb-20">
             <RevealMask>
-              <div className="text-red-400/50 text-[9px] tracking-[0.5em] uppercase font-mono font-semibold mb-4">
+              <div className="text-red-400/50 text-[11px] tracking-[0.5em] uppercase font-mono font-semibold mb-4">
                 The Problem
               </div>
             </RevealMask>
@@ -416,7 +416,7 @@ export default function Home() {
                       {item.stat}
                     </div>
                     <div className="text-white/60 text-sm mb-4 leading-relaxed">{item.label}</div>
-                    <div className="text-white/20 text-[9px] font-mono uppercase tracking-wider">
+                    <div className="text-white/20 text-[11px] font-mono uppercase tracking-wider">
                       {item.src}
                     </div>
                   </div>
@@ -434,7 +434,7 @@ export default function Home() {
         <div className="max-w-6xl mx-auto px-6 sm:px-12">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <FadeIn direction="left">
-              <div className="text-violet-400/50 text-[9px] tracking-[0.5em] uppercase font-mono font-semibold mb-6">
+              <div className="text-violet-400/50 text-[11px] tracking-[0.5em] uppercase font-mono font-semibold mb-6">
                 The Control Argument
               </div>
               <h2 className="text-4xl sm:text-5xl font-black text-white/90 mb-8 leading-[1.05]">
@@ -466,7 +466,7 @@ export default function Home() {
                 ].map((tag) => (
                   <span
                     key={tag}
-                    className="text-[10px] px-4 py-2 rounded-full border border-violet-500/25 text-violet-400/70 font-mono tracking-wider uppercase hover:border-violet-500/50 hover:text-violet-400 transition-colors cursor-default"
+                    className="text-[12px] px-4 py-2 rounded-full border border-violet-500/25 text-violet-400/70 font-mono tracking-wider uppercase hover:border-violet-500/50 hover:text-violet-400 transition-colors cursor-default"
                   >
                     {tag}
                   </span>
@@ -482,7 +482,7 @@ export default function Home() {
                     className="group p-5 rounded-2xl border border-white/[0.05] hover:border-white/[0.12] transition-all hover:bg-white/[0.02]"
                   >
                     <div className="flex items-center gap-3 mb-3">
-                      <span className="text-red-400/40 text-[11px] line-through font-mono">
+                      <span className="text-red-400/40 text-[13px] line-through font-mono">
                         {item.before}
                       </span>
                       <span className="text-white/20">→</span>
@@ -507,7 +507,7 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-16 gap-6">
             <div>
               <RevealMask>
-                <div className="text-violet-400/50 text-[9px] tracking-[0.5em] uppercase font-mono font-semibold mb-4">
+                <div className="text-violet-400/50 text-[11px] tracking-[0.5em] uppercase font-mono font-semibold mb-4">
                   The Named Products
                 </div>
               </RevealMask>
@@ -575,21 +575,21 @@ export default function Home() {
                         {p.name}
                       </h3>
                       <div
-                        className="text-[9px] font-mono tracking-wider mb-5"
+                        className="text-[11px] font-mono tracking-wider mb-5"
                         style={{ color: `${p.color}80` }}
                       >
                         {p.layer}
                       </div>
 
                       <div className="mb-3">
-                        <div className="text-white/25 text-[9px] uppercase tracking-wider font-mono mb-1.5">
+                        <div className="text-white/25 text-[11px] uppercase tracking-wider font-mono mb-1.5">
                           Problem
                         </div>
                         <p className="text-white/45 text-xs leading-relaxed">{p.problem}</p>
                       </div>
                       <div className="mb-6">
                         <div
-                          className="text-[9px] uppercase tracking-wider font-mono mb-1.5"
+                          className="text-[11px] uppercase tracking-wider font-mono mb-1.5"
                           style={{ color: `${p.color}90` }}
                         >
                           Answer
@@ -623,7 +623,7 @@ export default function Home() {
         <div className="max-w-5xl mx-auto px-6 sm:px-12">
           <div className="text-center mb-16">
             <RevealMask>
-              <div className="text-white/30 text-[9px] tracking-[0.5em] uppercase font-mono font-semibold mb-4">
+              <div className="text-white/30 text-[11px] tracking-[0.5em] uppercase font-mono font-semibold mb-4">
                 Operational DNA
               </div>
             </RevealMask>
@@ -652,7 +652,7 @@ export default function Home() {
                   <div className="text-4xl sm:text-5xl font-black text-white/80 group-hover:text-white transition-colors tabular-nums">
                     <Counter target={s.target} suffix={s.suffix} />
                   </div>
-                  <div className="text-white/25 text-[9px] uppercase tracking-[0.25em] font-mono mt-2">
+                  <div className="text-white/25 text-[11px] uppercase tracking-[0.25em] font-mono mt-2">
                     {s.label}
                   </div>
                 </div>
@@ -663,7 +663,7 @@ export default function Home() {
           {/* Client logos */}
           <FadeIn delay={0.6}>
             <div className="text-center pt-12 border-t border-white/[0.04]">
-              <div className="text-white/15 text-[9px] tracking-[0.5em] uppercase font-mono font-semibold mb-8">
+              <div className="text-white/15 text-[11px] tracking-[0.5em] uppercase font-mono font-semibold mb-8">
                 Built on experience from
               </div>
               <div className="flex items-center justify-center gap-8 sm:gap-14 flex-wrap">
@@ -698,7 +698,7 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-12 gap-6">
             <div>
               <RevealMask>
-                <div className="text-emerald-400/50 text-[9px] tracking-[0.5em] uppercase font-mono font-semibold mb-4">
+                <div className="text-emerald-400/50 text-[11px] tracking-[0.5em] uppercase font-mono font-semibold mb-4">
                   The Partner Network
                 </div>
               </RevealMask>
@@ -788,7 +788,7 @@ export default function Home() {
         </div>
         <div className="max-w-4xl mx-auto px-6 sm:px-12 text-center relative z-10">
           <FadeIn>
-            <h2 className="text-[clamp(2.5rem,5vw,4.5rem)] font-black text-white/95 leading-[0.95] tracking-tight mb-8">
+            <h2 className="text-[clamp(2.5rem,5vw,4.5rem)] font-black text-white/95 leading-[1.05] tracking-tight mb-8">
               Save the money.
               <br />
               Save the time.
@@ -828,15 +828,15 @@ export default function Home() {
         <div className="max-w-6xl mx-auto px-6 sm:px-12">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 via-cyan-500 to-fuchsia-500 flex items-center justify-center text-white text-[9px] font-black">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 via-cyan-500 to-fuchsia-500 flex items-center justify-center text-white text-[11px] font-black">
                 L9
               </div>
               <div>
                 <div className="text-white/50 text-xs font-semibold tracking-wide">Level9OS</div>
-                <div className="text-white/20 text-[9px] font-mono">AI for Operations</div>
+                <div className="text-white/20 text-[11px] font-mono">AI for Operations</div>
               </div>
             </div>
-            <div className="flex items-center gap-6 text-[10px] font-mono tracking-wider uppercase flex-wrap justify-center">
+            <div className="flex items-center gap-6 text-[12px] font-mono tracking-wider uppercase flex-wrap justify-center">
               <Link href="/products" className="text-white/30 hover:text-white/70 transition-colors">
                 Products
               </Link>
@@ -859,7 +859,7 @@ export default function Home() {
                 Contact
               </Link>
             </div>
-            <div className="text-white/20 text-[9px] font-mono">
+            <div className="text-white/20 text-[11px] font-mono">
               &copy; 2026 Level9 ·{" "}
               <a
                 href="https://erichathaway.com"

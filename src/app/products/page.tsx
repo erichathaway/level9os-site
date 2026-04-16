@@ -58,7 +58,7 @@ export default function ProductsPage() {
           <FadeIn>
             <div className="inline-flex items-center gap-3 mb-8 px-4 py-2 rounded-full border border-white/[0.08] bg-white/[0.02] backdrop-blur-sm">
               <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
-              <span className="text-[10px] font-mono tracking-[0.3em] uppercase text-white/60">
+              <span className="text-[12px] font-mono tracking-[0.3em] uppercase text-white/60">
                 The Operating System · Named Anchors
               </span>
             </div>
@@ -66,12 +66,12 @@ export default function ProductsPage() {
 
           <div className="space-y-2 mb-10">
             <RevealMask>
-              <h1 className="text-[clamp(2.5rem,6vw,5rem)] font-black leading-[0.9] tracking-tight text-white/95">
+              <h1 className="text-[clamp(2.5rem,6vw,5rem)] font-black leading-[1.05] tracking-tight text-white/95">
                 Six anchors. One stack.
               </h1>
             </RevealMask>
             <RevealMask delay={150}>
-              <h1 className="text-[clamp(2rem,4.5vw,3.6rem)] font-black leading-[0.9] tracking-tight">
+              <h1 className="text-[clamp(2rem,4.5vw,3.6rem)] font-black leading-[1.05] tracking-tight">
                 <span className="bg-gradient-to-r from-violet-400 via-cyan-400 to-fuchsia-400 bg-clip-text text-transparent">
                   From the boardroom to the build server.
                 </span>
@@ -105,7 +105,7 @@ export default function ProductsPage() {
                     className="w-1.5 h-1.5 rounded-full animate-pulse"
                     style={{ background: badge.color }}
                   />
-                  <span className="text-[9px] font-mono tracking-wider text-white/70">
+                  <span className="text-[11px] font-mono tracking-wider text-white/70">
                     {badge.count} {badge.label}
                   </span>
                 </div>
@@ -131,7 +131,7 @@ export default function ProductsPage() {
                     const el = document.getElementById(p.id);
                     if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
                   }}
-                  className={`px-4 sm:px-6 py-2.5 rounded-full text-[11px] sm:text-sm font-semibold transition-all duration-300 ${
+                  className={`px-4 sm:px-6 py-2.5 rounded-full text-[13px] sm:text-sm font-semibold transition-all duration-300 ${
                     active === i ? "text-white shadow-lg" : "text-white/40 hover:text-white/80"
                   }`}
                   style={
@@ -168,7 +168,7 @@ export default function ProductsPage() {
                           style={{ background: `linear-gradient(90deg, ${p.color}, ${p.color}40)` }}
                         />
                         <span
-                          className="text-[9px] font-mono tracking-[0.2em]"
+                          className="text-[11px] font-mono tracking-[0.2em]"
                           style={{ color: `${p.color}aa` }}
                         >
                           {p.tag}
@@ -179,7 +179,7 @@ export default function ProductsPage() {
                             style={{ background: p.color }}
                           />
                           <span
-                            className="text-[9px] font-mono tracking-wider"
+                            className="text-[11px] font-mono tracking-wider"
                             style={{ color: `${p.color}cc` }}
                           >
                             {p.status}
@@ -191,7 +191,7 @@ export default function ProductsPage() {
                         {p.name}
                       </h2>
                       <div
-                        className="text-[10px] font-mono tracking-[0.2em] uppercase mb-8"
+                        className="text-[12px] font-mono tracking-[0.2em] uppercase mb-8"
                         style={{ color: `${p.color}80` }}
                       >
                         {p.layer}
@@ -200,14 +200,14 @@ export default function ProductsPage() {
                       {/* Problem / Answer block */}
                       <div className="mb-8 space-y-5">
                         <div>
-                          <div className="text-white/30 text-[9px] uppercase tracking-wider font-mono mb-2">
+                          <div className="text-white/30 text-[11px] uppercase tracking-wider font-mono mb-2">
                             The Problem
                           </div>
                           <p className="text-white/60 text-base leading-relaxed">{p.problem}</p>
                         </div>
                         <div className="pl-4 border-l-2" style={{ borderColor: p.color }}>
                           <div
-                            className="text-[9px] uppercase tracking-wider font-mono mb-2"
+                            className="text-[11px] uppercase tracking-wider font-mono mb-2"
                             style={{ color: `${p.color}aa` }}
                           >
                             The Answer
@@ -263,7 +263,7 @@ export default function ProductsPage() {
                           </div>
                         )}
                         {p.domain && p.external && (
-                          <span className="text-[10px] font-mono text-white/25 tracking-wider">
+                          <span className="text-[12px] font-mono text-white/25 tracking-wider">
                             {p.domain}
                           </span>
                         )}
@@ -302,7 +302,7 @@ export default function ProductsPage() {
                           {/* Status terminal block */}
                           <div className="relative z-10">
                             <div
-                              className="text-[9px] font-mono tracking-[0.2em] uppercase mb-6"
+                              className="text-[11px] font-mono tracking-[0.2em] uppercase mb-6"
                               style={{ color: `${p.color}aa` }}
                             >
                               SYSTEM STATUS
@@ -366,7 +366,7 @@ export default function ProductsPage() {
       <section className="py-32 relative" style={{ background: "#060610" }}>
         <div className="max-w-5xl mx-auto px-6 sm:px-12 text-center">
           <RevealMask>
-            <div className="text-cyan-400/50 text-[9px] tracking-[0.5em] uppercase font-mono font-semibold mb-4">
+            <div className="text-cyan-400/50 text-[11px] tracking-[0.5em] uppercase font-mono font-semibold mb-4">
               The Integration
             </div>
           </RevealMask>
@@ -388,7 +388,7 @@ export default function ProductsPage() {
           </FadeIn>
 
           <FadeIn delay={0.5}>
-            <div className="flex flex-wrap justify-center items-center gap-3 text-[10px] font-mono tracking-wider uppercase">
+            <div className="flex flex-wrap justify-center items-center gap-3 text-[12px] font-mono tracking-wider uppercase">
               <span className="text-violet-400/70">StratOS</span>
               <span className="text-white/20">→</span>
               <span className="text-emerald-400/70">CommandOS</span>
@@ -420,7 +420,7 @@ export default function ProductsPage() {
         </div>
         <div className="max-w-3xl mx-auto px-6 sm:px-12 text-center relative z-10">
           <FadeIn>
-            <h2 className="text-[clamp(2rem,5vw,4rem)] font-black text-white/95 leading-[0.95] tracking-tight mb-6">
+            <h2 className="text-[clamp(2rem,5vw,4rem)] font-black text-white/95 leading-[1.05] tracking-tight mb-6">
               Which anchor
               <br />
               <span className="bg-gradient-to-r from-violet-400 via-cyan-400 to-fuchsia-400 bg-clip-text text-transparent">
@@ -455,15 +455,15 @@ export default function ProductsPage() {
       <footer className="py-12 border-t border-white/[0.04]" style={{ background: "#060610" }}>
         <div className="max-w-6xl mx-auto px-6 sm:px-12 flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 via-cyan-500 to-fuchsia-500 flex items-center justify-center text-white text-[9px] font-black">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 via-cyan-500 to-fuchsia-500 flex items-center justify-center text-white text-[11px] font-black">
               L9
             </div>
             <div>
               <div className="text-white/50 text-xs font-semibold tracking-wide">Level9OS</div>
-              <div className="text-white/20 text-[9px] font-mono">AI for Operations</div>
+              <div className="text-white/20 text-[11px] font-mono">AI for Operations</div>
             </div>
           </div>
-          <div className="flex items-center gap-6 text-[10px] font-mono tracking-wider uppercase flex-wrap justify-center">
+          <div className="flex items-center gap-6 text-[12px] font-mono tracking-wider uppercase flex-wrap justify-center">
             <Link href="/" className="text-white/30 hover:text-white/70 transition-colors">
               Home
             </Link>
@@ -483,7 +483,7 @@ export default function ProductsPage() {
               Contact
             </Link>
           </div>
-          <div className="text-white/20 text-[9px] font-mono">
+          <div className="text-white/20 text-[11px] font-mono">
             &copy; 2026 Level9 ·{" "}
             <a
               href="https://erichathaway.com"

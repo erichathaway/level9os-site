@@ -166,7 +166,7 @@ export default function HowWeWorkPage() {
           <FadeIn>
             <div className="inline-flex items-center gap-3 mb-8 px-4 py-2 rounded-full border border-white/[0.08] bg-white/[0.02] backdrop-blur-sm">
               <span className="w-1.5 h-1.5 rounded-full bg-fuchsia-400 animate-pulse" />
-              <span className="text-[10px] font-mono tracking-[0.3em] uppercase text-white/60">
+              <span className="text-[12px] font-mono tracking-[0.3em] uppercase text-white/60">
                 How We Work · 3 Tiers
               </span>
             </div>
@@ -174,12 +174,12 @@ export default function HowWeWorkPage() {
 
           <div className="space-y-2 mb-10">
             <RevealMask>
-              <h1 className="text-[clamp(2.5rem,6vw,5rem)] font-black leading-[0.9] tracking-tight text-white/95">
+              <h1 className="text-[clamp(2.5rem,6vw,5rem)] font-black leading-[1.05] tracking-tight text-white/95">
                 From self-serve
               </h1>
             </RevealMask>
             <RevealMask delay={150}>
-              <h1 className="text-[clamp(2.5rem,6vw,5rem)] font-black leading-[0.9] tracking-tight">
+              <h1 className="text-[clamp(2.5rem,6vw,5rem)] font-black leading-[1.05] tracking-tight">
                 <span className="bg-gradient-to-r from-cyan-400 via-violet-400 to-fuchsia-400 bg-clip-text text-transparent">
                   to full operating system.
                 </span>
@@ -244,7 +244,7 @@ export default function HowWeWorkPage() {
 
                     <div className="mb-8">
                       <div
-                        className="text-[9px] font-mono tracking-[0.3em] mb-4"
+                        className="text-[11px] font-mono tracking-[0.3em] mb-4"
                         style={{ color: `${tier.color}aa` }}
                       >
                         TIER · {tier.label}
@@ -258,7 +258,7 @@ export default function HowWeWorkPage() {
 
                       <div className="flex items-baseline gap-3 mb-6">
                         <span className="text-2xl font-black text-white/90">{tier.price}</span>
-                        <span className="text-[10px] text-white/30 font-mono uppercase tracking-wider">
+                        <span className="text-[12px] text-white/30 font-mono uppercase tracking-wider">
                           {tier.duration}
                         </span>
                       </div>
@@ -283,7 +283,7 @@ export default function HowWeWorkPage() {
 
                     <div className="pt-6 border-t border-white/[0.06] mb-6">
                       <div
-                        className="text-[9px] font-mono tracking-wider uppercase mb-2"
+                        className="text-[11px] font-mono tracking-wider uppercase mb-2"
                         style={{ color: `${tier.color}80` }}
                       >
                         Best For
@@ -325,7 +325,7 @@ export default function HowWeWorkPage() {
         <div className="max-w-6xl mx-auto px-6 sm:px-12">
           <div className="mb-16">
             <RevealMask>
-              <div className="text-violet-400/50 text-[9px] tracking-[0.5em] uppercase font-mono font-semibold mb-4">
+              <div className="text-violet-400/50 text-[11px] tracking-[0.5em] uppercase font-mono font-semibold mb-4">
                 The Methodology
               </div>
             </RevealMask>
@@ -387,7 +387,7 @@ export default function HowWeWorkPage() {
         <div className="max-w-5xl mx-auto px-6 sm:px-12">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-16 items-center">
             <FadeIn direction="left">
-              <div className="text-emerald-400/50 text-[9px] tracking-[0.5em] uppercase font-mono font-semibold mb-6">
+              <div className="text-emerald-400/50 text-[11px] tracking-[0.5em] uppercase font-mono font-semibold mb-6">
                 The Proof
               </div>
               <h2 className="text-3xl sm:text-4xl font-black text-white/90 mb-6 leading-[1.1]">
@@ -421,7 +421,7 @@ export default function HowWeWorkPage() {
                     className="flex items-center justify-between p-4 rounded-xl border border-white/[0.06] bg-white/[0.01] hover:border-white/[0.12] hover:bg-white/[0.03] transition-all"
                   >
                     <div>
-                      <div className="text-white/40 text-[10px] font-mono uppercase tracking-wider">
+                      <div className="text-white/40 text-[12px] font-mono uppercase tracking-wider">
                         {row.label}
                       </div>
                       <div className="text-white/90 text-base font-bold">{row.value}</div>
@@ -432,7 +432,7 @@ export default function HowWeWorkPage() {
                         style={{ background: row.color }}
                       />
                       <span
-                        className="text-[9px] font-mono tracking-wider"
+                        className="text-[11px] font-mono tracking-wider"
                         style={{ color: `${row.color}cc` }}
                       >
                         LIVE
@@ -462,7 +462,7 @@ export default function HowWeWorkPage() {
         </div>
         <div className="max-w-4xl mx-auto px-6 sm:px-12 text-center relative z-10">
           <FadeIn>
-            <h2 className="text-[clamp(2.5rem,5vw,4.5rem)] font-black text-white/95 leading-[0.95] tracking-tight mb-8">
+            <h2 className="text-[clamp(2.5rem,5vw,4.5rem)] font-black text-white/95 leading-[1.05] tracking-tight mb-8">
               Which tier is
               <br />
               <span className="bg-gradient-to-r from-violet-400 via-cyan-400 to-fuchsia-400 bg-clip-text text-transparent">
@@ -497,15 +497,15 @@ export default function HowWeWorkPage() {
       <footer className="py-12 border-t border-white/[0.04]" style={{ background: "var(--bg-root)" }}>
         <div className="max-w-6xl mx-auto px-6 sm:px-12 flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 via-cyan-500 to-fuchsia-500 flex items-center justify-center text-white text-[9px] font-black">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 via-cyan-500 to-fuchsia-500 flex items-center justify-center text-white text-[11px] font-black">
               L9
             </div>
             <div>
               <div className="text-white/50 text-xs font-semibold tracking-wide">Level9OS</div>
-              <div className="text-white/20 text-[9px] font-mono">AI for Operations</div>
+              <div className="text-white/20 text-[11px] font-mono">AI for Operations</div>
             </div>
           </div>
-          <div className="flex items-center gap-6 text-[10px] font-mono tracking-wider uppercase flex-wrap justify-center">
+          <div className="flex items-center gap-6 text-[12px] font-mono tracking-wider uppercase flex-wrap justify-center">
             <Link href="/" className="text-white/30 hover:text-white/70 transition-colors">
               Home
             </Link>
@@ -522,7 +522,7 @@ export default function HowWeWorkPage() {
               Contact
             </Link>
           </div>
-          <div className="text-white/20 text-[9px] font-mono">
+          <div className="text-white/20 text-[11px] font-mono">
             &copy; 2026 Level9 ·{" "}
             <a
               href="https://erichathaway.com"
