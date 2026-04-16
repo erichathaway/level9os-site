@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 
 const pages = [
@@ -56,8 +57,8 @@ export default function FloatingNav() {
           scrolled ? "scale-95" : "scale-100"
         }`}
       >
-        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500 via-cyan-500 to-fuchsia-500 flex items-center justify-center text-white text-[12px] font-black shadow-lg shadow-violet-500/20 group-hover:shadow-violet-500/40 transition-shadow">
-          L9
+        <div className="w-9 h-9 rounded-xl overflow-hidden shadow-lg shadow-violet-500/20 group-hover:shadow-violet-500/40 transition-shadow">
+          <Image src="/logo-9.svg" alt="Level9OS" width={36} height={36} className="w-full h-full" />
         </div>
         <div className="hidden sm:block">
           <div className="text-[11px] tracking-[0.3em] uppercase font-semibold text-white/50 group-hover:text-white/80 transition-colors">
