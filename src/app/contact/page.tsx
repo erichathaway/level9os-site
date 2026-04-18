@@ -2,11 +2,11 @@
 
 import Link from "next/link";
 import FloatingNav from "@/components/FloatingNav";
-import { FadeIn } from "@/components/Shared";
-import CursorGradient from "@/components/motion/CursorGradient";
-import MagneticButton from "@/components/motion/MagneticButton";
-import LiveTicker from "@/components/motion/LiveTicker";
-import RevealMask from "@/components/motion/RevealMask";
+import { FadeIn } from "@level9/brand/components/motion";
+import { CursorGradient } from "@level9/brand/components/motion";
+import { MagneticButton } from "@level9/brand/components/motion";
+import { LiveTicker } from "@level9/brand/components/motion";
+import { RevealMask } from "@level9/brand/components/motion";
 
 export default function ContactPage() {
   return (

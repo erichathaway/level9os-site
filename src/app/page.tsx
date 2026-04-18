@@ -3,15 +3,15 @@
 import Link from "next/link";
 import Image from "next/image";
 import FloatingNav from "@/components/FloatingNav";
-import { FadeIn, Counter, AnimatedBar } from "@/components/Shared";
-import CursorGradient from "@/components/motion/CursorGradient";
-import MagneticButton from "@/components/motion/MagneticButton";
-import LiveTicker from "@/components/motion/LiveTicker";
-import MagneticCard from "@/components/motion/MagneticCard";
-import RevealMask from "@/components/motion/RevealMask";
+import { FadeIn, Counter, AnimatedBar } from "@level9/brand/components/motion";
+import { CursorGradient } from "@level9/brand/components/motion";
+import { MagneticButton } from "@level9/brand/components/motion";
+import { LiveTicker } from "@level9/brand/components/motion";
+import { MagneticCard } from "@level9/brand/components/motion";
+import { RevealMask } from "@level9/brand/components/motion";
 import { dnaStats, problemStats, clientLogos, transformations, twoHalves } from "@/data/stats";
-import { products } from "@/data/products";
-import { pressurePoints, chassis } from "@/data/pressurePoints";
+import { products } from "@level9/brand/content/products";
+import { pressurePoints, chassis } from "@level9/brand/content/pressurePoints";
 import { partners } from "@/data/partners";
 
 export default function Home() {

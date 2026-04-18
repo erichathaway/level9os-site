@@ -1,5 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // @level9/brand ships TypeScript source — Next.js compiles it inline
+  transpilePackages: ["@level9/brand"],
   async headers() {
     return [
       {

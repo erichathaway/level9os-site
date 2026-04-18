@@ -2,12 +2,12 @@
 
 import Link from "next/link";
 import FloatingNav from "@/components/FloatingNav";
-import { FadeIn } from "@/components/Shared";
-import CursorGradient from "@/components/motion/CursorGradient";
-import MagneticButton from "@/components/motion/MagneticButton";
-import LiveTicker from "@/components/motion/LiveTicker";
-import MagneticCard from "@/components/motion/MagneticCard";
-import RevealMask from "@/components/motion/RevealMask";
+import { FadeIn } from "@level9/brand/components/motion";
+import { CursorGradient } from "@level9/brand/components/motion";
+import { MagneticButton } from "@level9/brand/components/motion";
+import { LiveTicker } from "@level9/brand/components/motion";
+import { MagneticCard } from "@level9/brand/components/motion";
+import { RevealMask } from "@level9/brand/components/motion";
 import { partners } from "@/data/partners";
 
 export default function PartnershipsPage() {
