@@ -23,6 +23,7 @@ export interface Product {
   href: string;
   domain?: string;
   external: boolean; // true = links out to product domain, false = internal anchor
+  linkedinUrl?: string; // optional LinkedIn company page
 }
 
 export const products: Product[] = [
@@ -96,6 +97,7 @@ export const products: Product[] = [
     href: "https://linkupos.com",
     domain: "linkupos.com",
     external: true,
+    linkedinUrl: "https://linkedin.com/company/linkupos",
   },
   {
     id: "playbook",
@@ -144,6 +146,7 @@ export const products: Product[] = [
     href: "https://lucidorg.com",
     domain: "lucidorg.com",
     external: true,
+    linkedinUrl: "https://linkedin.com/company/lucidorg",
   },
   {
     id: "max",
