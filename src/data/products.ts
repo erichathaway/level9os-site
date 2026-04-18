@@ -24,6 +24,21 @@ export interface Product {
   domain?: string;
   external: boolean; // true = links out to product domain, false = internal anchor
   linkedinUrl?: string; // optional LinkedIn company page
+  pods?: ProductPod[]; // optional sub-pods for umbrella products (e.g. OutboundOS)
+}
+
+/** A sub-pod under an umbrella product (e.g. LinkupOS / ABM Engine / AutoCS under OutboundOS) */
+export interface ProductPod {
+  id: string;
+  name: string;
+  tag: string;          // short positioning line ("LinkedIn signal pod")
+  desc: string;         // 1-2 sentence pod description
+  status: ProductStatus;
+  color: string;        // accent color (sub-pod can carry its own brand color)
+  href?: string;        // optional external URL
+  domain?: string;
+  linkedinUrl?: string;
+  logo?: string;        // optional /public path to pod logo
 }
 
 export const products: Product[] = [
@@ -75,29 +90,58 @@ export const products: Product[] = [
     external: false,
   },
   {
-    id: "linkupos",
-    name: "LinkupOS",
-    layer: "Execution · Signal / Marketing Pod",
-    tag: "AUTONOMOUS SIGNAL POD",
-    problem: "Your professional brand eats your time and never feels strategic.",
+    id: "outboundos",
+    name: "OutboundOS",
+    layer: "Execution · Outbound + Care Umbrella",
+    tag: "AUTONOMOUS POD UMBRELLA",
+    problem: "Functional teams burn budget on outbound, prospecting, and customer care work that could run itself.",
     answer:
-      "A fully autonomous LinkedIn signal pod. Content, prospecting, follow-up, and analytics, running on five dollars a month. Replaces a content team.",
+      "One umbrella over four autonomous pods: LinkedIn signal, multi-channel outbound, ABM prospecting, and customer care. Voice-calibrated, governance-gated, running on a small monthly footprint instead of a department.",
     status: "LIVE",
     color: "#f59e0b",
     gradient: "from-amber-500 to-orange-600",
-    desc: "The first proof that a single human can replace an entire marketing department with one AI pod. Daily content generation, ICP prospecting, follow-up sequencing, reply monitoring, lifecycle management, weekly analytics, and compliance. All running on autopilot, indistinguishable from human output through a learned voice profile.",
+    desc: "OutboundOS is the umbrella product for the entire execution layer of revenue and care. LinkupOS handles LinkedIn signal. ABM Engine runs multi-channel outbound and prospecting against named accounts. AutoCS handles customer service automation, escalation routing, and retention plays. Every pod shares one voice-profile RAG, one governance trail, and one observability spine.",
     features: [
-      "Autonomous daily and weekly pipelines: no human prompts required",
-      "Voice-profile learning makes generated comments indistinguishable from yours",
-      "Pinecone-backed intelligence library so every signal is grounded in your knowledge",
-      "Five-tier subscription billing with self-serve onboarding",
-      "Daily briefing, auto-post, follow-up engine, reply monitor, lifecycle drip",
-      "Replaces content, prospecting, qualification, and follow-up teams",
+      "LinkupOS · LinkedIn signal pod with daily content + engagement (live at linkupos.com)",
+      "ABM Engine · multi-channel outbound across email, LinkedIn, voice, and warm intro paths",
+      "AutoCS · customer service automation, escalation routing, retention monitoring",
+      "Shared voice-profile RAG (Pinecone + pgvector) across every pod",
+      "Auto-fix + Auto-test agents keep all pods self-healing",
+      "Single governance trail across the entire execution surface (GOV / GOV-TEST)",
     ],
-    href: "https://linkupos.com",
-    domain: "linkupos.com",
-    external: true,
+    href: "/products#outboundos",
+    external: false,
     linkedinUrl: "https://linkedin.com/company/linkupos",
+    pods: [
+      {
+        id: "linkupos",
+        name: "LinkupOS",
+        tag: "LINKEDIN SIGNAL POD",
+        desc: "Daily content generation, ICP prospecting, follow-up sequencing, reply monitoring, lifecycle drip. Voice-calibrated through Pinecone-backed intelligence. The original OutboundOS pod and the LinkedIn arm of the umbrella.",
+        status: "LIVE",
+        color: "#f59e0b",
+        href: "https://linkupos.com",
+        domain: "linkupos.com",
+        linkedinUrl: "https://linkedin.com/company/linkupos",
+        logo: "/logo-linkupos.svg",
+      },
+      {
+        id: "abm-engine",
+        name: "ABM Engine",
+        tag: "MULTI-CHANNEL OUTBOUND POD",
+        desc: "Account-based outbound across email, LinkedIn, voice, and warm intro paths. Company name in, full drop campaign out: enrichment, ICP fit, message variants per persona, sequence orchestration, reply handling.",
+        status: "LIVE",
+        color: "#fb923c",
+      },
+      {
+        id: "autocs",
+        name: "AutoCS",
+        tag: "CUSTOMER CARE + RETENTION POD",
+        desc: "Customer service automation, ticket triage, escalation routing, sentiment monitoring, churn-signal detection, retention plays. Closes the loop after the outbound pods land an account.",
+        status: "IN PRODUCTION",
+        color: "#f97316",
+      },
+    ],
   },
   {
     id: "playbook",

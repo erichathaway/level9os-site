@@ -21,7 +21,7 @@ const secondary = [
 const products: { label: string; href: string; color: string; icon: string; desc: string; image?: string }[] = [
   { label: "StratOS", href: "/products#stratos", color: "#8b5cf6", icon: "S", desc: "AI Decision Rooms" },
   { label: "CommandOS", href: "/products#commandos", color: "#10b981", icon: "C", desc: "Agent Orchestration", image: "/logo-commandos.svg" },
-  { label: "LinkupOS", href: "/products#linkupos", color: "#f59e0b", icon: "U", desc: "Signal Engine", image: "/logo-linkupos.svg" },
+  { label: "OutboundOS", href: "/products#outboundos", color: "#f59e0b", icon: "O", desc: "LinkupOS · ABM · AutoCS", image: "/logo-linkupos.svg" },
   { label: "COO Playbook", href: "/products#playbook", color: "#64748b", icon: "P", desc: "Execution Methodology" },
   { label: "LucidORG", href: "/products#lucidorg", color: "#06b6d4", icon: "O", desc: "Measurement Platform", image: "/logo-lucidorg.svg" },
   { label: "MAX", href: "/products#max", color: "#ec4899", icon: "M", desc: "Coming Soon" },

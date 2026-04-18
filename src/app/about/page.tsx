@@ -197,9 +197,9 @@ export default function AboutPage() {
           <FadeIn delay={0.5}>
             <div className="p-6 rounded-2xl border border-white/[0.06] bg-white/[0.02] text-center">
               <p className="text-white/50 text-sm">
-                Marketing department of 10 →{" "}
-                <span className="text-emerald-400 font-bold">1 manager + LinkupOS pod</span>.
-                Proven first on Level9 itself at{" "}
+                Marketing + outbound + customer care department of 10 →{" "}
+                <span className="text-emerald-400 font-bold">1 manager + OutboundOS umbrella</span>{" "}
+                (LinkupOS, ABM Engine, AutoCS pods). Proven first on Level9 itself at{" "}
                 <span className="text-emerald-400 font-mono">~$5/month</span> operating cost.
               </p>
             </div>

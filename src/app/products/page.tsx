@@ -83,7 +83,8 @@ export default function ProductsPage() {
             <p className="text-white/55 text-lg max-w-2xl mb-8 font-light leading-relaxed">
               <span className="text-white/85">StratOS</span> decides.{" "}
               <span className="text-white/85">CommandOS</span> coordinates.{" "}
-              <span className="text-white/85">LinkupOS</span> executes.{" "}
+              <span className="text-white/85">OutboundOS</span> executes (LinkedIn signal,
+              outbound, customer care).{" "}
               <span className="text-white/85">LucidORG</span> measures. The{" "}
               <span className="text-white/85">COO Playbook</span> tells you how to install it.{" "}
               <span className="text-white/85">MAX</span> is how you talk to it. Everything sits on
@@ -246,6 +247,122 @@ export default function ProductsPage() {
                         ))}
                       </div>
 
+                      {/* Sub-pods (only umbrella products carry these) */}
+                      {p.pods && p.pods.length > 0 && (
+                        <div className="mb-10 pt-8 border-t border-white/[0.06]">
+                          <div className="flex items-baseline justify-between mb-5">
+                            <div
+                              className="text-[11px] font-mono tracking-[0.3em] uppercase"
+                              style={{ color: `${p.color}aa` }}
+                            >
+                              Pods inside the umbrella
+                            </div>
+                            <span className="text-white/30 text-[11px] font-mono">
+                              {p.pods.length} pods
+                            </span>
+                          </div>
+                          <div className="space-y-3">
+                            {p.pods.map((pod) => (
+                              <div
+                                key={pod.id}
+                                className="rounded-xl p-4 border bg-[#060610]/40 transition-colors hover:bg-[#060610]/70"
+                                style={{ borderColor: `${pod.color}25` }}
+                              >
+                                <div className="flex items-start gap-4">
+                                  {/* Logo or letter badge */}
+                                  {pod.logo ? (
+                                    /* eslint-disable-next-line @next/next/no-img-element */
+                                    <img
+                                      src={pod.logo}
+                                      alt={pod.name}
+                                      className="w-10 h-10 rounded-lg flex-shrink-0"
+                                    />
+                                  ) : (
+                                    <div
+                                      className="w-10 h-10 rounded-lg flex items-center justify-center text-sm font-black flex-shrink-0"
+                                      style={{
+                                        background: `${pod.color}15`,
+                                        border: `1px solid ${pod.color}40`,
+                                        color: pod.color,
+                                      }}
+                                    >
+                                      {pod.name.charAt(0)}
+                                    </div>
+                                  )}
+
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-baseline justify-between gap-3 mb-1 flex-wrap">
+                                      <div className="flex items-baseline gap-3">
+                                        <h4
+                                          className="text-base font-bold"
+                                          style={{ color: pod.color }}
+                                        >
+                                          {pod.name}
+                                        </h4>
+                                        <span
+                                          className="text-[10px] font-mono tracking-[0.2em] uppercase"
+                                          style={{ color: `${pod.color}80` }}
+                                        >
+                                          {pod.tag}
+                                        </span>
+                                      </div>
+                                      <div className="flex items-center gap-1.5">
+                                        <div
+                                          className="w-1.5 h-1.5 rounded-full animate-pulse"
+                                          style={{ background: pod.color }}
+                                        />
+                                        <span
+                                          className="text-[10px] font-mono tracking-wider"
+                                          style={{ color: `${pod.color}cc` }}
+                                        >
+                                          {pod.status}
+                                        </span>
+                                      </div>
+                                    </div>
+                                    <p className="text-white/55 text-xs leading-relaxed mb-2">
+                                      {pod.desc}
+                                    </p>
+                                    {(pod.href || pod.linkedinUrl) && (
+                                      <div className="flex items-center gap-3 mt-2 flex-wrap">
+                                        {pod.href && (
+                                          <a
+                                            href={pod.href}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-[11px] font-semibold transition-colors"
+                                            style={{ color: pod.color }}
+                                          >
+                                            Visit {pod.domain || pod.name} →
+                                          </a>
+                                        )}
+                                        {pod.linkedinUrl && (
+                                          <a
+                                            href={pod.linkedinUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="inline-flex items-center gap-1 text-white/40 hover:text-white/70 text-[11px] transition-colors"
+                                            aria-label={`${pod.name} on LinkedIn`}
+                                          >
+                                            <svg
+                                              viewBox="0 0 24 24"
+                                              fill="currentColor"
+                                              className="w-3 h-3"
+                                            >
+                                              <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.063 2.063 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                                            </svg>
+                                            LinkedIn
+                                          </a>
+                                        )}
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
                       <div className="flex flex-wrap items-center gap-4">
                         {p.status === "LIVE" && p.external ? (
                           <a
@@ -262,6 +379,21 @@ export default function ProductsPage() {
                             Visit {p.name}
                             <span className="ml-1">→</span>
                           </a>
+                        ) : p.status === "LIVE" && p.pods ? (
+                          <div
+                            className="inline-flex items-center gap-3 px-7 py-4 rounded-full border text-sm font-semibold"
+                            style={{
+                              borderColor: `${p.color}40`,
+                              background: `${p.color}10`,
+                              color: p.color,
+                            }}
+                          >
+                            <span
+                              className="w-2 h-2 rounded-full animate-pulse"
+                              style={{ background: p.color }}
+                            />
+                            {p.pods.length} pods live · see above
+                          </div>
                         ) : (
                           <div className="inline-flex items-center gap-3 px-7 py-4 rounded-full border border-white/[0.08] bg-white/[0.02] text-white/50 text-sm">
                             <span
@@ -324,54 +456,103 @@ export default function ProductsPage() {
                             }}
                           />
 
-                          {/* Status terminal block */}
+                          {/* Status terminal block — pods view for umbrella products, status rows otherwise */}
                           <div className="relative z-10">
                             <div
                               className="text-[11px] font-mono tracking-[0.2em] uppercase mb-6"
                               style={{ color: `${p.color}aa` }}
                             >
-                              SYSTEM STATUS
+                              {p.pods ? "POD MAP" : "SYSTEM STATUS"}
                             </div>
 
-                            <div className="space-y-3 mb-8">
-                              {[
-                                { k: "LAYER", v: p.layer.split(" · ")[0].toUpperCase() },
-                                {
-                                  k: "STATUS",
-                                  v: p.status,
-                                },
-                                {
-                                  k: "PROVIDER",
-                                  v: "MULTI-MODEL",
-                                },
-                                {
-                                  k: "GOVERNANCE",
-                                  v: "GATED",
-                                },
-                                {
-                                  k: "DEPLOYMENT",
-                                  v: p.external ? "PUBLIC" : "INTERNAL",
-                                },
-                              ].map((row) => (
-                                <div
-                                  key={row.k}
-                                  className="flex items-center justify-between text-xs font-mono py-2 border-b border-white/[0.04]"
-                                >
-                                  <span className="text-white/35 tracking-wider">{row.k}</span>
-                                  <span
-                                    className="font-bold tracking-wider"
-                                    style={{ color: p.color }}
+                            {p.pods ? (
+                              <div className="space-y-3 mb-8">
+                                {p.pods.map((pod) => (
+                                  <div
+                                    key={pod.id}
+                                    className="flex items-center justify-between gap-3 py-3 border-b border-white/[0.04]"
                                   >
-                                    {row.v}
-                                  </span>
-                                </div>
-                              ))}
-                            </div>
+                                    <div className="flex items-center gap-3 min-w-0">
+                                      {pod.logo ? (
+                                        /* eslint-disable-next-line @next/next/no-img-element */
+                                        <img
+                                          src={pod.logo}
+                                          alt={pod.name}
+                                          className="w-7 h-7 rounded-md flex-shrink-0"
+                                        />
+                                      ) : (
+                                        <div
+                                          className="w-7 h-7 rounded-md flex items-center justify-center text-[11px] font-black flex-shrink-0"
+                                          style={{
+                                            background: `${pod.color}15`,
+                                            border: `1px solid ${pod.color}40`,
+                                            color: pod.color,
+                                          }}
+                                        >
+                                          {pod.name.charAt(0)}
+                                        </div>
+                                      )}
+                                      <div className="min-w-0">
+                                        <div
+                                          className="text-sm font-bold tracking-tight"
+                                          style={{ color: pod.color }}
+                                        >
+                                          {pod.name}
+                                        </div>
+                                        <div className="text-white/40 text-[10px] font-mono tracking-wider uppercase truncate">
+                                          {pod.tag}
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                                      <div
+                                        className="w-1.5 h-1.5 rounded-full animate-pulse"
+                                        style={{ background: pod.color }}
+                                      />
+                                      <span
+                                        className="text-[10px] font-mono tracking-wider"
+                                        style={{ color: `${pod.color}cc` }}
+                                      >
+                                        {pod.status}
+                                      </span>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <div className="space-y-3 mb-8">
+                                {[
+                                  { k: "LAYER", v: p.layer.split(" · ")[0].toUpperCase() },
+                                  { k: "STATUS", v: p.status },
+                                  { k: "PROVIDER", v: "MULTI-MODEL" },
+                                  { k: "GOVERNANCE", v: "GATED" },
+                                  {
+                                    k: "DEPLOYMENT",
+                                    v: p.external ? "PUBLIC" : "INTERNAL",
+                                  },
+                                ].map((row) => (
+                                  <div
+                                    key={row.k}
+                                    className="flex items-center justify-between text-xs font-mono py-2 border-b border-white/[0.04]"
+                                  >
+                                    <span className="text-white/35 tracking-wider">{row.k}</span>
+                                    <span
+                                      className="font-bold tracking-wider"
+                                      style={{ color: p.color }}
+                                    >
+                                      {row.v}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
 
                             <div
                               className="text-[8px] font-mono tracking-wider text-white/25 text-center pt-4 border-t border-white/[0.05]"
                             >
-                              · OPERATING SYSTEM ACTIVE ·
+                              {p.pods
+                                ? "· UMBRELLA · ONE GOVERNANCE TRAIL ·"
+                                : "· OPERATING SYSTEM ACTIVE ·"}
                             </div>
                           </div>
                         </div>
@@ -418,7 +599,7 @@ export default function ProductsPage() {
               <span className="text-white/20">→</span>
               <span className="text-emerald-400/80">02 Coordinate · CommandOS</span>
               <span className="text-white/20">→</span>
-              <span className="text-amber-400/80">03 Execute · LinkupOS</span>
+              <span className="text-amber-400/80">03 Execute · OutboundOS</span>
               <span className="text-white/20">→</span>
               <span className="text-cyan-400/80">04 Measure · LucidORG</span>
               <span className="text-white/20">↺</span>

@@ -81,20 +81,20 @@ export const pressurePoints: PressurePoint[] = [
     number: "03",
     verb: "Execute",
     breaks: "Cost",
-    product: "LinkupOS + pods",
-    productId: "linkupos",
+    product: "OutboundOS",
+    productId: "outboundos",
     productStatus: "LIVE",
-    productHref: "https://linkupos.com",
-    category: "Agentic Operations · Autonomous Pods",
+    productHref: "/products#outboundos",
+    category: "Agentic Operations · Autonomous Outbound + Care",
     color: "#f59e0b",
     gradient: "from-amber-500 to-orange-500",
     problem: "Functional teams burn budget on work that could run itself.",
-    answer: "Autonomous execution pods. Content, prospecting, qualification, follow-up, all governed, voice-calibrated, running on five dollars a month.",
+    answer: "Autonomous execution pods under one roof. LinkedIn signal, multi-channel outbound, account-based prospecting, customer care. All governed, voice-calibrated, running on a small monthly footprint.",
     capabilities: [
-      "LinkupOS signal pod · 19 workflows",
-      "ABM Engine · autonomous outbound",
-      "Auto-fix + Auto-test + Auto-CS agents",
-      "Voice-profile RAG (Pinecone + pgvector)",
+      "LinkupOS · LinkedIn signal pod (19 workflows)",
+      "ABM Engine · multi-channel outbound + prospecting",
+      "AutoCS · customer service + retention automation",
+      "Voice-profile RAG across every pod (Pinecone + pgvector)",
     ],
     layers: ["execution", "build"],
     playbookDomains: ["Human + AI Architecture", "Continuous Operating Loop"],
@@ -183,7 +183,7 @@ export function groupProductsByPressurePoint<T extends { id: string }>(
   for (const p of products) {
     if (p.id === "stratos") groups.decide.push(p);
     else if (p.id === "commandos") groups.coordinate.push(p);
-    else if (p.id === "linkupos") groups.execute.push(p);
+    else if (p.id === "outboundos") groups.execute.push(p);
     else if (p.id === "lucidorg" || p.id === "max") groups.measure.push(p);
     else if (p.id === "playbook") groups.manual.push(p);
   }

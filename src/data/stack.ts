@@ -53,12 +53,12 @@ export const stack: StackLayer[] = [
     audience: "The pods · Doing the work",
     color: "#f59e0b",
     problem: "Functional teams burn budget on work that could run itself.",
-    answer: "Autonomous execution pods. One human manager. Zero daily intervention.",
+    answer: "OutboundOS: one umbrella over four autonomous pods. One human manager. Zero daily intervention.",
     capabilities: [
-      "LinkupOS: signal / marketing pod",
-      "ABM Engine: outbound pod",
-      "Auto-CS: customer success monitoring",
-      "Marketing Engine pipelines",
+      "OutboundOS umbrella across the execution layer",
+      "LinkupOS: LinkedIn signal pod",
+      "ABM Engine: multi-channel outbound pod",
+      "AutoCS: customer service + retention pod",
     ],
   },
   {
