@@ -1,152 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  LinkedIn Company Page Banner — NextGen Intern
+  LinkedIn Company Page Banner — NextGen Interns  (V3: no collage, mission-forward)
   ───────────────────────────────────────────────────────────────────────────
-  Spec: 1584 × 396
-  Brand source: live thenextgenintern.com (verified 2026-04-16)
-    Hero:  "Build Something Real Before You Graduate"
-    Sub:   "Learn leadership. Use enterprise tools. Then build a real product
-            you own in a 3-month internship."
-    Tag:   "Non-Profit Leadership Education & Real-World Internships"
-    Tie:   "Powered by The Lucid Way methodology" — bridges to LucidORG
-    Audience: college students, high schoolers, universities, companies
-    Brand name: "NextGen Intern" (two words), not "NextGenIntern"
-
-  Palette (from live site):
-    bg          #030306 (dark navy/charcoal in their words)
-    blue        #3B82F6  (primary CTA accent)
-    indigo      #6366F1  (gradient partner)
-    cyan-bridge #06B6D4  (Level9 family link)
-    headline    Inter Black 900, white/95
+  Spec: 1584 × 264.
+  Per user: drop the collage. Non-profit focused on "preparing the next
+  generation for it all" — not an umbrella with sub-products like Level9OS.
+  Treatment is clean: ambient blue/indigo wash + right-aligned headline that
+  uses the user's exact framing.
+  Headline: "Preparing the next gen." / "For all of it." (two-line)
 -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1584 396" width="1584" height="396">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1584 264" width="1584" height="264">
   <defs>
+    <linearGradient id="ngAccent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#60A5FA"/>
+      <stop offset="50%" stop-color="#A5B4FC"/>
+      <stop offset="100%" stop-color="#34D399"/>
+    </linearGradient>
     <radialGradient id="ngBlueBlob" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#3B82F6" stop-opacity="0.18"/>
+      <stop offset="0%" stop-color="#3B82F6" stop-opacity="0.20"/>
       <stop offset="60%" stop-color="#3B82F6" stop-opacity="0"/>
     </radialGradient>
     <radialGradient id="ngIndigoBlob" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#6366F1" stop-opacity="0.12"/>
+      <stop offset="0%" stop-color="#6366F1" stop-opacity="0.16"/>
       <stop offset="60%" stop-color="#6366F1" stop-opacity="0"/>
     </radialGradient>
-
-    <linearGradient id="ngAccent" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#60A5FA"/>
-      <stop offset="100%" stop-color="#A5B4FC"/>
-    </linearGradient>
-
-    <!-- Obsidian chip with blue/indigo edge (Level9 family system) -->
-    <linearGradient id="ngObsidian" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%"  stop-color="#0B1429"/>
-      <stop offset="100%" stop-color="#040814"/>
-    </linearGradient>
-    <linearGradient id="ngEdge" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%"  stop-color="#3B82F6"/>
-      <stop offset="55%" stop-color="#6366F1"/>
-      <stop offset="100%" stop-color="#06B6D4"/>
-    </linearGradient>
-    <linearGradient id="ngGlassHi" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%"  stop-color="#FFFFFF" stop-opacity="0.14"/>
-      <stop offset="40%" stop-color="#FFFFFF" stop-opacity="0"/>
-    </linearGradient>
-
-    <radialGradient id="ngGridFade" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="white" stop-opacity="1"/>
-      <stop offset="80%" stop-color="white" stop-opacity="0"/>
+    <radialGradient id="ngEmeraldBlob" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#10B981" stop-opacity="0.10"/>
+      <stop offset="60%" stop-color="#10B981" stop-opacity="0"/>
     </radialGradient>
-    <mask id="ngGridMask">
-      <rect width="1584" height="396" fill="url(#ngGridFade)"/>
-    </mask>
     <filter id="ngBlur" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="60"/>
+      <feGaussianBlur stdDeviation="55"/>
     </filter>
-    <radialGradient id="ngDot" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#60A5FA" stop-opacity="1"/>
-      <stop offset="100%" stop-color="#60A5FA" stop-opacity="0"/>
-    </radialGradient>
   </defs>
 
-  <rect width="1584" height="396" fill="#030306"/>
+  <rect width="1584" height="264" fill="#030306"/>
 
+  <!-- Ambient wash — full width, organic gradient feel matching mission tone -->
   <g filter="url(#ngBlur)">
-    <circle cx="1300" cy="160" r="380" fill="url(#ngBlueBlob)"/>
-    <circle cx="240" cy="280" r="320" fill="url(#ngIndigoBlob)"/>
+    <circle cx="350"  cy="80"  r="340" fill="url(#ngBlueBlob)"/>
+    <circle cx="900"  cy="220" r="320" fill="url(#ngIndigoBlob)"/>
+    <circle cx="1300" cy="100" r="280" fill="url(#ngBlueBlob)"/>
+    <circle cx="200"  cy="220" r="260" fill="url(#ngEmeraldBlob)"/>
   </g>
 
-  <g mask="url(#ngGridMask)" opacity="0.04">
-    <g stroke="#3B82F6" stroke-width="1">
-      <line x1="64"   y1="0" x2="64"   y2="396"/>
-      <line x1="128"  y1="0" x2="128"  y2="396"/>
-      <line x1="192"  y1="0" x2="192"  y2="396"/>
-      <line x1="256"  y1="0" x2="256"  y2="396"/>
-      <line x1="320"  y1="0" x2="320"  y2="396"/>
-      <line x1="384"  y1="0" x2="384"  y2="396"/>
-      <line x1="448"  y1="0" x2="448"  y2="396"/>
-      <line x1="512"  y1="0" x2="512"  y2="396"/>
-      <line x1="576"  y1="0" x2="576"  y2="396"/>
-      <line x1="640"  y1="0" x2="640"  y2="396"/>
-      <line x1="704"  y1="0" x2="704"  y2="396"/>
-      <line x1="768"  y1="0" x2="768"  y2="396"/>
-      <line x1="832"  y1="0" x2="832"  y2="396"/>
-      <line x1="896"  y1="0" x2="896"  y2="396"/>
-      <line x1="960"  y1="0" x2="960"  y2="396"/>
-      <line x1="1024" y1="0" x2="1024" y2="396"/>
-      <line x1="1088" y1="0" x2="1088" y2="396"/>
-      <line x1="1152" y1="0" x2="1152" y2="396"/>
-      <line x1="1216" y1="0" x2="1216" y2="396"/>
-      <line x1="1280" y1="0" x2="1280" y2="396"/>
-      <line x1="1344" y1="0" x2="1344" y2="396"/>
-      <line x1="1408" y1="0" x2="1408" y2="396"/>
-      <line x1="1472" y1="0" x2="1472" y2="396"/>
-      <line x1="1536" y1="0" x2="1536" y2="396"/>
-      <line x1="0" y1="64"  x2="1584" y2="64"/>
-      <line x1="0" y1="128" x2="1584" y2="128"/>
-      <line x1="0" y1="192" x2="1584" y2="192"/>
-      <line x1="0" y1="256" x2="1584" y2="256"/>
-      <line x1="0" y1="320" x2="1584" y2="320"/>
-    </g>
-  </g>
-
-  <!-- Eyebrow pill -->
-  <g transform="translate(120, 100)">
-    <rect x="0" y="0" rx="16" ry="16" width="430" height="32" fill="rgba(255,255,255,0.02)" stroke="rgba(59,130,246,0.25)" stroke-width="1"/>
-    <circle cx="18" cy="16" r="5" fill="url(#ngDot)"/>
-    <circle cx="18" cy="16" r="3" fill="#60A5FA"/>
-    <text x="34" y="20" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" font-size="10" letter-spacing="3" fill="rgba(255,255,255,0.6)" font-weight="500">
-      NON-PROFIT LEADERSHIP EDUCATION · 501(C)(3)
-    </text>
-  </g>
-
-  <!-- Headline (verbatim from live thenextgenintern.com hero) -->
-  <text x="120" y="200" font-family="Inter, -apple-system, sans-serif" font-size="52" font-weight="900" letter-spacing="-1.5" fill="rgba(255,255,255,0.95)">
-    Build Something Real
-  </text>
-  <text x="120" y="262" font-family="Inter, -apple-system, sans-serif" font-size="52" font-weight="900" letter-spacing="-1.5" fill="url(#ngAccent)">
-    Before You Graduate.
+  <!-- ═══════════ HERO TEXT: two-line flowing sentence, right-aligned ═══════════ -->
+  <text x="1500" y="120" text-anchor="end" font-family="Inter, -apple-system, sans-serif" font-size="72" font-weight="900" letter-spacing="-2" fill="rgba(255,255,255,0.98)">
+    Preparing the next gen
   </text>
 
-  <!-- Subline (verbatim) -->
-  <text x="120" y="305" font-family="Inter, -apple-system, sans-serif" font-size="16" font-weight="500" fill="rgba(255,255,255,0.6)" letter-spacing="0.1">
-    Learn leadership. Use enterprise tools. Build a real product in 3 months.
+  <text x="1500" y="200" text-anchor="end" font-family="Inter, -apple-system, sans-serif" font-size="56" font-weight="900" letter-spacing="-1.5" fill="url(#ngAccent)">
+    to make real change.
   </text>
-
-  <!-- Footer audience line -->
-  <text x="120" y="345" font-family="Inter, -apple-system, sans-serif" font-size="12" font-weight="400" fill="rgba(255,255,255,0.4)" letter-spacing="0.3">
-    For college and high school students · University and corporate partners welcome
-  </text>
-
-  <!-- ═══════════ RIGHT: Obsidian chip with "N" mark (Level9 family) ═══════════ -->
-  <g transform="translate(1280, 198)">
-    <g transform="scale(0.833) translate(-160, -160)">
-      <rect x="40" y="40" width="240" height="240" rx="56" fill="url(#ngObsidian)" stroke="url(#ngEdge)" stroke-width="1.5"/>
-      <rect x="40" y="40" width="240" height="240" rx="56" fill="url(#ngGlassHi)"/>
-      <text x="160" y="162" text-anchor="middle" dominant-baseline="central"
-            font-family="Inter, system-ui, sans-serif" font-weight="900" font-size="180"
-            fill="#FFFFFF" transform="rotate(-14 160 162)" style="letter-spacing:-0.04em">N</text>
-    </g>
-
-    <text x="0" y="135" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="13" font-weight="800" letter-spacing="3" fill="rgba(255,255,255,0.85)">
-      NEXTGEN INTERN
-    </text>
-  </g>
 </svg>
