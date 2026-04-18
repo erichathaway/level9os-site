@@ -270,25 +270,30 @@ export default function ProductsPage() {
                               >
                                 <div className="flex items-start gap-4">
                                   {/* Logo or letter badge */}
-                                  {pod.logo ? (
-                                    /* eslint-disable-next-line @next/next/no-img-element */
-                                    <img
-                                      src={pod.logo}
-                                      alt={pod.name}
-                                      className="w-10 h-10 rounded-lg flex-shrink-0"
-                                    />
-                                  ) : (
-                                    <div
-                                      className="w-10 h-10 rounded-lg flex items-center justify-center text-sm font-black flex-shrink-0"
-                                      style={{
-                                        background: `${pod.color}15`,
-                                        border: `1px solid ${pod.color}40`,
-                                        color: pod.color,
-                                      }}
-                                    >
-                                      {pod.name.charAt(0)}
-                                    </div>
-                                  )}
+                                  {/* iPhone home-screen style chip — uniform frame around every pod icon */}
+                                  <div
+                                    className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden"
+                                    style={{
+                                      background: `${pod.color}15`,
+                                      border: `1px solid ${pod.color}40`,
+                                    }}
+                                  >
+                                    {pod.logo ? (
+                                      /* eslint-disable-next-line @next/next/no-img-element */
+                                      <img
+                                        src={pod.logo}
+                                        alt={pod.name}
+                                        className="w-full h-full object-contain"
+                                      />
+                                    ) : (
+                                      <span
+                                        className="text-sm font-black"
+                                        style={{ color: pod.color }}
+                                      >
+                                        {pod.name.charAt(0)}
+                                      </span>
+                                    )}
+                                  </div>
 
                                   <div className="flex-1 min-w-0">
                                     <div className="flex items-baseline justify-between gap-3 mb-1 flex-wrap">

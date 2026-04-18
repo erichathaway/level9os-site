@@ -151,7 +151,7 @@ export default function Home() {
               <h2 className="text-4xl sm:text-5xl font-black text-white/90 leading-[1.05] max-w-3xl mx-auto">
                 Everyone&apos;s building the revenue half.
                 <br />
-                <span className="text-white/40">Almost nobody is building ours.</span>
+                <span className="text-white/40">We build the half it all runs on.</span>
               </h2>
             </RevealMask>
           </div>

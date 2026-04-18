@@ -36,8 +36,14 @@ export default function RevealMask({
     return () => obs.disconnect();
   }, []);
 
+  // pb-[0.2em] gives descenders (g, y, p, q, j) room inside the overflow-hidden box.
+  // Without it, large display headings get their descenders clipped by the mask.
   return (
-    <div ref={ref} className={`overflow-hidden ${className}`}>
+    <div
+      ref={ref}
+      className={`overflow-hidden ${className}`}
+      style={{ paddingBottom: "0.2em" }}
+    >
       <div
         style={{
           transform: visible ? "translateY(0)" : "translateY(110%)",

@@ -21,7 +21,7 @@ const secondary = [
 const products: { label: string; href: string; color: string; icon: string; desc: string; image?: string }[] = [
   { label: "StratOS", href: "/products#stratos", color: "#8b5cf6", icon: "S", desc: "AI Decision Rooms" },
   { label: "CommandOS", href: "/products#commandos", color: "#10b981", icon: "C", desc: "Agent Orchestration", image: "/logo-commandos.svg" },
-  { label: "OutboundOS", href: "/products#outboundos", color: "#f59e0b", icon: "O", desc: "LinkupOS · ABM · AutoCS", image: "/logo-linkupos.svg" },
+  { label: "OutboundOS", href: "/products#outboundos", color: "#f59e0b", icon: "O", desc: "LinkupOS · ABM · AutoCS" },
   { label: "COO Playbook", href: "/products#playbook", color: "#64748b", icon: "P", desc: "Execution Methodology" },
   { label: "LucidORG", href: "/products#lucidorg", color: "#06b6d4", icon: "O", desc: "Measurement Platform", image: "/logo-lucidorg.svg" },
   { label: "MAX", href: "/products#max", color: "#ec4899", icon: "M", desc: "Coming Soon" },
@@ -154,22 +154,34 @@ export default function FloatingNav() {
                     onClick={() => setOpen(false)}
                     className="flex items-center gap-4 group cursor-pointer py-2"
                   >
-                    {p.image ? (
-                      <div className="w-11 h-11 rounded-xl overflow-hidden flex-shrink-0 transition-all duration-300 group-hover:scale-110">
-                        <Image src={p.image} alt={p.label} width={44} height={44} className="w-full h-full" />
-                      </div>
-                    ) : (
-                      <div
-                        className="w-11 h-11 rounded-xl flex items-center justify-center text-sm font-black flex-shrink-0 transition-all duration-300 group-hover:scale-110"
-                        style={{
-                          background: `${p.color}12`,
-                          border: `1px solid ${p.color}30`,
-                          color: `${p.color}cc`,
-                        }}
-                      >
-                        {p.icon}
-                      </div>
-                    )}
+                    {/* iPhone home-screen style: every icon sits in an identical
+                        rounded-square chip frame with the product accent color
+                        as a subtle border + background tint. Internal art varies
+                        (logo SVG vs letter mark), the outer frame stays uniform. */}
+                    <div
+                      className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden transition-all duration-300 group-hover:scale-110"
+                      style={{
+                        background: `${p.color}12`,
+                        border: `1px solid ${p.color}30`,
+                      }}
+                    >
+                      {p.image ? (
+                        <Image
+                          src={p.image}
+                          alt={p.label}
+                          width={44}
+                          height={44}
+                          className="w-full h-full object-contain"
+                        />
+                      ) : (
+                        <span
+                          className="text-sm font-black"
+                          style={{ color: `${p.color}cc` }}
+                        >
+                          {p.icon}
+                        </span>
+                      )}
+                    </div>
                     <div>
                       <h4 className="text-base sm:text-lg font-bold text-white/60 group-hover:text-white transition-colors">
                         {p.label}
