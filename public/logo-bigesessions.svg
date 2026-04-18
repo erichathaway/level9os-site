@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Big E Sessions — Square Logo (SVG recreation)
+  ───────────────────────────────────────────────────────────────────────────
+  Spec: 320 × 320, matches the chip-style format used by level9os.svg /
+        linkupos.svg / lucidorg.svg in /marketing-assets/icons/.
+  Source: /erichathaway-site/public/images/bigesessions/icon-512.png
+          (raster). This SVG is a vector recreation that preserves the
+          original composition: "big" white + "E" amber wordmark with a
+          mountain-shaped audio equalizer below. Use the PNG file
+          (bigesessions-512.png) where pixel-perfect fidelity matters.
+  Brand: Eric Hathaway's music project. Audio/blues. Amber + dark.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" role="img" aria-label="Big E Sessions">
+  <defs>
+    <linearGradient id="beObsidian" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"  stop-color="#0E0703"/>
+      <stop offset="100%" stop-color="#040201"/>
+    </linearGradient>
+    <linearGradient id="beAmberEdge" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"  stop-color="#FBBF24"/>
+      <stop offset="100%" stop-color="#F59E0B"/>
+    </linearGradient>
+    <linearGradient id="beGlassHi" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"  stop-color="#FFFFFF" stop-opacity="0.10"/>
+      <stop offset="40%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Frame: chip-style matching Level9 / LinkUpOS / LucidORG family -->
+  <rect x="40" y="40" width="240" height="240" rx="56" fill="url(#beObsidian)" stroke="url(#beAmberEdge)" stroke-width="1.5"/>
+  <rect x="40" y="40" width="240" height="240" rx="56" fill="url(#beGlassHi)"/>
+
+  <!-- ═══════════ WORDMARK: "bigE" ═══════════ -->
+  <!-- "big" lowercase white, "E" larger amber (bigger by ~40%) -->
+  <g font-family="Inter, system-ui, sans-serif" font-weight="900" letter-spacing="-2">
+    <text x="120" y="155" text-anchor="end" font-size="56" fill="#FFFFFF">big</text>
+    <text x="125" y="170" font-size="84" fill="#F59E0B">E</text>
+  </g>
+
+  <!-- ═══════════ EQUALIZER BARS (mountain shape, amber) ═══════════ -->
+  <!-- 13 vertical bars, mountain profile (taller in middle, shorter at edges).
+       Heights echo the PNG silhouette: subtle peaks suggest a song waveform. -->
+  <g fill="#F59E0B">
+    <!-- bar widths 8, gap 4, total 12 per bar -->
+    <!-- Centered group: 13 bars × 12px = 156px wide. Start at x = 160 - 78 = 82 -->
+    <!-- Baseline: y = 240. Heights vary. -->
+    <rect x="82"  y="220" width="8" height="20"  rx="1"/>
+    <rect x="94"  y="208" width="8" height="32"  rx="1"/>
+    <rect x="106" y="196" width="8" height="44"  rx="1"/>
+    <rect x="118" y="180" width="8" height="60"  rx="1"/>
+    <rect x="130" y="164" width="8" height="76"  rx="1"/>
+    <rect x="142" y="152" width="8" height="88"  rx="1"/>
+    <rect x="154" y="146" width="8" height="94"  rx="1"/>
+    <rect x="166" y="152" width="8" height="88"  rx="1"/>
+    <rect x="178" y="164" width="8" height="76"  rx="1"/>
+    <rect x="190" y="180" width="8" height="60"  rx="1"/>
+    <rect x="202" y="196" width="8" height="44"  rx="1"/>
+    <rect x="214" y="208" width="8" height="32"  rx="1"/>
+    <rect x="226" y="220" width="8" height="20"  rx="1"/>
+  </g>
+</svg>
