@@ -70,27 +70,27 @@ export const transformations = [
  */
 export const twoHalves = {
   other: {
-    label: "The Other Half",
-    headline: "AI to make money",
+    label: "What Most Are Building",
+    headline: "AI to replace people for revenue",
     items: [
-      "Sales AI",
-      "Marketing AI",
-      "Content generation",
-      "Lead scoring",
-      "The revenue side",
+      "Replace sales reps to chase more pipeline",
+      "Replace marketers to chase content velocity",
+      "Data consumption + analysis dashboards",
+      "Insight tools that still need a human to act",
+      "More noise. Same operating bottlenecks.",
     ],
-    outcome: "Outcome controlled by the market",
+    outcome: "Aimed at the revenue half. Outcome controlled by the market.",
   },
   ours: {
-    label: "Our Half",
-    headline: "AI to save money and time",
+    label: "What We Build",
+    headline: "AI to govern operational execution",
     items: [
-      "Decision pressure-testing",
-      "Cross-functional execution",
-      "Friction detection",
-      "Self-healing operations",
-      "The side you actually control",
+      "Cut decision cycles from quarters to days",
+      "Cut build cycles from sprints to hours",
+      "Reduce meeting time + close cross-functional cracks",
+      "Governed execution: audit, budget, quality gates",
+      "Augment the workforce. Empower, don't manage.",
     ],
-    outcome: "Outcome controlled by you",
+    outcome: "Aimed at the operational half. Outcome controlled by you.",
   },
 };

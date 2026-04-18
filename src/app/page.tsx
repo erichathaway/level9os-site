@@ -237,9 +237,13 @@ export default function Home() {
           <FadeIn delay={0.4}>
             <div className="text-center">
               <p className="text-white/55 text-lg max-w-2xl mx-auto leading-relaxed">
-                Sales AI helps you sell more, but the market decides if it works. Operations AI
-                helps you spend less and waste less,{" "}
-                <span className="text-white/85">and you decide every input.</span>
+                Most AI is built to replace people for revenue: more content, more leads, more
+                dashboards. The market still decides if any of it works. We build for the side
+                you actually control:{" "}
+                <span className="text-white/85">
+                  faster decision cycles, fewer meetings, fewer cross-functional cracks, governed
+                  execution that augments the workforce instead of managing them.
+                </span>
               </p>
             </div>
           </FadeIn>
