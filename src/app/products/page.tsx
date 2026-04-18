@@ -59,7 +59,7 @@ export default function ProductsPage() {
             <div className="inline-flex items-center gap-3 mb-8 px-4 py-2 rounded-full border border-white/[0.08] bg-white/[0.02] backdrop-blur-sm">
               <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
               <span className="text-[12px] font-mono tracking-[0.3em] uppercase text-white/60">
-                The Operating System · Named Anchors
+                Six Products · Four Pressure Points
               </span>
             </div>
           </FadeIn>
@@ -67,24 +67,35 @@ export default function ProductsPage() {
           <div className="space-y-2 mb-10">
             <RevealMask>
               <h1 className="text-[clamp(2.5rem,6vw,5rem)] font-black leading-[1.05] tracking-tight text-white/95">
-                Six anchors. One stack.
+                One product per pressure point.
               </h1>
             </RevealMask>
             <RevealMask delay={150}>
               <h1 className="text-[clamp(2rem,4.5vw,3.6rem)] font-black leading-[1.05] tracking-tight">
                 <span className="bg-gradient-to-r from-violet-400 via-cyan-400 to-fuchsia-400 bg-clip-text text-transparent">
-                  From the boardroom to the build server.
+                  Plus the install manual and the voice layer.
                 </span>
               </h1>
             </RevealMask>
           </div>
 
           <FadeIn delay={0.4}>
-            <p className="text-white/50 text-lg max-w-2xl mb-12 font-light leading-relaxed">
-              These are the named products. Behind them sits a much wider operating system:
-              auto-fix agents, governance gates, multi-model decisioning, measurement layers. But
-              these six are how anyone new to the stack starts thinking about it.
+            <p className="text-white/55 text-lg max-w-2xl mb-8 font-light leading-relaxed">
+              <span className="text-white/85">StratOS</span> decides.{" "}
+              <span className="text-white/85">CommandOS</span> coordinates.{" "}
+              <span className="text-white/85">LinkupOS</span> executes.{" "}
+              <span className="text-white/85">LucidORG</span> measures. The{" "}
+              <span className="text-white/85">COO Playbook</span> tells you how to install it.{" "}
+              <span className="text-white/85">MAX</span> is how you talk to it. Everything sits on
+              the governance chassis.
             </p>
+            <Link
+              href="/architecture"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-violet-400/80 hover:text-violet-400 transition-colors group mb-12"
+            >
+              See how the products map to the four pressure points and eight operating layers{" "}
+              <span className="transition-transform group-hover:translate-x-1">→</span>
+            </Link>
           </FadeIn>
 
           <FadeIn delay={0.6}>
@@ -386,34 +397,38 @@ export default function ProductsPage() {
           </RevealMask>
           <RevealMask delay={100}>
             <h2 className="text-4xl sm:text-5xl font-black text-white/90 mb-6 leading-[1.05]">
-              Each anchor stands alone.
+              Each product stands alone.
               <br />
               <span className="bg-gradient-to-r from-violet-400 via-cyan-400 to-fuchsia-400 bg-clip-text text-transparent">
-                Together, they&apos;re the loop.
+                Together, they break the cycle.
               </span>
             </h2>
           </RevealMask>
           <FadeIn delay={0.3}>
-            <p className="text-white/45 text-lg max-w-2xl mx-auto mb-12 leading-relaxed">
-              StratOS decides. CommandOS dispatches. LinkupOS runs the signal pod. COO Playbook
-              gives the methodology. LucidORG measures the friction. MAX pulls it all into one
-              conversation. Each one is a real product. The full stack is the unfair advantage.
+            <p className="text-white/55 text-lg max-w-2xl mx-auto mb-12 leading-relaxed">
+              Misalignment becomes drag. Drag becomes cost. Cost forces reactive leadership.
+              Reactive leadership locks in more misalignment. Each product is one intervention
+              site in that loop. The full stack is the unfair advantage.
             </p>
           </FadeIn>
 
           <FadeIn delay={0.5}>
-            <div className="flex flex-wrap justify-center items-center gap-3 text-[12px] font-mono tracking-wider uppercase">
-              <span className="text-violet-400/70">StratOS</span>
+            <div className="flex flex-wrap justify-center items-center gap-3 text-[12px] font-mono tracking-wider uppercase mb-3">
+              <span className="text-violet-400/80">01 Decide · StratOS</span>
               <span className="text-white/20">→</span>
-              <span className="text-emerald-400/70">CommandOS</span>
+              <span className="text-emerald-400/80">02 Coordinate · CommandOS</span>
               <span className="text-white/20">→</span>
-              <span className="text-amber-400/70">LinkupOS</span>
+              <span className="text-amber-400/80">03 Execute · LinkupOS</span>
               <span className="text-white/20">→</span>
-              <span className="text-slate-400/70">Playbook</span>
-              <span className="text-white/20">→</span>
-              <span className="text-cyan-400/70">LucidORG</span>
-              <span className="text-white/20">→</span>
-              <span className="text-fuchsia-400/70">MAX</span>
+              <span className="text-cyan-400/80">04 Measure · LucidORG</span>
+              <span className="text-white/20">↺</span>
+            </div>
+            <div className="flex flex-wrap justify-center items-center gap-3 text-[11px] font-mono tracking-wider uppercase">
+              <span className="text-red-400/70">Vault chassis underneath</span>
+              <span className="text-white/20">·</span>
+              <span className="text-slate-400/70">Playbook installs it</span>
+              <span className="text-white/20">·</span>
+              <span className="text-fuchsia-400/70">MAX talks to it</span>
             </div>
           </FadeIn>
         </div>
@@ -480,6 +495,9 @@ export default function ProductsPage() {
           <div className="flex items-center gap-6 text-[12px] font-mono tracking-wider uppercase flex-wrap justify-center">
             <Link href="/" className="text-white/30 hover:text-white/70 transition-colors">
               Home
+            </Link>
+            <Link href="/architecture" className="text-white/30 hover:text-white/70 transition-colors">
+              Architecture
             </Link>
             <Link href="/how-we-work" className="text-white/30 hover:text-white/70 transition-colors">
               How We Work

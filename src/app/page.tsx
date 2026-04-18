@@ -11,7 +11,7 @@ import MagneticCard from "@/components/motion/MagneticCard";
 import RevealMask from "@/components/motion/RevealMask";
 import { dnaStats, problemStats, clientLogos, transformations, twoHalves } from "@/data/stats";
 import { products } from "@/data/products";
-import { stack } from "@/data/stack";
+import { pressurePoints, chassis } from "@/data/pressurePoints";
 import { partners } from "@/data/partners";
 
 export default function Home() {
@@ -247,112 +247,159 @@ export default function Home() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════════
-          THE STACK — 8 layers of the operating system
+          THE CYCLE — 4 pressure points where strategy breaks
           ═══════════════════════════════════════════════════════════ */}
       <section className="py-32 relative" style={{ background: "var(--bg-root)" }}>
         <div className="max-w-6xl mx-auto px-6 sm:px-12">
           <div className="mb-16">
             <RevealMask>
               <div className="text-violet-400/50 text-[11px] tracking-[0.5em] uppercase font-mono font-semibold mb-4">
-                The Operating System
+                The Alignment Cycle
               </div>
             </RevealMask>
             <RevealMask delay={100}>
               <h2 className="text-4xl sm:text-5xl font-black text-white/90 mb-6 leading-[1.05] max-w-3xl">
-                Eight layers.
+                Four pressure points.
                 <br />
-                <span className="text-white/40">From the boardroom to the build server.</span>
+                <span className="text-white/40">
+                  Where strategy actually breaks on the way to execution.
+                </span>
               </h2>
             </RevealMask>
             <RevealMask delay={200}>
-              <p className="text-white/40 text-lg max-w-2xl">
-                Every layer of how an organization actually runs. Covered by AI we&apos;ve built,
-                governed, and proven on ourselves first.
+              <p className="text-white/55 text-lg max-w-2xl leading-relaxed">
+                Misalignment creates drag. Drag becomes cost. Cost forces reactive leadership.
+                Reactive leadership locks in more misalignment. Every operation runs this loop.
+                We built one product per pressure point to break it.
               </p>
             </RevealMask>
           </div>
 
-          <div className="space-y-3">
-            {stack.map((layer, i) => (
-              <FadeIn key={layer.id} delay={i * 0.06}>
+          {/* Cycle ribbon */}
+          <FadeIn delay={0.25}>
+            <div className="mb-12 flex items-center justify-center flex-wrap gap-3 text-[11px] font-mono tracking-[0.25em] uppercase">
+              <span className="text-red-400/70">Misalignment</span>
+              <span className="text-white/20">→</span>
+              <span className="text-amber-400/70">Drag</span>
+              <span className="text-white/20">→</span>
+              <span className="text-orange-400/70">Cost</span>
+              <span className="text-white/20">→</span>
+              <span className="text-fuchsia-400/70">Reactive leadership</span>
+              <span className="text-white/20">↺</span>
+              <span className="text-white/40">repeat</span>
+            </div>
+          </FadeIn>
+
+          {/* 4 pressure point cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {pressurePoints.map((pp, i) => (
+              <FadeIn key={pp.id} delay={i * 0.08}>
                 <MagneticCard
-                  className="rounded-2xl"
-                  glowColor={`${layer.color}20`}
-                  maxTilt={2}
+                  className="rounded-2xl h-full"
+                  glowColor={`${pp.color}25`}
+                  maxTilt={3}
                 >
                   <div
-                    className="rounded-2xl border bg-[#0a0a14]/40 backdrop-blur-sm overflow-hidden group hover:bg-[#0a0a14]/60 transition-colors"
-                    style={{ borderColor: `${layer.color}15` }}
+                    className="rounded-2xl border bg-[#0a0a14]/40 backdrop-blur-sm overflow-hidden group hover:bg-[#0a0a14]/60 transition-colors h-full"
+                    style={{ borderColor: `${pp.color}20` }}
                   >
                     {/* Top accent line */}
                     <div
                       className="h-[2px]"
                       style={{
-                        background: `linear-gradient(90deg, ${layer.color}, ${layer.color}30, transparent)`,
+                        background: `linear-gradient(90deg, ${pp.color}, ${pp.color}30, transparent)`,
                       }}
                     />
 
-                    <div className="grid grid-cols-1 md:grid-cols-12 gap-6 p-6 md:p-8 items-start">
-                      {/* Number + Title */}
-                      <div className="md:col-span-3">
-                        <div
-                          className="text-[11px] font-mono tracking-[0.3em] mb-2"
-                          style={{ color: `${layer.color}aa` }}
-                        >
-                          LAYER {layer.number}
+                    <div className="p-7 md:p-8">
+                      {/* Header row: number + breaks badge */}
+                      <div className="flex items-start justify-between mb-5">
+                        <div>
+                          <div
+                            className="text-[11px] font-mono tracking-[0.3em] mb-1.5"
+                            style={{ color: `${pp.color}aa` }}
+                          >
+                            PRESSURE POINT {pp.number}
+                          </div>
+                          <h3
+                            className="text-3xl sm:text-4xl font-black tracking-tight"
+                            style={{ color: pp.color }}
+                          >
+                            {pp.verb}
+                          </h3>
                         </div>
-                        <h3
-                          className="text-2xl sm:text-3xl font-black tracking-tight mb-2"
-                          style={{ color: layer.color }}
+                        <div
+                          className="px-3 py-1.5 rounded-full border text-[10px] font-mono tracking-wider uppercase"
+                          style={{
+                            borderColor: `${pp.color}30`,
+                            background: `${pp.color}10`,
+                            color: `${pp.color}cc`,
+                          }}
                         >
-                          {layer.title}
-                        </h3>
-                        <div className="text-white/30 text-[12px] uppercase tracking-wider font-mono">
-                          {layer.audience}
+                          Breaks {pp.breaks}
                         </div>
                       </div>
 
-                      {/* Problem + Answer */}
-                      <div className="md:col-span-5">
-                        <div className="mb-4">
-                          <div className="text-white/25 text-[11px] uppercase tracking-wider font-mono mb-1.5">
-                            Problem
-                          </div>
-                          <p className="text-white/55 text-sm leading-relaxed">
-                            {layer.problem}
-                          </p>
+                      {/* Problem */}
+                      <div className="mb-4">
+                        <div className="text-white/30 text-[11px] uppercase tracking-wider font-mono mb-1.5">
+                          Problem
                         </div>
-                        <div>
-                          <div
-                            className="text-[11px] uppercase tracking-wider font-mono mb-1.5"
-                            style={{ color: `${layer.color}80` }}
-                          >
-                            Answer
-                          </div>
-                          <p className="text-white/85 text-sm leading-relaxed font-medium">
-                            {layer.answer}
-                          </p>
+                        <p className="text-white/65 text-sm leading-relaxed">{pp.problem}</p>
+                      </div>
+
+                      {/* Answer */}
+                      <div className="mb-6 pl-3 border-l-2" style={{ borderColor: pp.color }}>
+                        <div
+                          className="text-[11px] uppercase tracking-wider font-mono mb-1.5"
+                          style={{ color: `${pp.color}aa` }}
+                        >
+                          Answer
                         </div>
+                        <p className="text-white/90 text-sm leading-relaxed font-medium">
+                          {pp.answer}
+                        </p>
                       </div>
 
                       {/* Capabilities */}
-                      <div className="md:col-span-4">
-                        <div className="text-white/25 text-[11px] uppercase tracking-wider font-mono mb-3">
-                          Capabilities
-                        </div>
-                        <div className="space-y-2">
-                          {layer.capabilities.map((cap) => (
+                      <div className="space-y-1.5 mb-6">
+                        {pp.capabilities.map((cap) => (
+                          <div
+                            key={cap}
+                            className="flex items-start gap-2 text-white/60 text-xs"
+                          >
                             <div
-                              key={cap}
-                              className="flex items-center gap-2 text-white/60 text-xs"
-                            >
-                              <div
-                                className="w-1 h-1 rounded-full flex-shrink-0"
-                                style={{ background: layer.color }}
-                              />
-                              <span>{cap}</span>
-                            </div>
-                          ))}
+                              className="w-1 h-1 rounded-full flex-shrink-0 mt-1.5"
+                              style={{ background: pp.color }}
+                            />
+                            <span>{cap}</span>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Product anchor */}
+                      <div
+                        className="flex items-center justify-between pt-5 border-t"
+                        style={{ borderColor: `${pp.color}15` }}
+                      >
+                        <div>
+                          <div className="text-white/25 text-[10px] uppercase tracking-wider font-mono mb-0.5">
+                            Built as
+                          </div>
+                          <div className="text-white/85 text-base font-bold">{pp.product}</div>
+                          <div className="text-white/40 text-[11px] mt-0.5">{pp.category}</div>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <div
+                            className="w-1.5 h-1.5 rounded-full animate-pulse"
+                            style={{ background: pp.color }}
+                          />
+                          <span
+                            className="text-[10px] font-mono tracking-wider"
+                            style={{ color: `${pp.color}cc` }}
+                          >
+                            {pp.productStatus}
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -362,13 +409,76 @@ export default function Home() {
             ))}
           </div>
 
-          <FadeIn delay={0.4}>
+          {/* Governance chassis — runs underneath all four */}
+          <FadeIn delay={0.45}>
+            <div className="mt-5">
+              <MagneticCard
+                className="rounded-2xl"
+                glowColor={`${chassis.color}20`}
+                maxTilt={2}
+              >
+                <div
+                  className="rounded-2xl border bg-[#0a0a14]/40 backdrop-blur-sm overflow-hidden"
+                  style={{ borderColor: `${chassis.color}25` }}
+                >
+                  <div
+                    className="h-[2px]"
+                    style={{
+                      background: `linear-gradient(90deg, ${chassis.color}, ${chassis.color}30, transparent)`,
+                    }}
+                  />
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-6 p-7 md:p-8 items-center">
+                    <div className="md:col-span-4">
+                      <div
+                        className="text-[11px] font-mono tracking-[0.3em] mb-2"
+                        style={{ color: `${chassis.color}aa` }}
+                      >
+                        {chassis.tag}
+                      </div>
+                      <h3
+                        className="text-2xl sm:text-3xl font-black tracking-tight mb-1"
+                        style={{ color: chassis.color }}
+                      >
+                        {chassis.name}
+                      </h3>
+                      <div className="text-white/35 text-[11px] uppercase tracking-wider font-mono">
+                        Runs under all four
+                      </div>
+                    </div>
+                    <div className="md:col-span-5">
+                      <p className="text-white/70 text-sm leading-relaxed">
+                        {chassis.description}
+                      </p>
+                    </div>
+                    <div className="md:col-span-3">
+                      <div className="space-y-1.5">
+                        {chassis.capabilities.map((cap) => (
+                          <div
+                            key={cap}
+                            className="flex items-start gap-2 text-white/55 text-xs"
+                          >
+                            <div
+                              className="w-1 h-1 rounded-full flex-shrink-0 mt-1.5"
+                              style={{ background: chassis.color }}
+                            />
+                            <span>{cap}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </MagneticCard>
+            </div>
+          </FadeIn>
+
+          <FadeIn delay={0.55}>
             <div className="mt-12 text-center">
               <Link
-                href="/products"
+                href="/architecture"
                 className="inline-flex items-center gap-2 text-sm font-semibold text-violet-400/80 hover:text-violet-400 transition-colors group"
               >
-                Deep dive on the named products{" "}
+                See the full architecture: 4 pressure points → 8 operating layers → 8 playbook domains{" "}
                 <span className="transition-transform group-hover:translate-x-1">→</span>
               </Link>
             </div>
@@ -500,20 +610,23 @@ export default function Home() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════════
-          NAMED PRODUCTS — The 6 anchors
+          TWO MORE PIECES — Install manual + voice layer
+          (the cycle handles the four pressure points; these wrap it)
           ═══════════════════════════════════════════════════════════ */}
       <section className="py-32 relative" style={{ background: "#060610" }}>
         <div className="max-w-6xl mx-auto px-6 sm:px-12">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-16 gap-6">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-12 gap-6">
             <div>
               <RevealMask>
                 <div className="text-violet-400/50 text-[11px] tracking-[0.5em] uppercase font-mono font-semibold mb-4">
-                  The Named Products
+                  Wrapping The Cycle
                 </div>
               </RevealMask>
               <RevealMask delay={100}>
-                <h2 className="text-4xl sm:text-5xl font-black text-white/90 leading-[1.05]">
-                  The anchors of the stack.
+                <h2 className="text-4xl sm:text-5xl font-black text-white/90 leading-[1.05] max-w-2xl">
+                  How you install it.
+                  <br />
+                  <span className="text-white/40">How you talk to it.</span>
                 </h2>
               </RevealMask>
             </div>
@@ -522,96 +635,101 @@ export default function Home() {
                 href="/products"
                 className="group text-sm font-semibold text-violet-400/80 hover:text-violet-400 transition-colors inline-flex items-center gap-2"
               >
-                Full deep dive{" "}
+                All six products in detail{" "}
                 <span className="transition-transform group-hover:translate-x-1">→</span>
               </Link>
             </FadeIn>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {products.map((p, i) => (
-              <FadeIn key={p.id} delay={i * 0.08}>
-                <Link href={`/products#${p.id}`} className="block h-full">
-                  <MagneticCard
-                    className="rounded-2xl h-full"
-                    glowColor={`${p.color}20`}
-                    maxTilt={5}
-                  >
-                    <div
-                      className="rounded-2xl p-6 h-full border bg-[#0a0a14]/60 backdrop-blur-sm group relative overflow-hidden"
-                      style={{ borderColor: `${p.color}15` }}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            {products
+              .filter((p) => p.id === "playbook" || p.id === "max")
+              .map((p, i) => (
+                <FadeIn key={p.id} delay={i * 0.1}>
+                  <Link href={p.external ? p.href : `/products#${p.id}`} className="block h-full"
+                    {...(p.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}>
+                    <MagneticCard
+                      className="rounded-2xl h-full"
+                      glowColor={`${p.color}25`}
+                      maxTilt={4}
                     >
                       <div
-                        className="absolute top-0 left-0 right-0 h-[2px] opacity-60"
-                        style={{ background: `linear-gradient(90deg, ${p.color}, ${p.color}20)` }}
-                      />
-
-                      <div className="flex items-start justify-between mb-6">
+                        className="rounded-2xl p-7 h-full border bg-[#0a0a14]/60 backdrop-blur-sm group relative overflow-hidden"
+                        style={{ borderColor: `${p.color}20` }}
+                      >
                         <div
-                          className="w-12 h-12 rounded-xl flex items-center justify-center text-lg font-black transition-transform group-hover:scale-110"
-                          style={{
-                            background: `${p.color}15`,
-                            border: `1px solid ${p.color}30`,
-                            color: p.color,
-                          }}
-                        >
-                          {p.name.charAt(0)}
+                          className="absolute top-0 left-0 right-0 h-[2px]"
+                          style={{ background: `linear-gradient(90deg, ${p.color}, ${p.color}30, transparent)` }}
+                        />
+
+                        <div className="flex items-start justify-between mb-5">
+                          <div>
+                            <div
+                              className="text-[11px] font-mono tracking-[0.3em] mb-2"
+                              style={{ color: `${p.color}aa` }}
+                            >
+                              {p.id === "playbook" ? "INSTALL MANUAL" : "VOICE LAYER"}
+                            </div>
+                            <h3
+                              className="text-3xl font-black tracking-tight"
+                              style={{ color: p.color }}
+                            >
+                              {p.name}
+                            </h3>
+                            <div className="text-white/40 text-[11px] mt-1.5 font-mono uppercase tracking-wider">
+                              {p.layer}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <div
+                              className="w-1.5 h-1.5 rounded-full animate-pulse"
+                              style={{ background: p.color }}
+                            />
+                            <span
+                              className="text-[10px] font-mono tracking-wider"
+                              style={{ color: `${p.color}cc` }}
+                            >
+                              {p.status}
+                            </span>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-1.5">
+
+                        <div className="mb-4">
+                          <div className="text-white/30 text-[11px] uppercase tracking-wider font-mono mb-1.5">
+                            Problem
+                          </div>
+                          <p className="text-white/60 text-sm leading-relaxed">{p.problem}</p>
+                        </div>
+                        <div className="mb-6 pl-3 border-l-2" style={{ borderColor: p.color }}>
                           <div
-                            className="w-1.5 h-1.5 rounded-full animate-pulse"
-                            style={{ background: p.color }}
-                          />
-                          <span
-                            className="text-[8px] font-mono tracking-wider"
-                            style={{ color: `${p.color}90` }}
+                            className="text-[11px] uppercase tracking-wider font-mono mb-1.5"
+                            style={{ color: `${p.color}aa` }}
                           >
-                            {p.status}
+                            Role in the cycle
+                          </div>
+                          <p className="text-white/85 text-sm leading-relaxed font-medium">
+                            {p.id === "playbook"
+                              ? "The 30 / 90 / 180 install protocol that turns the four pressure points into a phased rollout plan. Built from three decades of operational pattern recognition."
+                              : "The conversational layer that sits across all four pressure points. Ask any question about your operation in plain English and get a metric-grounded answer."}
+                          </p>
+                        </div>
+
+                        <div
+                          className="flex items-center justify-end pt-4 border-t"
+                          style={{ borderColor: `${p.color}15` }}
+                        >
+                          <span
+                            className="text-xs font-semibold transition-all group-hover:translate-x-1"
+                            style={{ color: p.color }}
+                          >
+                            {p.external ? `Visit ${p.domain} →` : "Explore →"}
                           </span>
                         </div>
                       </div>
-
-                      <h3 className="text-xl font-black text-white/90 mb-1.5 group-hover:text-white transition-colors">
-                        {p.name}
-                      </h3>
-                      <div
-                        className="text-[11px] font-mono tracking-wider mb-5"
-                        style={{ color: `${p.color}80` }}
-                      >
-                        {p.layer}
-                      </div>
-
-                      <div className="mb-3">
-                        <div className="text-white/25 text-[11px] uppercase tracking-wider font-mono mb-1.5">
-                          Problem
-                        </div>
-                        <p className="text-white/45 text-xs leading-relaxed">{p.problem}</p>
-                      </div>
-                      <div className="mb-6">
-                        <div
-                          className="text-[11px] uppercase tracking-wider font-mono mb-1.5"
-                          style={{ color: `${p.color}90` }}
-                        >
-                          Answer
-                        </div>
-                        <p className="text-white/75 text-xs leading-relaxed font-medium">
-                          {p.answer}
-                        </p>
-                      </div>
-
-                      <div className="flex items-center justify-end pt-4 border-t border-white/[0.06]">
-                        <span
-                          className="text-xs font-semibold transition-all group-hover:translate-x-1"
-                          style={{ color: p.color }}
-                        >
-                          Explore →
-                        </span>
-                      </div>
-                    </div>
-                  </MagneticCard>
-                </Link>
-              </FadeIn>
-            ))}
+                    </MagneticCard>
+                  </Link>
+                </FadeIn>
+              ))}
           </div>
         </div>
       </section>
@@ -810,11 +928,11 @@ export default function Home() {
                 How We Work With You
               </MagneticButton>
               <MagneticButton
-                href="/products"
+                href="/architecture"
                 className="inline-flex items-center gap-3 px-8 py-5 rounded-full border border-white/[0.12] text-white/60 hover:text-white/90 hover:border-white/[0.25] text-sm font-semibold transition-colors"
                 strength={0.2}
               >
-                See the Stack →
+                See the Architecture →
               </MagneticButton>
             </div>
           </FadeIn>
@@ -837,6 +955,9 @@ export default function Home() {
               </div>
             </div>
             <div className="flex items-center gap-6 text-[12px] font-mono tracking-wider uppercase flex-wrap justify-center">
+              <Link href="/architecture" className="text-white/30 hover:text-white/70 transition-colors">
+                Architecture
+              </Link>
               <Link href="/products" className="text-white/30 hover:text-white/70 transition-colors">
                 Products
               </Link>
