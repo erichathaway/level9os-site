@@ -39,7 +39,7 @@ const layerById = (id: string) => stack.find((l) => l.id === id);
 
 export default function ArchitecturePage() {
   return (
-    <main className="min-h-screen relative">
+    <main className="min-h-dvh relative">
       <FloatingNav />
       <CursorGradient color="rgba(139,92,246,0.08)" />
       <LiveTicker />

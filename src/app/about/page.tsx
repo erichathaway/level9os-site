@@ -11,7 +11,7 @@ import { RevealMask } from "@level9/brand/components/motion";
 
 export default function AboutPage() {
   return (
-    <main className="min-h-screen relative">
+    <main className="min-h-dvh relative">
       <FloatingNav />
       <CursorGradient color="rgba(16,185,129,0.08)" />
       <LiveTicker />

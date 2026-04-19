@@ -17,7 +17,7 @@ import ConsoleGraphic from "@/components/architecture/ConsoleGraphic";
 
 export default function Home() {
   return (
-    <main className="min-h-screen relative">
+    <main className="min-h-dvh relative">
       <FloatingNav />
       <CursorGradient />
       <LiveTicker />
@@ -26,7 +26,7 @@ export default function Home() {
           HERO — The Two Halves thesis
           ═══════════════════════════════════════════════════════════ */}
       <section
-        className="min-h-screen relative overflow-hidden flex items-center"
+        className="min-h-dvh relative overflow-hidden flex items-center"
         style={{ background: "var(--bg-root)" }}
       >
         {/* Ambient gradient mesh */}

@@ -15,7 +15,7 @@ export default function ProductsPage() {
   const [active, setActive] = useState(0);
 
   return (
-    <main className="min-h-screen relative">
+    <main className="min-h-dvh relative">
       <FloatingNav />
       <CursorGradient color="rgba(6,182,212,0.08)" />
       <LiveTicker />

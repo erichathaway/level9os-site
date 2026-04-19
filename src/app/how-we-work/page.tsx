@@ -217,7 +217,7 @@ const tagColors: Record<Release["tag"], string> = {
 
 export default function HowWeWorkPage() {
   return (
-    <main className="min-h-screen relative">
+    <main className="min-h-dvh relative">
       <FloatingNav />
       <CursorGradient color="rgba(236,72,153,0.08)" />
       <LiveTicker />

@@ -10,7 +10,7 @@ import { RevealMask } from "@level9/brand/components/motion";
 
 export default function ContactPage() {
   return (
-    <main className="min-h-screen relative flex flex-col">
+    <main className="min-h-dvh relative flex flex-col">
       <FloatingNav />
       <CursorGradient color="rgba(139,92,246,0.08)" />
       <LiveTicker />
