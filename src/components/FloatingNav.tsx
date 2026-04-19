@@ -18,13 +18,21 @@ const secondary = [
   { label: "Contact", href: "/contact" },
 ];
 
+/**
+ * Product roster. All chip icons resolve to the canonical logo database
+ * at /brand/logos/<brand>/chip.svg (synced on npm install via the
+ * sync-brand-logos postinstall hook, sourced from @level9/brand).
+ *
+ * MAX has no brand mark yet. It is a letter-mark fallback until the
+ * brand-agent designs the final chip. Flagged in BRAND-AGENT-HANDOFF.md.
+ */
 const products: { label: string; href: string; color: string; icon: string; desc: string; image?: string }[] = [
-  { label: "StratOS", href: "/products#stratos", color: "#8b5cf6", icon: "S", desc: "AI Decision Rooms" },
-  { label: "CommandOS", href: "/products#commandos", color: "#10b981", icon: "C", desc: "Agent Orchestration", image: "/logo-commandos.svg" },
-  { label: "OutboundOS", href: "/products#outboundos", color: "#f59e0b", icon: "O", desc: "LinkupOS · ABM · AutoCS" },
-  { label: "COO Playbook", href: "/products#playbook", color: "#64748b", icon: "P", desc: "Execution Methodology" },
-  { label: "LucidORG", href: "/products#lucidorg", color: "#06b6d4", icon: "O", desc: "Measurement Platform", image: "/logo-lucidorg.svg" },
-  { label: "MAX", href: "/products#max", color: "#ec4899", icon: "M", desc: "Coming Soon" },
+  { label: "StratOS",      href: "/products#stratos",    color: "#8b5cf6", icon: "S", desc: "AI Decision Rooms",        image: "/brand/logos/stratos/chip.svg" },
+  { label: "CommandOS",    href: "/products#commandos",  color: "#10b981", icon: "C", desc: "Agent Orchestration",      image: "/brand/logos/commandos/chip.svg" },
+  { label: "OutboundOS",   href: "/products#outboundos", color: "#f59e0b", icon: "O", desc: "LinkupOS · ABM · AutoCS",  image: "/brand/logos/outboundos/chip.svg" },
+  { label: "COO Playbook", href: "/products#playbook",   color: "#64748b", icon: "P", desc: "Execution Methodology",    image: "/brand/logos/coo-playbook/chip.svg" },
+  { label: "LucidORG",     href: "/products#lucidorg",   color: "#06b6d4", icon: "O", desc: "Measurement Platform",     image: "/brand/logos/lucidorg/chip.svg" },
+  { label: "MAX",          href: "/products#max",        color: "#ec4899", icon: "M", desc: "Coming Soon" },
 ];
 
 const external = [
@@ -59,7 +67,7 @@ export default function FloatingNav() {
         }`}
       >
         <div className="w-9 h-9 rounded-xl overflow-hidden shadow-lg shadow-violet-500/20 group-hover:shadow-violet-500/40 transition-shadow">
-          <Image src="/logo-9.svg" alt="Level9OS" width={36} height={36} className="w-full h-full" />
+          <Image src="/brand/logos/level9/chip.svg" alt="Level9OS" width={36} height={36} className="w-full h-full" />
         </div>
         <div className="hidden sm:block">
           <div className="text-[11px] tracking-[0.3em] uppercase font-semibold text-white/50 group-hover:text-white/80 transition-colors">

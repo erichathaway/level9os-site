@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "sync-brand-logos": "node node_modules/@level9/brand/scripts/sync-logos.mjs ./public/brand/logos",
+    "postinstall": "npm run sync-brand-logos"
   },
   "dependencies": {
     "@level9/brand": "github:erichathaway/level9-brand#main",

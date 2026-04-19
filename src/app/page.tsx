@@ -1038,7 +1038,7 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-lg overflow-hidden">
-                <img src="/logo-9.svg" alt="Level9OS" className="w-full h-full" />
+                <img src="/brand/logos/level9/chip.svg" alt="Level9OS" className="w-full h-full" />
               </div>
               <div>
                 <div className="text-white/50 text-xs font-semibold tracking-wide">Level9OS</div>

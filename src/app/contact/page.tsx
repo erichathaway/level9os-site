@@ -144,7 +144,7 @@ export default function ContactPage() {
         <div className="max-w-6xl mx-auto px-6 sm:px-12 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="w-7 h-7 rounded-lg overflow-hidden">
-              <img src="/logo-9.svg" alt="Level9OS" className="w-full h-full" />
+              <img src="/brand/logos/level9/chip.svg" alt="Level9OS" className="w-full h-full" />
             </div>
             <div className="text-white/30 text-[12px] font-mono">
               &copy; 2026 Level9OS ·{" "}
