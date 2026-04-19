@@ -66,8 +66,8 @@ export default function FloatingNav() {
           scrolled ? "scale-95" : "scale-100"
         }`}
       >
-        <div className="w-9 h-9 rounded-xl overflow-hidden shadow-lg shadow-violet-500/20 group-hover:shadow-violet-500/40 transition-shadow">
-          <Image src="/brand/logos/level9/chip.svg" alt="Level9OS" width={36} height={36} className="w-full h-full" />
+        <div className="w-11 h-11 rounded-xl overflow-hidden shadow-lg shadow-violet-500/20 group-hover:shadow-violet-500/40 transition-shadow">
+          <Image src="/brand/logos/level9/chip.svg" alt="Level9OS" width={44} height={44} className="w-full h-full" />
         </div>
         <div className="hidden sm:block">
           <div className="text-[11px] tracking-[0.3em] uppercase font-semibold text-white/50 group-hover:text-white/80 transition-colors">

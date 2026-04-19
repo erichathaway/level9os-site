@@ -17,16 +17,23 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "Level9OS · AI for Operations",
+  title: "Level9OS · We build the half it all runs on",
   description:
-    "We build AI for operations, from planning through execution. Six production products, 138 workflows, 48 domain officers. Operations is not cool. We made it cool.",
+    "AI for operations. Six production products, 138 workflows, 48 domain officers. We build the half it all runs on — the operational layer that determines whether strategy survives contact with reality.",
+  metadataBase: new URL("https://level9os.com"),
   openGraph: {
-    title: "Level9OS · AI for Operations",
+    title: "Level9OS · We build the half it all runs on",
     description:
-      "AI-powered operations. Planning through execution, governance, and measurement. Built, not advised.",
+      "AI for operations. Planning through execution, governance, and measurement. Built, not advised.",
     url: "https://level9os.com",
     siteName: "Level9OS",
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Level9OS · We build the half it all runs on",
+    description:
+      "AI for operations. Six production products. Built, not advised.",
   },
 };
 
