@@ -119,6 +119,13 @@ export default function ConsoleGraphic() {
   const rafRef = useRef(0);
   const [hoveredDomain, setHoveredDomain] = useState<number | null>(null);
   const [hoveredProduct, setHoveredProduct] = useState<string | null>(null);
+  // Refs mirror the hover state so the render loop can read them WITHOUT the
+  // useEffect having to re-run on every hover change (which would reset the
+  // start timestamp and replay the opening dust phase on every rollover).
+  const hoveredDomainRef = useRef<number | null>(null);
+  const hoveredProductRef = useRef<string | null>(null);
+  useEffect(() => { hoveredDomainRef.current = hoveredDomain; }, [hoveredDomain]);
+  useEffect(() => { hoveredProductRef.current = hoveredProduct; }, [hoveredProduct]);
   const mouseRef = useRef({ x: -9999, y: -9999 });
   const domainHitRef = useRef<{ n: number; x: number; y: number; r: number }[]>([]);
   const productHitRef = useRef<{ id: string; x: number; y: number; r: number }[]>([]);
@@ -333,14 +340,14 @@ export default function ConsoleGraphic() {
           const labelR = R_OUTER * 1.11;
           const [lx, ly] = projectFloor(Math.cos(aMid) * labelR, Math.sin(aMid) * labelR, TILT, cx, cy, FOCAL);
           ctx.save();
-          ctx.font = `600 9px "JetBrains Mono", monospace`;
+          ctx.font = `700 10.5px "JetBrains Mono", monospace`;
           ctx.textAlign = "center"; ctx.textBaseline = "middle";
-          ctx.fillStyle = `rgba(255,255,255, ${0.78 * govAppear})`;
+          ctx.fillStyle = `rgba(255,255,255, ${0.9 * govAppear})`;
           ctx.shadowBlur = 0;
-          ctx.fillText(cat.name.toUpperCase(), lx, ly - 5);
-          ctx.font = `500 8px "JetBrains Mono", monospace`;
-          ctx.fillStyle = `rgba(245,158,11, ${0.6 * govAppear})`;
-          ctx.fillText(`${cat.count} officers`, lx, ly + 6);
+          ctx.fillText(cat.name.toUpperCase(), lx, ly - 6);
+          ctx.font = `500 9.5px "JetBrains Mono", monospace`;
+          ctx.fillStyle = `rgba(245,158,11, ${0.75 * govAppear})`;
+          ctx.fillText(`${cat.count} officers`, lx, ly + 8);
           ctx.restore();
         }
 
@@ -387,9 +394,11 @@ export default function ConsoleGraphic() {
         for (const b of BUCKETS) {
           const ang = BUCKET_ANGLE[b.id];
           const aMid = ang.mid;
-          const isRelated = hoveredDomain !== null && PRODUCTS.some((p) => p.domains.includes(hoveredDomain) && p.bucket === b.id);
-          const isRelatedProd = hoveredProduct !== null && PRODUCTS.find((p) => p.id === hoveredProduct)?.bucket === b.id;
-          const dimmed = (hoveredDomain !== null && !isRelated) || (hoveredProduct !== null && !isRelatedProd);
+          const hd = hoveredDomainRef.current;
+          const hp = hoveredProductRef.current;
+          const isRelated = hd !== null && PRODUCTS.some((p) => p.domains.includes(hd) && p.bucket === b.id);
+          const isRelatedProd = hp !== null && PRODUCTS.find((p) => p.id === hp)?.bucket === b.id;
+          const dimmed = (hd !== null && !isRelated) || (hp !== null && !isRelatedProd);
           const emphasis = isRelated || isRelatedProd;
 
           const segs = 32;
@@ -504,9 +513,11 @@ export default function ConsoleGraphic() {
           const [px, py] = projectFloor(Math.cos(a) * r, Math.sin(a) * r, TILT, cx, cy, FOCAL);
           productScreen.set(p.id, [px, py]);
 
-          const isHoverProd = hoveredProduct === p.id;
-          const isRelated = hoveredDomain !== null && p.domains.includes(hoveredDomain);
-          const dimmed = (hoveredDomain !== null && !isRelated) || (hoveredProduct !== null && !isHoverProd);
+          const hd = hoveredDomainRef.current;
+          const hp = hoveredProductRef.current;
+          const isHoverProd = hp === p.id;
+          const isRelated = hd !== null && p.domains.includes(hd);
+          const dimmed = (hd !== null && !isRelated) || (hp !== null && !isHoverProd);
           const emphasis = isHoverProd || isRelated;
 
           const haloR = (emphasis ? 22 : 16) * prodAppear;
@@ -536,9 +547,9 @@ export default function ConsoleGraphic() {
           const nameR = R_PRODUCT * 1.19;
           const [nx, ny] = projectFloor(Math.cos(a) * nameR, Math.sin(a) * nameR, TILT, cx, cy, FOCAL);
           ctx.save();
-          ctx.font = `700 9px "JetBrains Mono", monospace`;
+          ctx.font = `700 10.5px "JetBrains Mono", monospace`;
           ctx.textAlign = "center"; ctx.textBaseline = "middle";
-          ctx.fillStyle = `rgba(${p.rgb.join(",")}, ${(dimmed ? 0.4 : 0.95) * prodAppear})`;
+          ctx.fillStyle = `rgba(${p.rgb.join(",")}, ${(dimmed ? 0.45 : 1) * prodAppear})`;
           ctx.fillText(p.name, nx, ny);
           ctx.restore();
 
@@ -546,7 +557,7 @@ export default function ConsoleGraphic() {
             const offset = (di - (p.domains.length - 1) / 2) * 9;
             const bxx = px + offset;
             const byy = py + coreR + 9;
-            const isHoverDom = hoveredDomain === dn;
+            const isHoverDom = hoveredDomainRef.current === dn;
             ctx.save();
             ctx.font = `700 7px "JetBrains Mono", monospace`;
             ctx.textAlign = "center";
@@ -578,8 +589,8 @@ export default function ConsoleGraphic() {
         const [sx1, sy1] = projectFloor(Math.cos(a) * 6, Math.sin(a) * 6, TILT, cx, cy, FOCAL);
         const [sx2, sy2] = projectFloor(Math.cos(a) * R_DOMAIN, Math.sin(a) * R_DOMAIN, TILT, cx, cy, FOCAL);
 
-        const isHover = hoveredDomain === d.n;
-        const dimmed = hoveredDomain !== null && !isHover;
+        const isHover = hoveredDomainRef.current === d.n;
+        const dimmed = hoveredDomainRef.current !== null && !isHover;
         const appearI = Math.min(1, Math.max(0, domAppear - i * 0.04) * 1.5);
 
         ctx.strokeStyle = `rgba(${d.rgb.join(",")}, ${(isHover ? 1 : 0.65) * (dimmed ? 0.3 : 1) * appearI})`;
@@ -674,10 +685,11 @@ export default function ConsoleGraphic() {
       }
 
       /* Chain highlight on hovered domain */
-      if (hoveredDomain !== null) {
-        const d = DOMAINS.find((x) => x.n === hoveredDomain)!;
-        const domHit = domainHitRef.current.find((x) => x.n === hoveredDomain);
-        const servingProducts = PRODUCTS.filter((p) => p.domains.includes(hoveredDomain));
+      const hdNow = hoveredDomainRef.current;
+      if (hdNow !== null) {
+        const d = DOMAINS.find((x) => x.n === hdNow)!;
+        const domHit = domainHitRef.current.find((x) => x.n === hdNow);
+        const servingProducts = PRODUCTS.filter((p) => p.domains.includes(hdNow));
         if (domHit) {
           for (const sp of servingProducts) {
             const prodHit = productHitRef.current.find((x) => x.id === sp.id);
@@ -730,7 +742,7 @@ export default function ConsoleGraphic() {
         const dd = Math.hypot(dh.x - mx, dh.y - my);
         if (dd < bestDomD) { bestDomD = dd; bestDom = dh.n; }
       }
-      if (bestDom !== hoveredDomain) setHoveredDomain(bestDom);
+      if (bestDom !== hoveredDomainRef.current) setHoveredDomain(bestDom);
       if (bestDom === null) {
         let bestProd: string | null = null;
         let bestProdD = 24;
@@ -738,9 +750,9 @@ export default function ConsoleGraphic() {
           const dd = Math.hypot(ph.x - mx, ph.y - my);
           if (dd < bestProdD) { bestProdD = dd; bestProd = ph.id; }
         }
-        if (bestProd !== hoveredProduct) setHoveredProduct(bestProd);
+        if (bestProd !== hoveredProductRef.current) setHoveredProduct(bestProd);
       } else {
-        if (hoveredProduct !== null) setHoveredProduct(null);
+        if (hoveredProductRef.current !== null) setHoveredProduct(null);
       }
 
       rafRef.current = requestAnimationFrame(render);
@@ -748,15 +760,19 @@ export default function ConsoleGraphic() {
 
     rafRef.current = requestAnimationFrame(render);
     return () => { cancelAnimationFrame(rafRef.current); ro.disconnect(); };
+  // Deps intentionally [] — hover state is read via refs inside render() so
+  // the effect doesn't re-run on every rollover (which would reset the start
+  // timestamp and replay the opening dust phase). State setters still run
+  // from inside render to trigger re-renders for the hover cards.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hoveredDomain, hoveredProduct]);
+  }, []);
 
   const domain = hoveredDomain !== null ? DOMAINS.find((d) => d.n === hoveredDomain) : null;
   const domainProducts = domain ? PRODUCTS.filter((p) => p.domains.includes(domain.n)) : [];
   const product = hoveredProduct !== null ? PRODUCTS.find((p) => p.id === hoveredProduct) : null;
 
   return (
-    <div className="relative w-full" style={{ aspectRatio: "1.18 / 1" }}>
+    <div className="relative w-full" style={{ aspectRatio: "1.35 / 1" }}>
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
       <div
         className="absolute inset-0 cursor-default"
@@ -767,21 +783,21 @@ export default function ConsoleGraphic() {
         onMouseLeave={() => { mouseRef.current = { x: -9999, y: -9999 }; }}
       />
 
-      {/* Live ops log */}
-      <div className="absolute top-3 right-3 z-20 pointer-events-none w-64 max-w-[90%]">
-        <div className="border border-violet-400/30 bg-black/75 backdrop-blur-sm px-3 py-2 font-mono"
+      {/* Live ops log — bottom-right corner, lets product hover cards live up top */}
+      <div className="absolute bottom-3 right-3 z-20 pointer-events-none w-72 max-w-[90%]">
+        <div className="border border-violet-400/30 bg-black/75 backdrop-blur-sm px-3 py-2.5 font-mono"
           style={{ boxShadow: "0 10px 30px rgba(139,92,246,0.15)" }}>
-          <div className="flex items-center justify-between text-[9px] tracking-[0.3em] uppercase text-violet-300/85 mb-1.5">
+          <div className="flex items-center justify-between text-[10px] tracking-[0.3em] uppercase text-violet-300/90 mb-2">
             <span>LIVE OPS</span>
-            <span className="text-white/40">tail · {opsLog.length}</span>
+            <span className="text-white/45">tail · {opsLog.length}</span>
           </div>
-          <div className="space-y-[2px]">
+          <div className="space-y-[3px]">
             {opsLog.slice(0, 5).map((op) => (
-              <div key={op.id} className="text-[9px] text-white/70 flex gap-2 items-baseline leading-snug">
-                <span className="text-violet-400/60">›</span>
-                <span className="text-white/85 flex-shrink-0 w-32 truncate">{op.tpl.service}</span>
-                <span className="text-white/45 truncate">{op.tpl.verb}</span>
-                <span className="text-white/30 flex-shrink-0 ml-auto">{op.tpl.ms}ms</span>
+              <div key={op.id} className="text-[10px] text-white/75 flex gap-2 items-baseline leading-snug">
+                <span className="text-violet-400/70">›</span>
+                <span className="text-white/90 flex-shrink-0 w-36 truncate">{op.tpl.service}</span>
+                <span className="text-white/55 truncate">{op.tpl.verb}</span>
+                <span className="text-white/40 flex-shrink-0 ml-auto">{op.tpl.ms}ms</span>
               </div>
             ))}
           </div>

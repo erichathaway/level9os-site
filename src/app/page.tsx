@@ -271,12 +271,9 @@ export default function Home() {
             </RevealMask>
           </div>
 
-          {/* Console graphic — full system visible at once */}
+          {/* Console graphic — sits directly on the section background, no container chrome */}
           <FadeIn delay={0.2}>
-            <div
-              className="mb-12 rounded-2xl border border-white/[0.06] overflow-hidden"
-              style={{ background: "#060610" }}
-            >
+            <div className="mb-12">
               <ConsoleGraphic />
             </div>
           </FadeIn>
