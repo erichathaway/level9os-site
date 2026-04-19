@@ -13,6 +13,7 @@ import { dnaStats, problemStats, clientLogos, transformations, twoHalves } from 
 import { products } from "@level9/brand/content/products";
 import { pressurePoints, chassis } from "@level9/brand/content/pressurePoints";
 import { partners } from "@/data/partners";
+import ConsoleGraphic from "@/components/architecture/ConsoleGraphic";
 
 export default function Home() {
   return (
@@ -251,9 +252,97 @@ export default function Home() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════════
-          THE CYCLE — 4 pressure points where strategy breaks
+          WHAT WE DO — the operating architecture (Console graphic)
           ═══════════════════════════════════════════════════════════ */}
       <section className="py-32 relative" style={{ background: "var(--bg-root)" }}>
+        <div className="max-w-6xl mx-auto px-6 sm:px-12">
+          <div className="mb-16 text-center">
+            <RevealMask>
+              <div className="text-white/40 text-[11px] tracking-[0.5em] uppercase font-mono font-semibold mb-4">
+                What we do
+              </div>
+            </RevealMask>
+            <RevealMask delay={100}>
+              <h2 className="text-4xl sm:text-5xl font-black text-white/90 leading-[1.05] max-w-3xl mx-auto">
+                The operating architecture.
+                <br />
+                <span className="text-white/40">End to end, in one view.</span>
+              </h2>
+            </RevealMask>
+          </div>
+
+          {/* Console graphic — full system visible at once */}
+          <FadeIn delay={0.2}>
+            <div
+              className="mb-12 rounded-2xl border border-white/[0.06] overflow-hidden"
+              style={{ background: "#060610" }}
+            >
+              <ConsoleGraphic />
+            </div>
+          </FadeIn>
+
+          {/* Legend — four pillars of the graphic, left-to-right */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <FadeIn delay={0.3}>
+              <div>
+                <div className="text-amber-400/80 text-[10px] font-mono tracking-[0.3em] uppercase mb-3">
+                  R1 · Perimeter
+                </div>
+                <h4 className="text-lg font-bold text-white/90 mb-2 tracking-tight">
+                  Governance
+                </h4>
+                <p className="text-white/50 text-sm leading-relaxed">
+                  48 domain officers across 8 categories. 3 governance gates. COO and CxfO at the wheel.
+                </p>
+              </div>
+            </FadeIn>
+            <FadeIn delay={0.4}>
+              <div>
+                <div className="text-violet-400/80 text-[10px] font-mono tracking-[0.3em] uppercase mb-3">
+                  R2 · Mid ring
+                </div>
+                <h4 className="text-lg font-bold text-white/90 mb-2 tracking-tight">
+                  Four buckets
+                </h4>
+                <p className="text-white/50 text-sm leading-relaxed">
+                  Decide. Coordinate. Execute. Measure. The four places strategy breaks on the way to execution.
+                </p>
+              </div>
+            </FadeIn>
+            <FadeIn delay={0.5}>
+              <div>
+                <div className="text-cyan-400/80 text-[10px] font-mono tracking-[0.3em] uppercase mb-3">
+                  R3 · Inner band
+                </div>
+                <h4 className="text-lg font-bold text-white/90 mb-2 tracking-tight">
+                  Eight products
+                </h4>
+                <p className="text-white/50 text-sm leading-relaxed">
+                  One product per pressure point, docked into its bucket. Each a real system in production.
+                </p>
+              </div>
+            </FadeIn>
+            <FadeIn delay={0.6}>
+              <div>
+                <div className="text-fuchsia-400/80 text-[10px] font-mono tracking-[0.3em] uppercase mb-3">
+                  R4 · Core
+                </div>
+                <h4 className="text-lg font-bold text-white/90 mb-2 tracking-tight">
+                  Eight domains
+                </h4>
+                <p className="text-white/50 text-sm leading-relaxed">
+                  The 8 Operating Domains every COO must master. Radiating from the core, served by the products.
+                </p>
+              </div>
+            </FadeIn>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════════
+          THE CYCLE — 4 pressure points where strategy breaks
+          ═══════════════════════════════════════════════════════════ */}
+      <section className="py-32 relative" style={{ background: "#060610" }}>
         <div className="max-w-6xl mx-auto px-6 sm:px-12">
           <div className="mb-16">
             <RevealMask>
