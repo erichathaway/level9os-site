@@ -254,9 +254,9 @@ export default function Home() {
       {/* ═══════════════════════════════════════════════════════════
           WHAT WE DO — the operating architecture (Console graphic)
           ═══════════════════════════════════════════════════════════ */}
-      <section className="py-32 relative" style={{ background: "var(--bg-root)" }}>
+      <section className="py-24 relative" style={{ background: "var(--bg-root)" }}>
         <div className="max-w-6xl mx-auto px-6 sm:px-12">
-          <div className="mb-16 text-center">
+          <div className="mb-10 text-center">
             <RevealMask>
               <div className="text-white/40 text-[11px] tracking-[0.5em] uppercase font-mono font-semibold mb-4">
                 What we do
@@ -273,7 +273,7 @@ export default function Home() {
 
           {/* Console graphic — sits directly on the section background, no container chrome */}
           <FadeIn delay={0.2}>
-            <div className="mb-12">
+            <div className="mb-10">
               <ConsoleGraphic />
             </div>
           </FadeIn>

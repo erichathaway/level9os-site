@@ -119,13 +119,21 @@ export default function ConsoleGraphic() {
   const rafRef = useRef(0);
   const [hoveredDomain, setHoveredDomain] = useState<number | null>(null);
   const [hoveredProduct, setHoveredProduct] = useState<string | null>(null);
-  // Refs mirror the hover state so the render loop can read them WITHOUT the
-  // useEffect having to re-run on every hover change (which would reset the
+  // Pinned state: click toggles. When pinned, the focused state persists
+  // even without hover. Hover still previews other elements on top.
+  const [pinnedDomain, setPinnedDomain] = useState<number | null>(null);
+  const [pinnedProduct, setPinnedProduct] = useState<string | null>(null);
+  // Refs mirror the state so the render loop can read them WITHOUT the
+  // useEffect having to re-run on every change (which would reset the
   // start timestamp and replay the opening dust phase on every rollover).
   const hoveredDomainRef = useRef<number | null>(null);
   const hoveredProductRef = useRef<string | null>(null);
+  const pinnedDomainRef = useRef<number | null>(null);
+  const pinnedProductRef = useRef<string | null>(null);
   useEffect(() => { hoveredDomainRef.current = hoveredDomain; }, [hoveredDomain]);
   useEffect(() => { hoveredProductRef.current = hoveredProduct; }, [hoveredProduct]);
+  useEffect(() => { pinnedDomainRef.current = pinnedDomain; }, [pinnedDomain]);
+  useEffect(() => { pinnedProductRef.current = pinnedProduct; }, [pinnedProduct]);
   const mouseRef = useRef({ x: -9999, y: -9999 });
   const domainHitRef = useRef<{ n: number; x: number; y: number; r: number }[]>([]);
   const productHitRef = useRef<{ id: string; x: number; y: number; r: number }[]>([]);
@@ -394,8 +402,9 @@ export default function ConsoleGraphic() {
         for (const b of BUCKETS) {
           const ang = BUCKET_ANGLE[b.id];
           const aMid = ang.mid;
-          const hd = hoveredDomainRef.current;
-          const hp = hoveredProductRef.current;
+          // Combine hovered + pinned so pinning persists the emphasis state.
+          const hd = hoveredDomainRef.current ?? pinnedDomainRef.current;
+          const hp = hoveredProductRef.current ?? pinnedProductRef.current;
           const isRelated = hd !== null && PRODUCTS.some((p) => p.domains.includes(hd) && p.bucket === b.id);
           const isRelatedProd = hp !== null && PRODUCTS.find((p) => p.id === hp)?.bucket === b.id;
           const dimmed = (hd !== null && !isRelated) || (hp !== null && !isRelatedProd);
@@ -513,15 +522,20 @@ export default function ConsoleGraphic() {
           const [px, py] = projectFloor(Math.cos(a) * r, Math.sin(a) * r, TILT, cx, cy, FOCAL);
           productScreen.set(p.id, [px, py]);
 
-          const hd = hoveredDomainRef.current;
-          const hp = hoveredProductRef.current;
+          const hd = hoveredDomainRef.current ?? pinnedDomainRef.current;
+          const hp = hoveredProductRef.current ?? pinnedProductRef.current;
+          const hpProd = hp ? PRODUCTS.find((x) => x.id === hp) : null;
           const isHoverProd = hp === p.id;
+          // Bucket affinity — products in the same bucket as the active
+          // product also glow (softer than the direct hover).
+          const isInHoveredBucket = !!hpProd && p.bucket === hpProd.bucket;
           const isRelated = hd !== null && p.domains.includes(hd);
-          const dimmed = (hd !== null && !isRelated) || (hp !== null && !isHoverProd);
+          const dimmed = (hd !== null && !isRelated) || (hp !== null && !isHoverProd && !isInHoveredBucket);
           const emphasis = isHoverProd || isRelated;
+          const softEmphasis = isInHoveredBucket && !emphasis;
 
-          const haloR = (emphasis ? 22 : 16) * prodAppear;
-          const baseA = dimmed ? 0.10 : emphasis ? 0.55 : 0.22;
+          const haloR = (emphasis ? 22 : softEmphasis ? 19 : 16) * prodAppear;
+          const baseA = dimmed ? 0.10 : emphasis ? 0.55 : softEmphasis ? 0.38 : 0.22;
           const g = ctx.createRadialGradient(px, py, 0, px, py, haloR);
           g.addColorStop(0, `rgba(${p.rgb.join(",")}, ${baseA * prodAppear})`);
           g.addColorStop(1, `rgba(${p.rgb.join(",")}, 0)`);
@@ -557,7 +571,7 @@ export default function ConsoleGraphic() {
             const offset = (di - (p.domains.length - 1) / 2) * 9;
             const bxx = px + offset;
             const byy = py + coreR + 9;
-            const isHoverDom = hoveredDomainRef.current === dn;
+            const isHoverDom = (hoveredDomainRef.current ?? pinnedDomainRef.current) === dn;
             ctx.save();
             ctx.font = `700 7px "JetBrains Mono", monospace`;
             ctx.textAlign = "center";
@@ -589,19 +603,29 @@ export default function ConsoleGraphic() {
         const [sx1, sy1] = projectFloor(Math.cos(a) * 6, Math.sin(a) * 6, TILT, cx, cy, FOCAL);
         const [sx2, sy2] = projectFloor(Math.cos(a) * R_DOMAIN, Math.sin(a) * R_DOMAIN, TILT, cx, cy, FOCAL);
 
-        const isHover = hoveredDomainRef.current === d.n;
-        const dimmed = hoveredDomainRef.current !== null && !isHover;
+        const hd = hoveredDomainRef.current ?? pinnedDomainRef.current;
+        const hp = hoveredProductRef.current ?? pinnedProductRef.current;
+        const hpProd = hp ? PRODUCTS.find((x) => x.id === hp) : null;
+        // Co-highlighting — when a product is active, the domains it serves
+        // light up alongside the product itself.
+        const isServedByActiveProduct = !!hpProd && hpProd.domains.includes(d.n);
+        const isHover = hd === d.n;
+        const dimmed = (hd !== null && !isHover) || (hp !== null && !isServedByActiveProduct);
+        const emphasizedByServe = isServedByActiveProduct && !isHover;
         const appearI = Math.min(1, Math.max(0, domAppear - i * 0.04) * 1.5);
 
-        ctx.strokeStyle = `rgba(${d.rgb.join(",")}, ${(isHover ? 1 : 0.65) * (dimmed ? 0.3 : 1) * appearI})`;
-        ctx.lineWidth = isHover ? 2.2 : 1.1;
+        // Spoke brightness — isHover > emphasizedByServe > normal > dimmed
+        const spokeAlpha = (isHover ? 1 : emphasizedByServe ? 0.9 : 0.65) * (dimmed ? 0.3 : 1) * appearI;
+        ctx.strokeStyle = `rgba(${d.rgb.join(",")}, ${spokeAlpha})`;
+        ctx.lineWidth = isHover ? 2.2 : emphasizedByServe ? 1.6 : 1.1;
         ctx.beginPath(); ctx.moveTo(sx1, sy1); ctx.lineTo(sx2, sy2); ctx.stroke();
 
         const [bpx, bpy] = projectFloor(Math.cos(a) * R_DOMAIN * 1.08, Math.sin(a) * R_DOMAIN * 1.08, TILT, cx, cy, FOCAL);
-        const badgeR = (isHover ? 11 : 8.5) * appearI;
+        const badgeR = (isHover ? 11 : emphasizedByServe ? 10 : 8.5) * appearI;
 
         const g2 = ctx.createRadialGradient(bpx, bpy, 0, bpx, bpy, badgeR * 2);
-        g2.addColorStop(0, `rgba(${d.rgb.join(",")}, ${(isHover ? 0.42 : 0.16) * appearI})`);
+        const haloAlpha = (isHover ? 0.42 : emphasizedByServe ? 0.32 : 0.16) * appearI;
+        g2.addColorStop(0, `rgba(${d.rgb.join(",")}, ${haloAlpha})`);
         g2.addColorStop(1, `rgba(${d.rgb.join(",")}, 0)`);
         ctx.fillStyle = g2;
         ctx.beginPath(); ctx.arc(bpx, bpy, badgeR * 2, 0, Math.PI * 2); ctx.fill();
@@ -685,7 +709,7 @@ export default function ConsoleGraphic() {
       }
 
       /* Chain highlight on hovered domain */
-      const hdNow = hoveredDomainRef.current;
+      const hdNow = hoveredDomainRef.current ?? pinnedDomainRef.current;
       if (hdNow !== null) {
         const d = DOMAINS.find((x) => x.n === hdNow)!;
         const domHit = domainHitRef.current.find((x) => x.n === hdNow);
@@ -767,24 +791,51 @@ export default function ConsoleGraphic() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const domain = hoveredDomain !== null ? DOMAINS.find((d) => d.n === hoveredDomain) : null;
+  // Active = hover OR pinned. Hover wins for preview, pinned persists when
+  // the cursor leaves. Cards bind to active so pinned state keeps showing.
+  const activeDomainN = hoveredDomain ?? pinnedDomain;
+  const activeProductId = hoveredProduct ?? pinnedProduct;
+  const domain = activeDomainN !== null ? DOMAINS.find((d) => d.n === activeDomainN) : null;
   const domainProducts = domain ? PRODUCTS.filter((p) => p.domains.includes(domain.n)) : [];
-  const product = hoveredProduct !== null ? PRODUCTS.find((p) => p.id === hoveredProduct) : null;
+  const product = activeProductId !== null ? PRODUCTS.find((p) => p.id === activeProductId) : null;
+  const domainIsPinned = pinnedDomain !== null && pinnedDomain === activeDomainN;
+  const productIsPinned = pinnedProduct !== null && pinnedProduct === activeProductId;
+
+  // Click-to-pin: if cursor is currently over a product or domain, toggle
+  // that pin. If not over anything, clear all pins (blank-space click).
+  const handleClick = () => {
+    const hd = hoveredDomainRef.current;
+    const hp = hoveredProductRef.current;
+    if (hd !== null) {
+      setPinnedDomain((cur) => (cur === hd ? null : hd));
+      setPinnedProduct(null);
+    } else if (hp !== null) {
+      setPinnedProduct((cur) => (cur === hp ? null : hp));
+      setPinnedDomain(null);
+    } else {
+      setPinnedDomain(null);
+      setPinnedProduct(null);
+    }
+  };
+
+  // Cursor becomes pointer when hovering a clickable face
+  const cursorStyle = hoveredDomain !== null || hoveredProduct !== null ? "cursor-pointer" : "cursor-default";
 
   return (
-    <div className="relative w-full" style={{ aspectRatio: "1.35 / 1" }}>
+    <div className="relative w-full" style={{ aspectRatio: "1.6 / 1" }}>
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
       <div
-        className="absolute inset-0 cursor-default"
+        className={`absolute inset-0 ${cursorStyle}`}
         onMouseMove={(e) => {
           const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
           mouseRef.current = { x: e.clientX - rect.left, y: e.clientY - rect.top };
         }}
         onMouseLeave={() => { mouseRef.current = { x: -9999, y: -9999 }; }}
+        onClick={handleClick}
       />
 
-      {/* Live ops log — bottom-right corner, lets product hover cards live up top */}
-      <div className="absolute bottom-3 right-3 z-20 pointer-events-none w-72 max-w-[90%]">
+      {/* Live ops log — top-right corner */}
+      <div className="absolute top-3 right-3 z-20 pointer-events-none w-72 max-w-[90%]">
         <div className="border border-violet-400/30 bg-black/75 backdrop-blur-sm px-3 py-2.5 font-mono"
           style={{ boxShadow: "0 10px 30px rgba(139,92,246,0.15)" }}>
           <div className="flex items-center justify-between text-[10px] tracking-[0.3em] uppercase text-violet-300/90 mb-2">
@@ -804,17 +855,23 @@ export default function ConsoleGraphic() {
         </div>
       </div>
 
-      {/* Hover cards */}
+      {/* Hover / pinned cards — same card surface for both states */}
       {domain && (
-        <div className="absolute top-3 left-3 z-20 w-64 pointer-events-none">
+        <div className="absolute bottom-3 left-3 z-20 w-64 pointer-events-none">
           <div className="rounded-xl border p-4 backdrop-blur-md"
             style={{
-              borderColor: `${domain.color}55`,
+              borderColor: `${domain.color}${domainIsPinned ? "88" : "55"}`,
               background: `linear-gradient(135deg, rgba(0,0,0,0.92), ${domain.color}0d)`,
               boxShadow: `0 16px 50px ${domain.color}35`,
             }}>
-            <div className="text-[9px] font-mono tracking-[0.35em] uppercase mb-1" style={{ color: domain.color }}>
-              DOMAIN {domain.n}
+            <div className="flex items-center justify-between mb-1">
+              <div className="text-[9px] font-mono tracking-[0.35em] uppercase" style={{ color: domain.color }}>
+                DOMAIN {domain.n}
+              </div>
+              {domainIsPinned && (
+                <span className="text-[8px] font-mono tracking-widest uppercase px-1.5 py-0.5 rounded border"
+                  style={{ color: domain.color, borderColor: `${domain.color}66` }}>PINNED</span>
+              )}
             </div>
             <div className="text-base font-black text-white/95 leading-tight mb-1">{domain.name}</div>
             <div className="text-[10px] font-mono text-white/50 mb-3 italic">{domain.sub}</div>
@@ -837,15 +894,21 @@ export default function ConsoleGraphic() {
       )}
 
       {!domain && product && (
-        <div className="absolute top-3 left-3 z-20 w-64 pointer-events-none">
+        <div className="absolute bottom-3 left-3 z-20 w-64 pointer-events-none">
           <div className="rounded-xl border p-4 backdrop-blur-md"
             style={{
-              borderColor: `${product.color}55`,
+              borderColor: `${product.color}${productIsPinned ? "88" : "55"}`,
               background: `linear-gradient(135deg, rgba(0,0,0,0.92), ${product.color}0d)`,
               boxShadow: `0 16px 50px ${product.color}35`,
             }}>
-            <div className="text-[9px] font-mono tracking-[0.35em] uppercase mb-1" style={{ color: product.color }}>
-              {product.sub}
+            <div className="flex items-center justify-between mb-1">
+              <div className="text-[9px] font-mono tracking-[0.35em] uppercase" style={{ color: product.color }}>
+                {product.sub}
+              </div>
+              {productIsPinned && (
+                <span className="text-[8px] font-mono tracking-widest uppercase px-1.5 py-0.5 rounded border"
+                  style={{ color: product.color, borderColor: `${product.color}66` }}>PINNED</span>
+              )}
             </div>
             <div className="text-base font-black text-white/95 leading-tight mb-2">{product.name}</div>
             <div className="text-[9px] font-mono uppercase tracking-wider mb-3" style={{ color: BUCKETS.find((b) => b.id === product.bucket)?.color }}>
