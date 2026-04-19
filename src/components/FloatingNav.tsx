@@ -32,7 +32,7 @@ const products: { label: string; href: string; color: string; icon: string; desc
   { label: "OutboundOS",   href: "/products#outboundos", color: "#f59e0b", icon: "O", desc: "LinkupOS · ABM · AutoCS",  image: "/brand/logos/outboundos/chip.svg" },
   { label: "COO Playbook", href: "/products#playbook",   color: "#64748b", icon: "P", desc: "Execution Methodology",    image: "/brand/logos/coo-playbook/chip.svg" },
   { label: "LucidORG",     href: "/products#lucidorg",   color: "#06b6d4", icon: "O", desc: "Measurement Platform",     image: "/brand/logos/lucidorg/chip.svg" },
-  { label: "MAX",          href: "/products#max",        color: "#ec4899", icon: "M", desc: "Coming Soon" },
+  { label: "MAX",          href: "/products#max",        color: "#ec4899", icon: "M", desc: "Coming Soon",              image: "/brand/logos/max/chip.svg" },
 ];
 
 const external = [
