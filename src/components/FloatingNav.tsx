@@ -106,10 +106,14 @@ export default function FloatingNav() {
         />
 
         <div
-          className="relative h-full flex items-center justify-center px-6 sm:px-16 overflow-y-auto"
+          className="relative h-full flex items-start sm:items-center justify-center px-6 sm:px-16 overflow-y-auto"
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-12 sm:gap-16 max-w-6xl w-full py-24 sm:py-0">
+          {/* Mobile: pt-24 leaves room for the fixed top-right hamburger close
+              button (top-6 + 44px button = ~70px). Desktop: items-center handles
+              spacing. Reduced mobile gap so the long stacked menu doesn't
+              push past viewport. */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-16 max-w-6xl w-full pt-24 pb-12 sm:py-0">
             {/* Primary nav */}
             <div>
               <div className="text-[11px] tracking-[0.3em] uppercase font-mono text-white/25 mb-8">
