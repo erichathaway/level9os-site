@@ -117,26 +117,19 @@ const OP_TEMPLATES = [
 export default function ConsoleGraphic() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rafRef = useRef(0);
-  const [hoveredDomain, setHoveredDomain] = useState<number | null>(null);
-  const [hoveredProduct, setHoveredProduct] = useState<string | null>(null);
-  // Pinned state: click toggles. When pinned, the focused state persists
-  // even without hover. Hover still previews other elements on top.
-  const [pinnedDomain, setPinnedDomain] = useState<number | null>(null);
-  const [pinnedProduct, setPinnedProduct] = useState<string | null>(null);
-  // Refs mirror the state so the render loop can read them WITHOUT the
-  // useEffect having to re-run on every change (which would reset the
-  // start timestamp and replay the opening dust phase on every rollover).
-  const hoveredDomainRef = useRef<number | null>(null);
-  const hoveredProductRef = useRef<string | null>(null);
-  const pinnedDomainRef = useRef<number | null>(null);
-  const pinnedProductRef = useRef<string | null>(null);
-  useEffect(() => { hoveredDomainRef.current = hoveredDomain; }, [hoveredDomain]);
-  useEffect(() => { hoveredProductRef.current = hoveredProduct; }, [hoveredProduct]);
-  useEffect(() => { pinnedDomainRef.current = pinnedDomain; }, [pinnedDomain]);
-  useEffect(() => { pinnedProductRef.current = pinnedProduct; }, [pinnedProduct]);
+  // Primary interaction is BUCKET hover — the four quadrants are huge
+  // targets that are easy to aim at. When a bucket is active, all products
+  // in that bucket + all domains served by those products emphasize.
+  const [hoveredBucket, setHoveredBucket] = useState<BucketId | null>(null);
+  const [pinnedBucket, setPinnedBucket] = useState<BucketId | null>(null);
+  const hoveredBucketRef = useRef<BucketId | null>(null);
+  const pinnedBucketRef = useRef<BucketId | null>(null);
+  useEffect(() => { hoveredBucketRef.current = hoveredBucket; }, [hoveredBucket]);
+  useEffect(() => { pinnedBucketRef.current = pinnedBucket; }, [pinnedBucket]);
   const mouseRef = useRef({ x: -9999, y: -9999 });
-  const domainHitRef = useRef<{ n: number; x: number; y: number; r: number }[]>([]);
-  const productHitRef = useRef<{ id: string; x: number; y: number; r: number }[]>([]);
+  // Sizing refs so the hit-test (which runs in the render loop) can use the
+  // same geometry as the visual rendering.
+  const geomRef = useRef({ cx: 0, cy: 0, R_OUTER: 0, R_DOMAIN: 0, TILT: 0.42, FOCAL: 2400 });
 
   const [opsLog, setOpsLog] = useState<{ t: number; tpl: typeof OP_TEMPLATES[0]; id: number }[]>([]);
   const opsIdRef = useRef(0);
@@ -217,6 +210,8 @@ export default function ConsoleGraphic() {
       const FOCAL = 2400;
       const TILT = 0.42;
       const SPIN = t * 0.00003;
+      // Stash geometry for hit-testing outside the render loop
+      geomRef.current = { cx, cy, R_OUTER, R_DOMAIN, TILT, FOCAL };
 
       const T_DUST = 1600;
       const T_TOTAL = 4800;
@@ -402,13 +397,12 @@ export default function ConsoleGraphic() {
         for (const b of BUCKETS) {
           const ang = BUCKET_ANGLE[b.id];
           const aMid = ang.mid;
-          // Combine hovered + pinned so pinning persists the emphasis state.
-          const hd = hoveredDomainRef.current ?? pinnedDomainRef.current;
-          const hp = hoveredProductRef.current ?? pinnedProductRef.current;
-          const isRelated = hd !== null && PRODUCTS.some((p) => p.domains.includes(hd) && p.bucket === b.id);
-          const isRelatedProd = hp !== null && PRODUCTS.find((p) => p.id === hp)?.bucket === b.id;
-          const dimmed = (hd !== null && !isRelated) || (hp !== null && !isRelatedProd);
-          const emphasis = isRelated || isRelatedProd;
+          // Active bucket = hover OR pin. The whole interaction model centers
+          // on bucket hover now (big easy-to-hit targets).
+          const activeBucket = hoveredBucketRef.current ?? pinnedBucketRef.current;
+          const isActiveBucket = activeBucket === b.id;
+          const dimmed = activeBucket !== null && !isActiveBucket;
+          const emphasis = isActiveBucket;
 
           const segs = 32;
           ctx.beginPath();
@@ -433,13 +427,16 @@ export default function ConsoleGraphic() {
           ctx.lineWidth = emphasis ? 1.5 : 0.85;
           ctx.stroke();
 
-          const [lx, ly] = projectFloor(Math.cos(aMid) * R_BUCKET * 0.88, Math.sin(aMid) * R_BUCKET * 0.88, TILT, cx, cy, FOCAL);
+          // Bucket label pulled deep INSIDE the quadrant (between the domain
+          // ring and product ring) so it doesn't collide with product names
+          // or KPI dials in the outer band. Floats in the empty inner zone.
+          const [lx, ly] = projectFloor(Math.cos(aMid) * R_BUCKET * 0.55, Math.sin(aMid) * R_BUCKET * 0.55, TILT, cx, cy, FOCAL);
           ctx.save();
-          ctx.font = `700 13px Inter, sans-serif`;
+          ctx.font = `700 12px Inter, sans-serif`;
           ctx.textAlign = "center"; ctx.textBaseline = "middle";
           ctx.fillStyle = `rgba(${b.rgb.join(",")}, ${baseOp * bucketAppear})`;
           ctx.shadowColor = b.color; ctx.shadowBlur = emphasis ? 5 : 0;
-          ctx.fillText(b.name.toUpperCase(), lx, ly - 6);
+          ctx.fillText(b.name.toUpperCase(), lx, ly - 5);
           ctx.restore();
           ctx.save();
           ctx.font = `500 7px "JetBrains Mono", monospace`;
@@ -506,7 +503,6 @@ export default function ConsoleGraphic() {
         drawRing(R_PRODUCT * 0.88, "180,200,255", 0.1 * prodAppear, 0.4, [2, 3]);
       }
 
-      productHitRef.current = [];
       const byBucket: Record<BucketId, Product[]> = { decide: [], coord: [], exec: [], measure: [] };
       PRODUCTS.forEach((p) => byBucket[p.bucket].push(p));
       const productScreen = new Map<string, [number, number]>();
@@ -522,20 +518,13 @@ export default function ConsoleGraphic() {
           const [px, py] = projectFloor(Math.cos(a) * r, Math.sin(a) * r, TILT, cx, cy, FOCAL);
           productScreen.set(p.id, [px, py]);
 
-          const hd = hoveredDomainRef.current ?? pinnedDomainRef.current;
-          const hp = hoveredProductRef.current ?? pinnedProductRef.current;
-          const hpProd = hp ? PRODUCTS.find((x) => x.id === hp) : null;
-          const isHoverProd = hp === p.id;
-          // Bucket affinity — products in the same bucket as the active
-          // product also glow (softer than the direct hover).
-          const isInHoveredBucket = !!hpProd && p.bucket === hpProd.bucket;
-          const isRelated = hd !== null && p.domains.includes(hd);
-          const dimmed = (hd !== null && !isRelated) || (hp !== null && !isHoverProd && !isInHoveredBucket);
-          const emphasis = isHoverProd || isRelated;
-          const softEmphasis = isInHoveredBucket && !emphasis;
+          const activeBucket = hoveredBucketRef.current ?? pinnedBucketRef.current;
+          const isInActiveBucket = activeBucket !== null && p.bucket === activeBucket;
+          const dimmed = activeBucket !== null && !isInActiveBucket;
+          const emphasis = isInActiveBucket;
 
-          const haloR = (emphasis ? 22 : softEmphasis ? 19 : 16) * prodAppear;
-          const baseA = dimmed ? 0.10 : emphasis ? 0.55 : softEmphasis ? 0.38 : 0.22;
+          const haloR = (emphasis ? 22 : 16) * prodAppear;
+          const baseA = dimmed ? 0.10 : emphasis ? 0.55 : 0.22;
           const g = ctx.createRadialGradient(px, py, 0, px, py, haloR);
           g.addColorStop(0, `rgba(${p.rgb.join(",")}, ${baseA * prodAppear})`);
           g.addColorStop(1, `rgba(${p.rgb.join(",")}, 0)`);
@@ -571,7 +560,9 @@ export default function ConsoleGraphic() {
             const offset = (di - (p.domains.length - 1) / 2) * 9;
             const bxx = px + offset;
             const byy = py + coreR + 9;
-            const isHoverDom = (hoveredDomainRef.current ?? pinnedDomainRef.current) === dn;
+            const activeB = hoveredBucketRef.current ?? pinnedBucketRef.current;
+            const domBucketServes = activeB !== null && PRODUCTS.some(pp => pp.bucket === activeB && pp.domains.includes(dn));
+            const isHoverDom = domBucketServes;
             ctx.save();
             ctx.font = `700 7px "JetBrains Mono", monospace`;
             ctx.textAlign = "center";
@@ -580,7 +571,6 @@ export default function ConsoleGraphic() {
             ctx.restore();
           });
 
-          productHitRef.current.push({ id: p.id, x: px, y: py, r: coreR + 8 });
         });
       }
 
@@ -597,21 +587,19 @@ export default function ConsoleGraphic() {
         ctx.fillStyle = gg; ctx.fill();
       }
 
-      domainHitRef.current = [];
       DOMAINS.forEach((d, i) => {
         const a = (i / DOMAINS.length) * Math.PI * 2 - Math.PI / 2 + SPIN;
         const [sx1, sy1] = projectFloor(Math.cos(a) * 6, Math.sin(a) * 6, TILT, cx, cy, FOCAL);
         const [sx2, sy2] = projectFloor(Math.cos(a) * R_DOMAIN, Math.sin(a) * R_DOMAIN, TILT, cx, cy, FOCAL);
 
-        const hd = hoveredDomainRef.current ?? pinnedDomainRef.current;
-        const hp = hoveredProductRef.current ?? pinnedProductRef.current;
-        const hpProd = hp ? PRODUCTS.find((x) => x.id === hp) : null;
-        // Co-highlighting — when a product is active, the domains it serves
-        // light up alongside the product itself.
-        const isServedByActiveProduct = !!hpProd && hpProd.domains.includes(d.n);
-        const isHover = hd === d.n;
-        const dimmed = (hd !== null && !isHover) || (hp !== null && !isServedByActiveProduct);
-        const emphasizedByServe = isServedByActiveProduct && !isHover;
+        const activeBucket = hoveredBucketRef.current ?? pinnedBucketRef.current;
+        // A domain is served by the active bucket if ANY product in that
+        // bucket includes this domain in its .domains list.
+        const productsInActive = activeBucket !== null ? PRODUCTS.filter((p) => p.bucket === activeBucket) : [];
+        const isServedByActiveBucket = productsInActive.some((p) => p.domains.includes(d.n));
+        const isHover = false; // direct domain hover disabled; emphasis comes from bucket hover
+        const dimmed = activeBucket !== null && !isServedByActiveBucket;
+        const emphasizedByServe = isServedByActiveBucket;
         const appearI = Math.min(1, Math.max(0, domAppear - i * 0.04) * 1.5);
 
         // Spoke brightness — isHover > emphasizedByServe > normal > dimmed
@@ -645,7 +633,6 @@ export default function ConsoleGraphic() {
         ctx.fillText(String(d.n), bpx, bpy);
         ctx.restore();
 
-        domainHitRef.current.push({ n: d.n, x: bpx, y: bpy, r: badgeR + 10 });
       });
 
       if (domAppear > 0.5) {
@@ -708,41 +695,8 @@ export default function ConsoleGraphic() {
         ctx.beginPath(); ctx.arc(px, py, 1.3, 0, Math.PI * 2); ctx.fill();
       }
 
-      /* Chain highlight on hovered domain */
-      const hdNow = hoveredDomainRef.current ?? pinnedDomainRef.current;
-      if (hdNow !== null) {
-        const d = DOMAINS.find((x) => x.n === hdNow)!;
-        const domHit = domainHitRef.current.find((x) => x.n === hdNow);
-        const servingProducts = PRODUCTS.filter((p) => p.domains.includes(hdNow));
-        if (domHit) {
-          for (const sp of servingProducts) {
-            const prodHit = productHitRef.current.find((x) => x.id === sp.id);
-            if (!prodHit) continue;
-            const midX = (domHit.x + prodHit.x) / 2;
-            const midY = (domHit.y + prodHit.y) / 2;
-            ctx.strokeStyle = `rgba(${d.rgb.join(",")}, 0.75)`;
-            ctx.lineWidth = 1.8;
-            ctx.beginPath();
-            ctx.moveTo(domHit.x, domHit.y);
-            ctx.quadraticCurveTo(midX, midY, prodHit.x, prodHit.y);
-            ctx.stroke();
-            ctx.strokeStyle = `rgba(${d.rgb.join(",")}, 0.22)`;
-            ctx.lineWidth = 6;
-            ctx.stroke();
-            const pulseT = ((t / 900) + servingProducts.indexOf(sp) * 0.18) % 1;
-            const tt = pulseT;
-            const pxp = (1 - tt) * (1 - tt) * domHit.x + 2 * (1 - tt) * tt * midX + tt * tt * prodHit.x;
-            const pyp = (1 - tt) * (1 - tt) * domHit.y + 2 * (1 - tt) * tt * midY + tt * tt * prodHit.y;
-            const gg = ctx.createRadialGradient(pxp, pyp, 0, pxp, pyp, 11);
-            gg.addColorStop(0, `rgba(${d.rgb.join(",")}, 0.95)`);
-            gg.addColorStop(1, `rgba(${d.rgb.join(",")}, 0)`);
-            ctx.fillStyle = gg;
-            ctx.beginPath(); ctx.arc(pxp, pyp, 11, 0, Math.PI * 2); ctx.fill();
-            ctx.fillStyle = "rgba(255,255,255, 0.95)";
-            ctx.beginPath(); ctx.arc(pxp, pyp, 1.5, 0, Math.PI * 2); ctx.fill();
-          }
-        }
-      }
+      /* Chain highlight disabled in bucket-hover model — bucket emphasis
+       * alone tells the story without bezier lines. */
 
       if (govAppear > 0.5) {
         const ticks = [{ a: -Math.PI / 2, l: "N" }, { a: 0, l: "E" }, { a: Math.PI / 2, l: "S" }, { a: -Math.PI, l: "W" }];
@@ -757,27 +711,30 @@ export default function ConsoleGraphic() {
         }
       }
 
-      /* hit-test */
+      /* hit-test — BUCKET-based. Un-tilt the cursor y to approximate floor
+       * coordinates, compute angle + radius, and check which bucket slice
+       * the cursor falls into. Hit zone is the ring band between the domain
+       * ring and the outer governance ring — a huge, easy target per bucket. */
       const mx = mouseRef.current.x;
       const my = mouseRef.current.y;
-      let bestDom: number | null = null;
-      let bestDomD = 22;
-      for (const dh of domainHitRef.current) {
-        const dd = Math.hypot(dh.x - mx, dh.y - my);
-        if (dd < bestDomD) { bestDomD = dd; bestDom = dh.n; }
-      }
-      if (bestDom !== hoveredDomainRef.current) setHoveredDomain(bestDom);
-      if (bestDom === null) {
-        let bestProd: string | null = null;
-        let bestProdD = 24;
-        for (const ph of productHitRef.current) {
-          const dd = Math.hypot(ph.x - mx, ph.y - my);
-          if (dd < bestProdD) { bestProdD = dd; bestProd = ph.id; }
+      let bestBucket: BucketId | null = null;
+      if (mx > -1000) {
+        const dx = mx - cx;
+        const dyt = my - cy;
+        const dyFloor = dyt / Math.cos(TILT);
+        const radius = Math.sqrt(dx * dx + dyFloor * dyFloor);
+        const angle = Math.atan2(dyFloor, dx);
+        if (radius > R_DOMAIN * 1.15 && radius < R_OUTER * 0.96) {
+          for (const b of BUCKETS) {
+            const ang = BUCKET_ANGLE[b.id];
+            if (angle >= ang.start && angle < ang.end) {
+              bestBucket = b.id;
+              break;
+            }
+          }
         }
-        if (bestProd !== hoveredProductRef.current) setHoveredProduct(bestProd);
-      } else {
-        if (hoveredProductRef.current !== null) setHoveredProduct(null);
       }
+      if (bestBucket !== hoveredBucketRef.current) setHoveredBucket(bestBucket);
 
       rafRef.current = requestAnimationFrame(render);
     };
@@ -791,35 +748,28 @@ export default function ConsoleGraphic() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Active = hover OR pinned. Hover wins for preview, pinned persists when
-  // the cursor leaves. Cards bind to active so pinned state keeps showing.
-  const activeDomainN = hoveredDomain ?? pinnedDomain;
-  const activeProductId = hoveredProduct ?? pinnedProduct;
-  const domain = activeDomainN !== null ? DOMAINS.find((d) => d.n === activeDomainN) : null;
-  const domainProducts = domain ? PRODUCTS.filter((p) => p.domains.includes(domain.n)) : [];
-  const product = activeProductId !== null ? PRODUCTS.find((p) => p.id === activeProductId) : null;
-  const domainIsPinned = pinnedDomain !== null && pinnedDomain === activeDomainN;
-  const productIsPinned = pinnedProduct !== null && pinnedProduct === activeProductId;
+  // Active bucket = hover OR pinned. Hover wins for preview, pinned
+  // persists when the cursor leaves. The card binds to active.
+  const activeBucketId = hoveredBucket ?? pinnedBucket;
+  const bucket = activeBucketId ? BUCKETS.find((b) => b.id === activeBucketId) ?? null : null;
+  const bucketProducts = bucket ? PRODUCTS.filter((p) => p.bucket === bucket.id) : [];
+  const bucketDomainNs = bucket
+    ? Array.from(new Set(bucketProducts.flatMap((p) => p.domains))).sort((a, b) => a - b)
+    : [];
+  const bucketIsPinned = pinnedBucket !== null && pinnedBucket === activeBucketId;
 
-  // Click-to-pin: if cursor is currently over a product or domain, toggle
-  // that pin. If not over anything, clear all pins (blank-space click).
+  // Click-to-pin: if cursor is currently over a bucket, toggle that pin.
+  // If over blank space, clear.
   const handleClick = () => {
-    const hd = hoveredDomainRef.current;
-    const hp = hoveredProductRef.current;
-    if (hd !== null) {
-      setPinnedDomain((cur) => (cur === hd ? null : hd));
-      setPinnedProduct(null);
-    } else if (hp !== null) {
-      setPinnedProduct((cur) => (cur === hp ? null : hp));
-      setPinnedDomain(null);
+    const hb = hoveredBucketRef.current;
+    if (hb !== null) {
+      setPinnedBucket((cur) => (cur === hb ? null : hb));
     } else {
-      setPinnedDomain(null);
-      setPinnedProduct(null);
+      setPinnedBucket(null);
     }
   };
 
-  // Cursor becomes pointer when hovering a clickable face
-  const cursorStyle = hoveredDomain !== null || hoveredProduct !== null ? "cursor-pointer" : "cursor-default";
+  const cursorStyle = hoveredBucket !== null ? "cursor-pointer" : "cursor-default";
 
   return (
     <div className="relative w-full" style={{ aspectRatio: "1.6 / 1" }}>
@@ -855,71 +805,68 @@ export default function ConsoleGraphic() {
         </div>
       </div>
 
-      {/* Hover / pinned cards — same card surface for both states */}
-      {domain && (
-        <div className="absolute bottom-3 left-3 z-20 w-64 pointer-events-none">
+      {/* Bucket card — shown on hover OR pin. Top-left corner so it's
+       *  balanced against the ops log in top-right. Wider (w-80) so the
+       *  product+domain chip lists fit on one row. */}
+      {bucket && (
+        <div className="absolute top-3 left-3 z-20 w-80 max-w-[90%] pointer-events-none">
           <div className="rounded-xl border p-4 backdrop-blur-md"
             style={{
-              borderColor: `${domain.color}${domainIsPinned ? "88" : "55"}`,
-              background: `linear-gradient(135deg, rgba(0,0,0,0.92), ${domain.color}0d)`,
-              boxShadow: `0 16px 50px ${domain.color}35`,
+              borderColor: `${bucket.color}${bucketIsPinned ? "88" : "55"}`,
+              background: `linear-gradient(135deg, rgba(0,0,0,0.92), ${bucket.color}0d)`,
+              boxShadow: `0 16px 50px ${bucket.color}35`,
             }}>
-            <div className="flex items-center justify-between mb-1">
-              <div className="text-[9px] font-mono tracking-[0.35em] uppercase" style={{ color: domain.color }}>
-                DOMAIN {domain.n}
+            <div className="flex items-center justify-between mb-2">
+              <div className="text-[9px] font-mono tracking-[0.35em] uppercase" style={{ color: bucket.color }}>
+                {bucket.n} · PRESSURE POINT
               </div>
-              {domainIsPinned && (
+              {bucketIsPinned && (
                 <span className="text-[8px] font-mono tracking-widest uppercase px-1.5 py-0.5 rounded border"
-                  style={{ color: domain.color, borderColor: `${domain.color}66` }}>PINNED</span>
+                  style={{ color: bucket.color, borderColor: `${bucket.color}66` }}>PINNED</span>
               )}
             </div>
-            <div className="text-base font-black text-white/95 leading-tight mb-1">{domain.name}</div>
-            <div className="text-[10px] font-mono text-white/50 mb-3 italic">{domain.sub}</div>
-            <div className="pt-3 border-t border-white/[0.08]">
+            <div className="text-lg font-black text-white/95 leading-tight mb-1">{bucket.name}</div>
+            <div className="text-[10px] font-mono text-white/55 mb-3 italic">
+              breaks {bucket.breaks.toLowerCase()}
+            </div>
+
+            <div className="pt-3 border-t border-white/[0.08] mb-3">
               <div className="text-[9px] font-mono tracking-widest uppercase text-white/45 mb-1.5">
-                served by {domainProducts.length} products
+                {bucketProducts.length} product{bucketProducts.length === 1 ? "" : "s"}
               </div>
               <div className="flex flex-wrap gap-1.5">
-                {domainProducts.map((p) => (
+                {bucketProducts.map((p) => (
                   <span key={p.id}
-                    className="text-[10px] font-mono px-2 py-0.5 rounded border"
-                    style={{ borderColor: `${p.color}40`, color: `${p.color}dd`, background: `${p.color}08` }}>
-                    {p.name}
+                    className="text-[10px] font-mono px-2 py-0.5 rounded border flex items-center gap-1"
+                    style={{ borderColor: `${p.color}50`, color: `${p.color}ee`, background: `${p.color}10` }}>
+                    <span className="font-black">{p.icon}</span>
+                    <span>{p.name}</span>
                   </span>
                 ))}
               </div>
             </div>
-          </div>
-        </div>
-      )}
 
-      {!domain && product && (
-        <div className="absolute bottom-3 left-3 z-20 w-64 pointer-events-none">
-          <div className="rounded-xl border p-4 backdrop-blur-md"
-            style={{
-              borderColor: `${product.color}${productIsPinned ? "88" : "55"}`,
-              background: `linear-gradient(135deg, rgba(0,0,0,0.92), ${product.color}0d)`,
-              boxShadow: `0 16px 50px ${product.color}35`,
-            }}>
-            <div className="flex items-center justify-between mb-1">
-              <div className="text-[9px] font-mono tracking-[0.35em] uppercase" style={{ color: product.color }}>
-                {product.sub}
+            <div className="pt-3 border-t border-white/[0.08]">
+              <div className="text-[9px] font-mono tracking-widest uppercase text-white/45 mb-1.5">
+                serves {bucketDomainNs.length} domain{bucketDomainNs.length === 1 ? "" : "s"}
               </div>
-              {productIsPinned && (
-                <span className="text-[8px] font-mono tracking-widest uppercase px-1.5 py-0.5 rounded border"
-                  style={{ color: product.color, borderColor: `${product.color}66` }}>PINNED</span>
-              )}
+              <div className="flex flex-wrap gap-1.5">
+                {bucketDomainNs.map((dn) => {
+                  const d = DOMAINS.find((x) => x.n === dn)!;
+                  return (
+                    <span key={dn}
+                      className="text-[10px] font-mono px-2 py-0.5 rounded border flex items-center gap-1"
+                      style={{ borderColor: `${d.color}50`, color: `${d.color}ee`, background: `${d.color}10` }}>
+                      <span className="font-black">{dn}</span>
+                      <span>{d.name}</span>
+                    </span>
+                  );
+                })}
+              </div>
             </div>
-            <div className="text-base font-black text-white/95 leading-tight mb-2">{product.name}</div>
-            <div className="text-[9px] font-mono uppercase tracking-wider mb-3" style={{ color: BUCKETS.find((b) => b.id === product.bucket)?.color }}>
-              Bucket · {BUCKETS.find((b) => b.id === product.bucket)?.name}
-            </div>
-            <div className="space-y-1">
-              {product.specs.map((s) => (
-                <div key={s} className="text-[11px] font-mono text-white/70 flex gap-2 items-start">
-                  <span style={{ color: product.color }}>›</span><span>{s}</span>
-                </div>
-              ))}
+
+            <div className="pt-3 mt-3 border-t border-white/[0.06] text-[9px] font-mono tracking-widest uppercase text-white/35">
+              {bucketIsPinned ? "click again to unpin" : "click to pin"}
             </div>
           </div>
         </div>

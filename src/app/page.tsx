@@ -278,8 +278,9 @@ export default function Home() {
             </div>
           </FadeIn>
 
-          {/* Legend — four pillars of the graphic, left-to-right */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          {/* Legend — four pillars, pulled up 50px into the graphic's bottom
+              whitespace so it reads as part of the same composition. */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8" style={{ marginTop: "-50px" }}>
             <FadeIn delay={0.3}>
               <div>
                 <div className="text-amber-400/80 text-[10px] font-mono tracking-[0.3em] uppercase mb-3">
