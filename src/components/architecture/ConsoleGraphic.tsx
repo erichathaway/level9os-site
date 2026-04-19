@@ -712,16 +712,18 @@ export default function ConsoleGraphic() {
       }
 
       /* hit-test — BUCKET-based. Un-tilt the cursor y to approximate floor
-       * coordinates, compute angle + radius, and check which bucket slice
-       * the cursor falls into. Hit zone is the ring band between the domain
-       * ring and the outer governance ring — a huge, easy target per bucket. */
+       * coordinates (screen y+ = floor z- after tilt → need to flip sign so
+       * top-of-screen cursor maps to MEASURE/EXEC, bottom maps to
+       * DECIDE/COORD). Compute angle + radius, check which bucket slice. */
       const mx = mouseRef.current.x;
       const my = mouseRef.current.y;
       let bestBucket: BucketId | null = null;
       if (mx > -1000) {
         const dx = mx - cx;
         const dyt = my - cy;
-        const dyFloor = dyt / Math.cos(TILT);
+        // Flip sign: screen y down = floor z pulled forward by tilt, so top
+        // of screen corresponds to +z (sin > 0 = measure/exec halves).
+        const dyFloor = -dyt / Math.sin(TILT);
         const radius = Math.sqrt(dx * dx + dyFloor * dyFloor);
         const angle = Math.atan2(dyFloor, dx);
         if (radius > R_DOMAIN * 1.15 && radius < R_OUTER * 0.96) {
