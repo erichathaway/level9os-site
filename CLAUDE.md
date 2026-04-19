@@ -36,13 +36,9 @@ git ref. Single source of truth for the family of marketing front-ends.
 **Currently uses (from the package):**
 - `@level9/brand/components/motion` — `FadeIn`, `Counter`, `AnimatedBar`,
   `RevealMask`, `MagneticCard`, `MagneticButton`, `CursorGradient`, `LiveTicker`
-- `@level9/brand/components/architecture` — `ConsoleGraphic` (home section 3:
-  4-ring radial operating console showing governance perimeter, bucket
-  quadrants, product discs, domain spokes + ambient telemetry)
 - `@level9/brand/content/products` — canonical product roster + sub-pods
 - `@level9/brand/content/pressurePoints` — the 4 pressure points + chassis + installManual
 - `@level9/brand/content/stack` — the 8 operating layers
-- `/brand/logos/<brand>/*.svg` — canonical logo DB, synced via postinstall
 
 **Available but not yet wired:**
 - `@level9/brand/components/layout` (v0.5+) — `SectionHeader`, `AmbientBackground`,
