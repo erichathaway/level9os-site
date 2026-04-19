@@ -13,7 +13,7 @@ import { dnaStats, problemStats, clientLogos, transformations, twoHalves } from 
 import { products } from "@level9/brand/content/products";
 import { pressurePoints, chassis } from "@level9/brand/content/pressurePoints";
 import { partners } from "@/data/partners";
-import ConsoleGraphic from "@/components/architecture/ConsoleGraphic";
+import { ConsoleGraphic } from "@level9/brand/components/architecture";
 
 export default function Home() {
   return (
