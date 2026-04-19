@@ -271,16 +271,96 @@ export default function Home() {
             </RevealMask>
           </div>
 
-          {/* Console graphic — sits directly on the section background, no container chrome */}
+          {/* Desktop / tablet: the radial console graphic.
+              Hidden on <sm because the 4-ring viz with 48 officers + 4 buckets +
+              8 products + 8 domains crams below ~640px. Mobile gets a larger,
+              stacked alternative below — same content, different presentation. */}
           <FadeIn delay={0.2}>
-            <div className="mb-10">
+            <div className="mb-10 hidden sm:block">
               <ConsoleGraphic />
             </div>
           </FadeIn>
 
-          {/* Legend — four pillars, pulled up 50px into the graphic's bottom
-              whitespace so it reads as part of the same composition. */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8" style={{ marginTop: "-50px" }}>
+          {/* Mobile-only: 4 BIG stacked layer cards. Same architecture, no
+              shrinking, generous space, on-brand glow. Each card is one ring
+              of the operating console, presented as a primary mobile artifact. */}
+          <div className="sm:hidden space-y-6 mb-8">
+            {[
+              {
+                tag: "R1 · Perimeter",
+                title: "Governance",
+                desc: "48 domain officers across 8 categories. 3 governance gates. COO and CxfO at the wheel.",
+                color: "#f59e0b",
+                tagClass: "text-amber-400/90",
+              },
+              {
+                tag: "R2 · Mid ring",
+                title: "Four buckets",
+                desc: "Decide. Coordinate. Execute. Measure. The four places strategy breaks on the way to execution.",
+                color: "#8b5cf6",
+                tagClass: "text-violet-400/90",
+              },
+              {
+                tag: "R3 · Inner band",
+                title: "Eight products",
+                desc: "One product per pressure point, docked into its bucket. Each a real system in production.",
+                color: "#06b6d4",
+                tagClass: "text-cyan-400/90",
+              },
+              {
+                tag: "R4 · Core",
+                title: "Eight domains",
+                desc: "The 8 Operating Domains every COO must master. Radiating from the core, served by the products.",
+                color: "#ec4899",
+                tagClass: "text-fuchsia-400/90",
+              },
+            ].map((card, i) => (
+              <FadeIn key={card.tag} delay={0.2 + i * 0.08}>
+                <div
+                  className="relative rounded-2xl p-7 overflow-hidden"
+                  style={{
+                    background: `linear-gradient(135deg, ${card.color}10, transparent 70%)`,
+                    border: `1px solid ${card.color}30`,
+                    boxShadow: `0 0 60px ${card.color}10, inset 0 1px 0 rgba(255,255,255,0.04)`,
+                  }}
+                >
+                  {/* Accent glow orb top-right */}
+                  <div
+                    className="absolute -top-12 -right-12 w-32 h-32 rounded-full opacity-30 pointer-events-none"
+                    style={{ background: `radial-gradient(circle, ${card.color}, transparent 70%)`, filter: "blur(20px)" }}
+                  />
+                  <div className={`text-[12px] font-mono tracking-[0.3em] uppercase font-semibold mb-4 ${card.tagClass}`}>
+                    {card.tag}
+                  </div>
+                  <h3 className="text-3xl font-black text-white/95 mb-4 leading-[1.05] tracking-tight">
+                    {card.title}
+                  </h3>
+                  <p className="text-white/70 text-base leading-relaxed">
+                    {card.desc}
+                  </p>
+                </div>
+              </FadeIn>
+            ))}
+            {/* Tap-out CTA: full architecture lives on its own page */}
+            <FadeIn delay={0.6}>
+              <Link
+                href="/architecture"
+                className="block text-center py-5 px-6 rounded-2xl border border-white/[0.08] bg-white/[0.02] hover:bg-white/[0.04] transition-colors"
+              >
+                <div className="text-[11px] font-mono tracking-[0.3em] uppercase text-white/40 mb-1">
+                  See the full operating console
+                </div>
+                <div className="text-white/85 text-base font-semibold">
+                  Open the architecture page →
+                </div>
+              </Link>
+            </FadeIn>
+          </div>
+
+          {/* Desktop / tablet legend — four pillars, pulled up 50px into the
+              graphic's bottom whitespace so it reads as part of the same
+              composition. Hidden on mobile (the cards above replace it). */}
+          <div className="hidden sm:grid grid-cols-1 md:grid-cols-4 gap-8" style={{ marginTop: "-50px" }}>
             <FadeIn delay={0.3}>
               <div>
                 <div className="text-amber-400/80 text-[10px] font-mono tracking-[0.3em] uppercase mb-3">
