@@ -215,10 +215,10 @@ export default function Home() {
                           style={{
                             background:
                               i % 3 === 0
-                                ? "#8b5cf6"
+                                ? "var(--violet)"
                                 : i % 3 === 1
-                                ? "#06b6d4"
-                                : "#ec4899",
+                                ? "var(--cyan)"
+                                : "var(--fuchsia)",
                           }}
                         />
                         {item}
