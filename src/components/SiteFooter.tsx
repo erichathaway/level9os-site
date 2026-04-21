@@ -35,7 +35,7 @@ export default function SiteFooter({ variant = "standard" }: { variant?: "standa
           )}
           {variant === "minimal" && (
             <div className="text-white/30 text-[12px] font-mono">
-              &copy; 2026 Level9OS &middot;{" "}
+              &copy; 2026 Level9OS LLC &middot;{" "}
               <a
                 href="https://erichathaway.com"
                 target="_blank"
@@ -78,7 +78,7 @@ export default function SiteFooter({ variant = "standard" }: { variant?: "standa
 
         {variant === "standard" && (
           <div className="text-white/20 text-[11px] font-mono">
-            &copy; 2026 Level9 &middot;{" "}
+            &copy; 2026 Level9OS LLC &middot;{" "}
             <a
               href="https://erichathaway.com"
               target="_blank"
