@@ -127,3 +127,71 @@
 - **Commit:** 089eb1a
 
 ---
+
+## S5 — Footer Extraction to Shared Component
+
+### Kill: Inline footer block in `src/app/page.tsx` (lines 1116-1179)
+- **Type:** Duplicated footer markup → shared SiteFooter component
+- **Grep proof:** `grep -rn "<footer" src/app/` → 0 hits after extraction (footer lives in SiteFooter.tsx)
+- **Dep graph hops:** 1 (page file → inline footer HTML)
+- **Commit:** 95d3987
+
+### Kill: Inline footer block in `src/app/about/page.tsx` (lines 357-397)
+- **Type:** Duplicated footer markup
+- **Dep graph hops:** 1
+- **Commit:** 95d3987
+
+### Kill: Inline footer block in `src/app/architecture/page.tsx` (lines 754-801)
+- **Type:** Duplicated footer markup
+- **Dep graph hops:** 1
+- **Commit:** 95d3987
+
+### Kill: Inline footer block in `src/app/contact/page.tsx` (lines 143-165)
+- **Type:** Duplicated footer markup (minimal variant)
+- **Dep graph hops:** 1
+- **Commit:** 95d3987
+
+### Kill: Inline footer block in `src/app/how-we-work/page.tsx` (lines 717-761)
+- **Type:** Duplicated footer markup
+- **Dep graph hops:** 1
+- **Commit:** 95d3987
+
+### Kill: Inline footer block in `src/app/partnerships/page.tsx` (lines 404-444)
+- **Type:** Duplicated footer markup
+- **Dep graph hops:** 1
+- **Commit:** 95d3987
+
+### Kill: Inline footer block in `src/app/products/page.tsx` (lines 670-716)
+- **Type:** Duplicated footer markup
+- **Dep graph hops:** 1
+- **Commit:** 95d3987
+
+### Kill: Unused `Link` imports in about/page.tsx, partnerships/page.tsx, how-we-work/page.tsx
+- **Type:** Dead import (only consumer was the deleted inline footer)
+- **Dep graph hops:** 1
+- **Commit:** 95d3987
+
+**Background standardization:** 4 pages used `#060610`, 3 used `var(--bg-root)`. Standardized all to `var(--bg-root)` (canonical). Imperceptible delta: `#060610` vs `#030306`.
+
+---
+
+## S6 — Raw `<img>` Tags to `next/image`
+
+**Covered by S5.** All 7 `<img>` tags were in footer blocks. The SiteFooter component uses `next/image` with explicit width/height. `grep -rn "<img " src/` → 0 hits after S5 commit.
+
+---
+
+## S7 — ConsoleGraphic: Replace Local Copy with Brand Package Import
+
+### Kill: `src/components/architecture/ConsoleGraphic.tsx` (878 lines)
+- **Type:** Local copy of canonical brand component
+- **Grep proof:** `diff` between local and `node_modules/@level9/brand/src/components/architecture/ConsoleGraphic.tsx` → 0 lines of difference (byte-identical)
+- **Dep graph hops:** 2 (page.tsx → local component → same code in brand package)
+- **Import changed:** `import ConsoleGraphic from "@/components/architecture/ConsoleGraphic"` → `import { ConsoleGraphic } from "@level9/brand/components/architecture"`
+- **Commit:** 465951c
+
+### Kill: `src/components/architecture/` directory
+- **Type:** Empty directory after ConsoleGraphic.tsx deletion
+- **Commit:** 465951c
+
+---
