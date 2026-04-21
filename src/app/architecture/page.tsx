@@ -19,21 +19,7 @@ import { MagneticCard } from "@level9/brand/components/motion";
 import { RevealMask } from "@level9/brand/components/motion";
 import { pressurePoints, chassis, installManual } from "@level9/brand/content/pressurePoints";
 import { stack } from "@level9/brand/content/stack";
-
-/** The 8 COO Playbook Operating Domains. Source: coo-playbook-app/src/sections/Domains.tsx */
-const playbookDomains = [
-  { n: "1", title: "Architect Alignment", color: "#8B5CF6" },
-  { n: "2", title: "Systematize Execution", color: "#06B6D4" },
-  { n: "3", title: "Human + AI Architecture", color: "#EC4899" },
-  { n: "4", title: "Continuous Operating Loop", color: "#F59E0B" },
-  { n: "5", title: "Adaptive Governance", color: "#10B981" },
-  { n: "6", title: "Financial Leverage", color: "#8B5CF6" },
-  { n: "7", title: "Execution Assessment", color: "#06B6D4" },
-  { n: "8", title: "Systemic Execution Culture", color: "#EC4899" },
-];
-
-const domainByTitle = (title: string) =>
-  playbookDomains.find((d) => d.title === title);
+import { playbookDomains, domainByTitle } from "@level9/brand/content/playbookDomains";
 
 const layerById = (id: string) => stack.find((l) => l.id === id);
 
