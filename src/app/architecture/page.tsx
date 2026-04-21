@@ -20,6 +20,7 @@ import { RevealMask } from "@level9/brand/components/motion";
 import { pressurePoints, chassis, installManual } from "@level9/brand/content/pressurePoints";
 import { stack } from "@level9/brand/content/stack";
 import { playbookDomains, domainByTitle } from "@level9/brand/content/playbookDomains";
+import SiteFooter from "@/components/SiteFooter";
 
 const layerById = (id: string) => stack.find((l) => l.id === id);
 
@@ -751,54 +752,7 @@ export default function ArchitecturePage() {
       </section>
 
       {/* Footer */}
-      <footer className="py-12 border-t border-white/[0.04]" style={{ background: "#060610" }}>
-        <div className="max-w-6xl mx-auto px-6 sm:px-12 flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg overflow-hidden">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/brand/logos/level9/chip.svg" alt="Level9OS" className="w-full h-full" />
-            </div>
-            <div>
-              <div className="text-white/50 text-xs font-semibold tracking-wide">Level9OS</div>
-              <div className="text-white/20 text-[11px] font-mono">AI for Operations</div>
-            </div>
-          </div>
-          <div className="flex items-center gap-6 text-[12px] font-mono tracking-wider uppercase flex-wrap justify-center">
-            <Link href="/" className="text-white/30 hover:text-white/70 transition-colors">
-              Home
-            </Link>
-            <Link href="/products" className="text-white/30 hover:text-white/70 transition-colors">
-              Products
-            </Link>
-            <Link
-              href="/how-we-work"
-              className="text-white/30 hover:text-white/70 transition-colors"
-            >
-              How We Work
-            </Link>
-            <Link
-              href="/partnerships"
-              className="text-white/30 hover:text-white/70 transition-colors"
-            >
-              Partnerships
-            </Link>
-            <Link href="/about" className="text-white/30 hover:text-white/70 transition-colors">
-              About
-            </Link>
-          </div>
-          <div className="text-white/20 text-[11px] font-mono">
-            &copy; 2026 Level9 ·{" "}
-            <a
-              href="https://erichathaway.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-white/40 transition-colors"
-            >
-              Founder →
-            </a>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
     </main>
   );
 }
