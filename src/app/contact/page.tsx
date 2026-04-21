@@ -7,6 +7,7 @@ import { CursorGradient } from "@level9/brand/components/motion";
 import { MagneticButton } from "@level9/brand/components/motion";
 import { LiveTicker } from "@level9/brand/components/motion";
 import { RevealMask } from "@level9/brand/components/motion";
+import SiteFooter from "@/components/SiteFooter";
 
 export default function ContactPage() {
   return (
@@ -140,29 +141,7 @@ export default function ContactPage() {
         </div>
       </section>
 
-      <footer className="py-8 border-t border-white/[0.04]" style={{ background: "#060610" }}>
-        <div className="max-w-6xl mx-auto px-6 sm:px-12 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-7 h-7 rounded-lg overflow-hidden">
-              <img src="/brand/logos/level9/chip.svg" alt="Level9OS" className="w-full h-full" />
-            </div>
-            <div className="text-white/30 text-[12px] font-mono">
-              &copy; 2026 Level9OS ·{" "}
-              <a
-                href="https://erichathaway.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-white/60 transition-colors"
-              >
-                Founder →
-              </a>
-            </div>
-          </div>
-          <div className="text-white/20 text-[11px] font-mono tracking-wider">
-            Built, not advised.
-          </div>
-        </div>
-      </footer>
+      <SiteFooter variant="minimal" />
     </main>
   );
 }

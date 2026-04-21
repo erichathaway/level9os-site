@@ -7,7 +7,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-export const alt = "Level9OS — We build the half it all runs on.";
+export const alt = "Level9OS. We build the half it all runs on.";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 

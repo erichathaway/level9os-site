@@ -11,7 +11,6 @@
  * and lives in the conversation, not on the marketing page.
  */
 
-import Link from "next/link";
 import FloatingNav from "@/components/FloatingNav";
 import { FadeIn, Counter } from "@level9/brand/components/motion";
 import { CursorGradient } from "@level9/brand/components/motion";
@@ -19,6 +18,7 @@ import { MagneticButton } from "@level9/brand/components/motion";
 import { LiveTicker } from "@level9/brand/components/motion";
 import { MagneticCard } from "@level9/brand/components/motion";
 import { RevealMask } from "@level9/brand/components/motion";
+import SiteFooter from "@/components/SiteFooter";
 
 /** Live commercial projects — actual production deployments.
  *  Sourced from observable URLs and named-account work.
@@ -714,51 +714,7 @@ export default function HowWeWorkPage() {
       </section>
 
       {/* Footer */}
-      <footer className="py-12 border-t border-white/[0.04]" style={{ background: "var(--bg-root)" }}>
-        <div className="max-w-6xl mx-auto px-6 sm:px-12 flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg overflow-hidden">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/brand/logos/level9/chip.svg" alt="Level9OS" className="w-full h-full" />
-            </div>
-            <div>
-              <div className="text-white/50 text-xs font-semibold tracking-wide">Level9OS</div>
-              <div className="text-white/20 text-[11px] font-mono">AI for Operations</div>
-            </div>
-          </div>
-          <div className="flex items-center gap-6 text-[12px] font-mono tracking-wider uppercase flex-wrap justify-center">
-            <Link href="/" className="text-white/30 hover:text-white/70 transition-colors">
-              Home
-            </Link>
-            <Link href="/architecture" className="text-white/30 hover:text-white/70 transition-colors">
-              Architecture
-            </Link>
-            <Link href="/products" className="text-white/30 hover:text-white/70 transition-colors">
-              Products
-            </Link>
-            <Link href="/partnerships" className="text-white/30 hover:text-white/70 transition-colors">
-              Partnerships
-            </Link>
-            <Link href="/about" className="text-white/30 hover:text-white/70 transition-colors">
-              About
-            </Link>
-            <Link href="/contact" className="text-white/30 hover:text-white/70 transition-colors">
-              Contact
-            </Link>
-          </div>
-          <div className="text-white/20 text-[11px] font-mono">
-            &copy; 2026 Level9 ·{" "}
-            <a
-              href="https://erichathaway.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-white/40 transition-colors"
-            >
-              Founder →
-            </a>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
     </main>
   );
 }
