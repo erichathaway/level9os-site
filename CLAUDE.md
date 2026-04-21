@@ -36,16 +36,20 @@ git ref. Single source of truth for the family of marketing front-ends.
 **Currently uses (from the package):**
 - `@level9/brand/components/motion` — `FadeIn`, `Counter`, `AnimatedBar`,
   `RevealMask`, `MagneticCard`, `MagneticButton`, `CursorGradient`, `LiveTicker`
+- `@level9/brand/components/architecture` — `ConsoleGraphic` (local copy deleted 2026-04-21)
 - `@level9/brand/content/products` — canonical product roster + sub-pods
 - `@level9/brand/content/pressurePoints` — the 4 pressure points + chassis + installManual
 - `@level9/brand/content/stack` — the 8 operating layers
+- `@level9/brand/content/playbookDomains` — 8 COO Playbook domains + `domainByTitle` helper (wired 2026-04-21)
 
 **Available but not yet wired:**
 - `@level9/brand/components/layout` (v0.5+) — `SectionHeader`, `AmbientBackground`,
   `HeroEyebrow`, `CycleRibbon`, `PressurePointCard`, `PlaybookDomainCard`,
   `FooterPattern`. Migrating pages to use these is a future cleanup pass.
-- `@level9/brand/content/playbookDomains` — the 8 COO Playbook domains (currently
-  the architecture page has a hardcoded list — should switch to importing this)
+- `@level9/brand/styles/globals.css` — canonical `:root` vars, scrollbar, utilities.
+  Deferred: double-definition collision risk requires supervised pass with visual diffing.
+- `@level9/brand/legal/<llc>/` — Privacy/Terms/Cookie pages.
+  Deferred: `@level9/brand/legal/` export path does not yet exist. Brand-package task first.
 - `@level9/brand/content/voiceRules` — em-dash check helpers + voice characteristics
 
 To update the package version: `npm install @level9/brand --force` (force flag
@@ -102,6 +106,18 @@ Plus:
 - **2026-04-18** — Phase 3 migration: now consumes `@level9/brand` v0.4 for
   tokens, motion components, and content. Deleted 9 local files. Build clean
   at 12/12 routes.
+- **2026-04-21** — CLEAN pass (project 40ae410a). Branch: `cleanup/level9os-site-2026-04-20`.
+  Final commit: `342a871`. Summary of what landed:
+  - 9 dead CSS classes removed from `globals.css` (-84 lines)
+  - 8 orphan logo files deleted from `public/`
+  - 3 direct inline hex colors replaced with CSS vars
+  - Local `playbookDomains` array replaced with `@level9/brand/content/playbookDomains` import
+  - 7 duplicated inline footer blocks extracted to `src/components/SiteFooter.tsx`
+  - Local `ConsoleGraphic.tsx` (878 lines) deleted; canonical import from `@level9/brand/components/architecture`
+  - All 7 raw `<img>` tags replaced with `next/image`
+  - Mobile: apple-icon, OG image, NORTHSTAR title, touch targets, `min-h-dvh`, ConsoleGraphic mobile fallback
+  - Net: -862 lines of source code. Build: 12/12 routes, 87.3 kB shared JS, CLEAN.
+  Open decisions pending Eric input: (A) LinkedIn banner SVGs keep/delete, (B) #fb923c orange-400 map to var(--amber) or leave.
 
 ## Build verification
 
