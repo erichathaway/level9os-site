@@ -5,7 +5,6 @@ import { FadeIn, Counter } from "@level9/brand/components/motion";
 import { CursorGradient } from "@level9/brand/components/motion";
 import { MagneticButton } from "@level9/brand/components/motion";
 import { LiveTicker } from "@level9/brand/components/motion";
-import { MagneticCard } from "@level9/brand/components/motion";
 import { RevealMask } from "@level9/brand/components/motion";
 import SiteFooter from "@/components/SiteFooter";
 
@@ -122,95 +121,10 @@ export default function AboutPage() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════════
-          THE MODEL
+          THE PROOF — We run Level9 on Level9 + the operational DNA
+          (combined: one stats block, "we built inside, we now run on it")
           ═══════════════════════════════════════════════════════════ */}
       <section className="py-32 relative" style={{ background: "var(--bg-root)" }}>
-        <div className="max-w-6xl mx-auto px-6 sm:px-12">
-          <div className="mb-16">
-            <RevealMask>
-              <div className="text-violet-400/50 text-[11px] tracking-[0.5em] uppercase font-mono font-semibold mb-4">
-                The Model
-              </div>
-            </RevealMask>
-            <RevealMask delay={100}>
-              <h2 className="text-3xl sm:text-4xl font-black text-white/90 leading-[1.1] max-w-3xl">
-                Pods replace departments.
-                <br />
-                <span className="text-white/40">One human manager. Dozens of workflows. Measured continuously.</span>
-              </h2>
-            </RevealMask>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-16">
-            {[
-              {
-                num: "01",
-                title: "Playbook",
-                desc: "Strategy translated into sequenced, measurable execution. The COO Playbook methodology.",
-                color: "#8b5cf6",
-              },
-              {
-                num: "02",
-                title: "Pod",
-                desc: "Autonomous execution unit. n8n workflows + Pinecone RAG + governance layer. One human manages many.",
-                color: "#10b981",
-              },
-              {
-                num: "03",
-                title: "Measurement",
-                desc: "LucidORG ECI scoring. Real-time friction detection. Targeted intervention flags.",
-                color: "#06b6d4",
-              },
-            ].map((item, i) => (
-              <FadeIn key={item.num} delay={i * 0.15}>
-                <MagneticCard
-                  className="rounded-2xl h-full"
-                  glowColor={`${item.color}25`}
-                  maxTilt={4}
-                >
-                  <div
-                    className="rounded-2xl p-7 h-full border backdrop-blur-sm"
-                    style={{
-                      background: `linear-gradient(135deg, ${item.color}08 0%, transparent 100%)`,
-                      borderColor: `${item.color}20`,
-                    }}
-                  >
-                    <div
-                      className="text-[11px] font-mono tracking-[0.2em] mb-6"
-                      style={{ color: `${item.color}80` }}
-                    >
-                      {item.num}
-                    </div>
-                    <h3
-                      className="text-2xl font-black mb-4 tracking-tight"
-                      style={{ color: item.color }}
-                    >
-                      {item.title}
-                    </h3>
-                    <p className="text-white/55 text-sm leading-relaxed">{item.desc}</p>
-                  </div>
-                </MagneticCard>
-              </FadeIn>
-            ))}
-          </div>
-
-          <FadeIn delay={0.5}>
-            <div className="p-6 rounded-2xl border border-white/[0.06] bg-white/[0.02] text-center">
-              <p className="text-white/50 text-sm">
-                Marketing + outbound + customer care department of 10 →{" "}
-                <span className="text-emerald-400 font-bold">1 manager + OutboundOS umbrella</span>{" "}
-                (LinkupOS, ABM Engine, AutoCS pods). Proven first on Level9 itself at{" "}
-                <span className="text-emerald-400 font-mono">~$5/month</span> operating cost.
-              </p>
-            </div>
-          </FadeIn>
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════════════════════
-          THE PROOF — We run Level9 on Level9
-          ═══════════════════════════════════════════════════════════ */}
-      <section className="py-32 relative" style={{ background: "#060610" }}>
         <div className="max-w-5xl mx-auto px-6 sm:px-12 text-center">
           <RevealMask>
             <div className="text-cyan-400/50 text-[11px] tracking-[0.5em] uppercase font-mono font-semibold mb-4">
@@ -227,81 +141,32 @@ export default function AboutPage() {
             </h2>
           </RevealMask>
 
-          <FadeIn delay={0.3}>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 my-16">
+          <RevealMask delay={200}>
+            <p className="text-white/45 text-base max-w-2xl mx-auto leading-relaxed">
+              The operating model wasn&apos;t theorized. It was extracted from 20+ years running
+              operations across six continents and productized into what we run on now. If it
+              breaks for us, it never ships to you.
+            </p>
+          </RevealMask>
+
+          <FadeIn delay={0.4}>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6 mt-16 max-w-4xl mx-auto">
               {[
-                { num: 138, label: "Workflows Live", color: "#10b981" },
-                { num: 48, label: "Domain Officers", color: "#8b5cf6" },
-                { num: 6, label: "Products Deployed", color: "#06b6d4" },
-                { num: 30, label: "Years Pattern Recognition", color: "#f59e0b", suffix: "+" },
+                { num: 20, suffix: "+", label: "Years Experience", color: "#f59e0b" },
+                { num: 6, suffix: "", label: "Continents", color: "#10b981" },
+                { num: 60, suffix: "+", label: "Countries", color: "#06b6d4" },
+                { num: 138, suffix: "", label: "Workflows Live", color: "#8b5cf6" },
+                { num: 48, suffix: "", label: "Domain Officers", color: "#ec4899" },
+                { num: 6, suffix: "+", label: "Products Deployed", color: "#06b6d4" },
               ].map((s) => (
                 <div key={s.label} className="group cursor-default">
                   <div
-                    className="text-4xl sm:text-5xl font-black mb-2 transition-transform group-hover:scale-110 tabular-nums"
+                    className="text-3xl sm:text-4xl font-black mb-2 transition-transform group-hover:scale-110 tabular-nums"
                     style={{ color: s.color }}
                   >
-                    <Counter target={s.num} suffix={s.suffix || ""} />
-                  </div>
-                  <div className="text-white/25 text-[11px] uppercase tracking-[0.25em] font-mono">
-                    {s.label}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </FadeIn>
-
-          <FadeIn delay={0.5}>
-            <p className="text-white/45 text-base max-w-2xl mx-auto leading-relaxed">
-              If it breaks for us, it never ships to you. If it works for us, we know exactly what
-              it takes to make it work for you, because we did it first.
-            </p>
-          </FadeIn>
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════════════════════
-          OPERATIONAL DNA — Where the experience comes from
-          ═══════════════════════════════════════════════════════════ */}
-      <section className="py-32 relative" style={{ background: "var(--bg-root)" }}>
-        <div className="max-w-5xl mx-auto px-6 sm:px-12">
-          <div className="text-center mb-16">
-            <RevealMask>
-              <div className="text-white/30 text-[11px] tracking-[0.5em] uppercase font-mono font-semibold mb-4">
-                Operational DNA
-              </div>
-            </RevealMask>
-            <RevealMask delay={100}>
-              <h2 className="text-3xl sm:text-4xl font-black text-white/90 mb-6 leading-[1.1]">
-                Built inside the rooms we&apos;re now
-                <br />
-                <span className="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
-                  building the tools for.
-                </span>
-              </h2>
-            </RevealMask>
-            <RevealMask delay={200}>
-              <p className="text-white/40 text-base max-w-2xl mx-auto leading-relaxed">
-                Level9&apos;s operating model wasn&apos;t theorized. It was extracted from three
-                decades of running operations inside global enterprises. The frameworks we sell
-                are the ones we actually used.
-              </p>
-            </RevealMask>
-          </div>
-
-          <FadeIn delay={0.4}>
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-6 max-w-4xl mx-auto">
-              {[
-                { num: 30, suffix: "+", label: "Years Experience" },
-                { num: 6, suffix: "", label: "Continents" },
-                { num: 60, suffix: "+", label: "Countries" },
-                { num: 5, suffix: "", label: "Global Enterprises" },
-                { num: 6, suffix: "", label: "AI Products Built" },
-              ].map((s) => (
-                <div key={s.label} className="text-center group cursor-default">
-                  <div className="text-3xl sm:text-4xl font-black text-white/80 group-hover:text-white transition-colors tabular-nums">
                     <Counter target={s.num} suffix={s.suffix} />
                   </div>
-                  <div className="text-white/25 text-[11px] uppercase tracking-[0.25em] font-mono mt-1">
+                  <div className="text-white/25 text-[11px] uppercase tracking-[0.25em] font-mono">
                     {s.label}
                   </div>
                 </div>
