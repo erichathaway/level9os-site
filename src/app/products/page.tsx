@@ -60,7 +60,7 @@ export default function ProductsPage() {
             <div className="inline-flex items-center gap-3 mb-8 px-4 py-2 rounded-full border border-white/[0.08] bg-white/[0.02] backdrop-blur-sm">
               <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
               <span className="text-[12px] font-mono tracking-[0.3em] uppercase text-white/60">
-                Six Products · Four Pressure Points
+                6+ Products · Four Pressure Points
               </span>
             </div>
           </FadeIn>

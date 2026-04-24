@@ -96,8 +96,8 @@ export default function AboutPage() {
           <div className="space-y-6 text-white/55 text-base leading-relaxed">
             <FadeIn delay={0.2}>
               <p>
-                Three decades of operational leadership across six continents made one pattern
-                impossible to ignore. Strategy failures are almost never about strategy.
+                20+ years of executive operating leadership across six continents made one
+                pattern impossible to ignore. Strategy failures are almost never about strategy.
                 They&apos;re about the layer beneath it: how decisions get made, how work gets
                 coordinated, how alignment gets measured.
               </p>

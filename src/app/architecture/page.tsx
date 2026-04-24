@@ -683,7 +683,7 @@ export default function ArchitecturePage() {
                     Want to know who built this?
                   </h2>
                   <p className="text-white/55 text-base leading-relaxed max-w-xl">
-                    The four pressure points came out of three decades running operations inside
+                    The four pressure points came out of 20+ years running operations inside
                     Microsoft, Credit Suisse, T-Mobile, S&amp;P Global, and global enterprises.
                     The architecture is the productized version.
                   </p>

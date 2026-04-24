@@ -881,7 +881,7 @@ export default function Home() {
                           </div>
                           <p className="text-white/85 text-sm leading-relaxed font-medium">
                             {p.id === "playbook"
-                              ? "The 30 / 90 / 180 install protocol that turns the four pressure points into a phased rollout plan. Built from three decades of operational pattern recognition."
+                              ? "The 30 / 90 / 180 install protocol that turns the four pressure points into a phased rollout plan. Built from 20+ years of operational pattern recognition."
                               : "The conversational layer that sits across all four pressure points. Ask any question about your operation in plain English and get a metric-grounded answer."}
                           </p>
                         </div>
@@ -928,9 +928,9 @@ export default function Home() {
             </RevealMask>
             <RevealMask delay={200}>
               <p className="text-white/40 text-base max-w-2xl mx-auto leading-relaxed">
-                Three decades of operational leadership across global enterprises. The frameworks
-                we sell are the ones we actually used. The pods we deploy are the ones we run on
-                ourselves first.
+                20+ years of executive operating leadership across global enterprises. The
+                frameworks we sell are the ones we actually used. The pods we deploy are the ones
+                we run on ourselves first.
               </p>
             </RevealMask>
           </div>
