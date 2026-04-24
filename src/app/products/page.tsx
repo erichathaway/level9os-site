@@ -573,34 +573,21 @@ export default function ProductsPage() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════════
-          THE INTEGRATION ARGUMENT
+          INTEGRATION STRIP — compact payoff before CTA
           ═══════════════════════════════════════════════════════════ */}
-      <section className="py-32 relative" style={{ background: "#060610" }}>
-        <div className="max-w-5xl mx-auto px-6 sm:px-12 text-center">
-          <RevealMask>
-            <div className="text-cyan-400/50 text-[11px] tracking-[0.5em] uppercase font-mono font-semibold mb-4">
+      <section className="py-20 relative" style={{ background: "#060610" }}>
+        <div className="max-w-4xl mx-auto px-6 sm:px-12 text-center">
+          <FadeIn>
+            <div className="text-cyan-400/60 text-[11px] tracking-[0.5em] uppercase font-mono font-semibold mb-5">
               The Integration
             </div>
-          </RevealMask>
-          <RevealMask delay={100}>
-            <h2 className="text-4xl sm:text-5xl font-black text-white/90 mb-6 leading-[1.05]">
-              Each product stands alone.
-              <br />
+            <h2 className="text-3xl sm:text-4xl font-black text-white/95 mb-6 leading-[1.1]">
+              Each product stands alone.{" "}
               <span className="bg-gradient-to-r from-violet-400 via-cyan-400 to-fuchsia-400 bg-clip-text text-transparent">
                 Together, they break the cycle.
               </span>
             </h2>
-          </RevealMask>
-          <FadeIn delay={0.3}>
-            <p className="text-white/55 text-lg max-w-2xl mx-auto mb-12 leading-relaxed">
-              Misalignment becomes drag. Drag becomes cost. Cost forces reactive leadership.
-              Reactive leadership locks in more misalignment. Each product is one intervention
-              site in that loop. The full stack is the unfair advantage.
-            </p>
-          </FadeIn>
-
-          <FadeIn delay={0.5}>
-            <div className="flex flex-wrap justify-center items-center gap-3 text-[12px] font-mono tracking-wider uppercase mb-3">
+            <div className="flex flex-wrap justify-center items-center gap-x-3 gap-y-2 text-[12px] font-mono tracking-wider uppercase">
               <span className="text-violet-400/80">01 Decide · StratOS</span>
               <span className="text-white/20">→</span>
               <span className="text-emerald-400/80">02 Coordinate · CommandOS</span>
@@ -609,13 +596,6 @@ export default function ProductsPage() {
               <span className="text-white/20">→</span>
               <span className="text-cyan-400/80">04 Measure · LucidORG</span>
               <span className="text-white/20">↺</span>
-            </div>
-            <div className="flex flex-wrap justify-center items-center gap-3 text-[11px] font-mono tracking-wider uppercase">
-              <span className="text-red-400/70">Vault chassis underneath</span>
-              <span className="text-white/20">·</span>
-              <span className="text-slate-400/70">Playbook installs it</span>
-              <span className="text-white/20">·</span>
-              <span className="text-fuchsia-400/70">MAX talks to it</span>
             </div>
           </FadeIn>
         </div>

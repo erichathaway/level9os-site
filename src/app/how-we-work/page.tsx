@@ -127,14 +127,6 @@ const recentReleases: Release[] = [
   },
   {
     date: "Apr 2026",
-    product: "Site",
-    productColor: "#8b5cf6",
-    title: "level9os.com migrates to four-pressure-point taxonomy",
-    summary: "Home and products rebuilt around the alignment cycle (Decide / Coordinate / Execute / Measure). New /architecture page maps four pressure points to eight operating layers and eight COO Playbook domains.",
-    tag: "FEATURE",
-  },
-  {
-    date: "Apr 2026",
     product: "ABM Engine",
     productColor: "#fb923c",
     title: "Self-serve ABM Engine: company name in, full drop campaign out",
@@ -592,69 +584,30 @@ export default function HowWeWorkPage() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════════
-          DOGFOOD PROOF — we run Level9 on Level9
+          DOGFOOD STRIP — compact proof beat before CTA
           ═══════════════════════════════════════════════════════════ */}
-      <section className="py-32 relative" style={{ background: "#060610" }}>
-        <div className="max-w-5xl mx-auto px-6 sm:px-12">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-16 items-center">
-            <FadeIn direction="left">
-              <div className="text-emerald-400/60 text-[11px] tracking-[0.5em] uppercase font-mono font-semibold mb-6">
-                The Proof
-              </div>
-              <h2 className="text-3xl sm:text-4xl font-black text-white/90 mb-6 leading-[1.1]">
-                We run Level9
-                <br />
-                on Level9.
-              </h2>
-              <p className="text-white/55 text-base leading-relaxed mb-5">
-                Every product we sell runs our own company first. OutboundOS handles our
-                marketing, outbound, and care across LinkupOS + ABM Engine + AutoCS pods, on a
-                small monthly footprint. StratOS makes our strategic decisions. CommandOS
-                coordinates our 48 domain officers. COO Playbook is the methodology we actually
-                execute.
-              </p>
-              <p className="text-white/40 text-sm leading-relaxed">
-                If it breaks for us, it never ships to you. If it works for us, we know exactly
-                what it takes to make it work for you, because we did it first.
-              </p>
-            </FadeIn>
-
-            <FadeIn direction="right" delay={0.2}>
-              <div className="space-y-4">
-                {[
-                  { label: "Level9 Decision Engine", value: "StratOS", color: "#8b5cf6" },
-                  { label: "Level9 Agent Orchestration", value: "CommandOS", color: "#10b981" },
-                  { label: "Level9 Outbound + Care", value: "OutboundOS", color: "#f59e0b" },
-                  { label: "Level9 Methodology", value: "COO Playbook", color: "#64748b" },
-                  { label: "Level9 Measurement", value: "LucidORG", color: "#06b6d4" },
-                ].map((row) => (
-                  <div
-                    key={row.label}
-                    className="flex items-center justify-between p-4 rounded-xl border border-white/[0.06] bg-white/[0.01] hover:border-white/[0.12] hover:bg-white/[0.03] transition-all"
-                  >
-                    <div>
-                      <div className="text-white/45 text-[12px] font-mono uppercase tracking-wider">
-                        {row.label}
-                      </div>
-                      <div className="text-white/90 text-base font-bold">{row.value}</div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div
-                        className="w-1.5 h-1.5 rounded-full animate-pulse"
-                        style={{ background: row.color }}
-                      />
-                      <span
-                        className="text-[11px] font-mono tracking-wider"
-                        style={{ color: `${row.color}cc` }}
-                      >
-                        LIVE
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </FadeIn>
-          </div>
+      <section className="py-20 relative" style={{ background: "#060610" }}>
+        <div className="max-w-5xl mx-auto px-6 sm:px-12 text-center">
+          <FadeIn>
+            <div className="text-emerald-400/60 text-[11px] tracking-[0.5em] uppercase font-mono font-semibold mb-5">
+              The Proof
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-black text-white/90 mb-5 leading-[1.1]">
+              We run Level9 on Level9.
+            </h2>
+            <p className="text-white/50 text-base max-w-xl mx-auto mb-7 leading-relaxed">
+              If it breaks for us, it never ships to you. If it works for us, we know exactly what it takes to make it work for you.
+            </p>
+            <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-2 text-[12px] font-mono tracking-wider uppercase">
+              <span className="text-violet-400/80">StratOS decides</span>
+              <span className="text-white/20">·</span>
+              <span className="text-emerald-400/80">CommandOS coordinates</span>
+              <span className="text-white/20">·</span>
+              <span className="text-amber-400/80">OutboundOS executes</span>
+              <span className="text-white/20">·</span>
+              <span className="text-cyan-400/80">LucidORG measures</span>
+            </div>
+          </FadeIn>
         </div>
       </section>
 
