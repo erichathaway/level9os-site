@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { motion } from "framer-motion";
 
 const pages = [
   { label: "Overview", href: "/" },
@@ -57,6 +58,22 @@ export default function FloatingNav() {
     return () => { document.body.style.overflow = ""; };
   }, [open]);
 
+  // On the home page only, the chip crystallizes in (blur → sharp) and the
+  // wordmark slides in after. Timings match HomeHeroSplash so the icon-hit
+  // aligns with the flash + pond ripples. Other pages render the chip
+  // instantly without entry animation.
+  const isHome = pathname === "/";
+  const chipInitial = isHome ? { opacity: 0, scale: 1.5, filter: "blur(28px)" } : undefined;
+  const chipAnimate = isHome ? { opacity: 1, scale: 1, filter: "blur(0px)" } : undefined;
+  const chipTransition = isHome
+    ? { duration: 0.9, delay: 1.5, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] }
+    : undefined;
+  const textInitial = isHome ? { opacity: 0, x: -8 } : undefined;
+  const textAnimate = isHome ? { opacity: 1, x: 0 } : undefined;
+  const textTransition = isHome
+    ? { duration: 0.9, delay: 1.9, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] }
+    : undefined;
+
   return (
     <>
       {/* Top-left logo / brand mark */}
@@ -66,15 +83,27 @@ export default function FloatingNav() {
           scrolled ? "scale-95" : "scale-100"
         }`}
       >
-        <div className="w-11 h-11 rounded-xl overflow-hidden shadow-lg shadow-violet-500/20 group-hover:shadow-violet-500/40 transition-shadow">
-          <Image src="/brand/logos/level9/chip.svg" alt="Level9OS" width={44} height={44} className="w-full h-full" />
-        </div>
-        <div className="hidden sm:block">
+        <motion.div
+          initial={chipInitial}
+          animate={chipAnimate}
+          transition={chipTransition}
+          style={{ willChange: isHome ? "transform, opacity, filter" : undefined }}
+        >
+          <div className="w-11 h-11 rounded-xl overflow-hidden shadow-lg shadow-violet-500/20 group-hover:shadow-violet-500/40 transition-shadow">
+            <Image src="/brand/logos/level9/chip.svg" alt="Level9OS" width={44} height={44} className="w-full h-full" />
+          </div>
+        </motion.div>
+        <motion.div
+          className="hidden sm:block"
+          initial={textInitial}
+          animate={textAnimate}
+          transition={textTransition}
+        >
           <div className="text-[11px] tracking-[0.3em] uppercase font-semibold text-white/50 group-hover:text-white/80 transition-colors">
             Level9<span className="text-white/30">OS</span>
           </div>
           <div className="text-[8px] text-white/20 tracking-wide">AI for Operations</div>
-        </div>
+        </motion.div>
       </Link>
 
       {/* Top-right menu trigger */}

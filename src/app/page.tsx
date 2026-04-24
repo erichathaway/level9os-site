@@ -15,6 +15,7 @@ import { pressurePoints, chassis } from "@level9/brand/content/pressurePoints";
 import { partners } from "@/data/partners";
 import { ConsoleGraphic } from "@level9/brand/components/architecture";
 import SiteFooter from "@/components/SiteFooter";
+import HomeHeroSplash from "@/components/motion/HomeHeroSplash";
 
 export default function Home() {
   return (
@@ -64,6 +65,10 @@ export default function Home() {
             maskImage: "radial-gradient(ellipse at center, black 0%, transparent 80%)",
           }}
         />
+
+        {/* Signature hero splash: animated mesh + logo-hit flash + pond ripples.
+            Syncs with FloatingNav's chip crystallization (home-only). */}
+        <HomeHeroSplash />
 
         <div className="max-w-6xl mx-auto px-6 sm:px-12 py-32 relative z-10 w-full">
           <FadeIn>
