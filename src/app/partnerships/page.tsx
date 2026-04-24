@@ -124,80 +124,54 @@ export default function PartnershipsPage() {
                     }}
                   />
 
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
-                    <div>
-                      <div className="flex items-center gap-3 mb-6">
-                        <div className="text-[11px] font-mono tracking-[0.2em] uppercase px-3 py-1 rounded-full border" style={{ borderColor: `${featured.color}40`, background: `${featured.color}10`, color: featured.color }}>
-                          {featured.type}
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: featured.color }} />
-                          <span className="text-[11px] font-mono tracking-wider" style={{ color: `${featured.color}aa` }}>FEATURED</span>
-                        </div>
+                  <div className="relative z-10">
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="text-[11px] font-mono tracking-[0.2em] uppercase px-3 py-1 rounded-full border" style={{ borderColor: `${featured.color}40`, background: `${featured.color}10`, color: featured.color }}>
+                        {featured.type}
                       </div>
-
-                      <h2 className="text-5xl sm:text-6xl font-black text-white/95 mb-4 tracking-tight">
-                        {featured.name}
-                      </h2>
-                      <p className="text-xl font-semibold mb-8" style={{ color: `${featured.color}cc` }}>
-                        {featured.tagline}
-                      </p>
-                      <p className="text-white/55 text-base leading-relaxed mb-10">
-                        {featured.description}
-                      </p>
-
-                      <div className="flex flex-wrap items-center gap-3">
-                        <a
-                          href={featured.href}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-3 px-8 py-4 rounded-full text-white font-semibold transition-all hover:scale-[1.02]"
-                          style={{
-                            background: `linear-gradient(135deg, ${featured.color}, ${featured.color}80)`,
-                            boxShadow: `0 8px 30px ${featured.color}30`,
-                          }}
-                        >
-                          <span className="w-2 h-2 rounded-full bg-white/90 animate-pulse" />
-                          Looking for a career in AI?
-                          <span className="ml-1">→</span>
-                        </a>
-                        <a
-                          href="https://linkedin.com/company/nextgenintern"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 px-5 py-4 rounded-full border border-white/[0.10] text-white/65 hover:text-white/90 hover:border-white/[0.25] text-sm transition-colors"
-                          aria-label="NextGenIntern on LinkedIn"
-                        >
-                          <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
-                            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.063 2.063 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-                          </svg>
-                          LinkedIn
-                        </a>
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: featured.color }} />
+                        <span className="text-[11px] font-mono tracking-wider" style={{ color: `${featured.color}aa` }}>FEATURED · 501(c)(3)</span>
                       </div>
                     </div>
 
-                    {/* Right: stats panel */}
-                    <div className="space-y-4">
-                      {[
-                        { label: "Audience", value: "Individuals · Students · Career Changers" },
-                        { label: "Status", value: "501(c)(3) Non-Profit" },
-                        { label: "Focus", value: "AI Operations Careers" },
-                        { label: "Domain", value: "nextgenintern.com" },
-                      ].map((row) => (
-                        <div
-                          key={row.label}
-                          className="p-4 rounded-xl border bg-white/[0.02]"
-                          style={{ borderColor: `${featured.color}15` }}
-                        >
-                          <div
-                            className="text-[11px] font-mono tracking-wider uppercase mb-1"
-                            style={{ color: `${featured.color}80` }}
-                          >
-                            {row.label}
-                          </div>
-                          <div className="text-white/85 text-sm font-bold">{row.value}</div>
-                        </div>
-                      ))}
+                    <h2 className="text-5xl sm:text-6xl font-black text-white/95 mb-4 tracking-tight">
+                      {featured.name}
+                    </h2>
+                    <p className="text-xl font-semibold mb-6" style={{ color: `${featured.color}cc` }}>
+                      {featured.tagline}
+                    </p>
+                    <p className="text-white/55 text-base leading-relaxed mb-8 max-w-2xl">
+                      {featured.description}
+                    </p>
+
+                    <div className="flex flex-wrap items-center gap-3">
+                      <a
+                        href={featured.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-3 px-8 py-4 rounded-full text-white font-semibold transition-all hover:scale-[1.02]"
+                        style={{
+                          background: `linear-gradient(135deg, ${featured.color}, ${featured.color}80)`,
+                          boxShadow: `0 8px 30px ${featured.color}30`,
+                        }}
+                      >
+                        <span className="w-2 h-2 rounded-full bg-white/90 animate-pulse" />
+                        Looking for a career in AI?
+                        <span className="ml-1">→</span>
+                      </a>
+                      <a
+                        href="https://linkedin.com/company/nextgenintern"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 px-5 py-4 rounded-full border border-white/[0.10] text-white/65 hover:text-white/90 hover:border-white/[0.25] text-sm transition-colors"
+                        aria-label="NextGenIntern on LinkedIn"
+                      >
+                        <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+                          <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.063 2.063 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                        </svg>
+                        LinkedIn
+                      </a>
                     </div>
                   </div>
                 </div>
@@ -287,83 +261,7 @@ export default function PartnershipsPage() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════════
-          PARTNER PATHS — How partners use Level9OS
-          ═══════════════════════════════════════════════════════════ */}
-      <section className="py-32 relative" style={{ background: "var(--bg-root)" }}>
-        <div className="max-w-6xl mx-auto px-6 sm:px-12">
-          <div className="mb-16">
-            <RevealMask>
-              <div className="text-violet-400/50 text-[11px] tracking-[0.5em] uppercase font-mono font-semibold mb-4">
-                How Partners Use Level9OS
-              </div>
-            </RevealMask>
-            <RevealMask delay={100}>
-              <h2 className="text-3xl sm:text-4xl font-black text-white/90 leading-[1.15] max-w-3xl">
-                Two ways the operating system
-                <br />
-                <span className="text-white/40">moves through the network.</span>
-              </h2>
-            </RevealMask>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Distribution Partners */}
-            <FadeIn direction="left">
-              <div className="rounded-3xl p-10 border border-violet-500/20 bg-gradient-to-br from-violet-500/[0.06] to-transparent h-full">
-                <div className="text-violet-400/70 text-[11px] tracking-[0.3em] uppercase font-mono mb-4">
-                  Distribution & Install Partners
-                </div>
-                <h3 className="text-3xl font-black text-white/95 mb-4 leading-tight">
-                  Put Level9OS
-                  <br />
-                  in front of operators.
-                </h3>
-                <p className="text-white/55 text-sm leading-relaxed mb-8">
-                  Accelerators, regional growth programs, executive networks, consulting partners.
-                  You already work with the people who&apos;d run pods, install the methodology,
-                  and pressure-test decisions. We give you the products and the install protocol.
-                </p>
-                <MagneticButton
-                  href="mailto:partnerships@level9os.com?subject=Distribution%20Partnership%20-%20Level9OS"
-                  className="inline-flex items-center gap-3 px-7 py-4 rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-600 text-white font-semibold hover:shadow-2xl hover:shadow-violet-500/30 transition-shadow"
-                >
-                  <span className="w-2 h-2 rounded-full bg-white/90 animate-pulse" />
-                  Become a Distribution Partner →
-                </MagneticButton>
-              </div>
-            </FadeIn>
-
-            {/* Education / Career Partners */}
-            <FadeIn direction="right" delay={0.15}>
-              <div className="rounded-3xl p-10 border border-emerald-500/20 bg-gradient-to-br from-emerald-500/[0.06] to-transparent h-full">
-                <div className="text-emerald-400/70 text-[11px] tracking-[0.3em] uppercase font-mono mb-4">
-                  Education & Career Partners
-                </div>
-                <h3 className="text-3xl font-black text-white/95 mb-4 leading-tight">
-                  Train the next
-                  <br />
-                  generation of operators.
-                </h3>
-                <p className="text-white/55 text-sm leading-relaxed mb-8">
-                  Universities, business schools, and the 501(c)(3) career on-ramp. Curriculum
-                  modules, guest lectures, the COO Playbook taught as executive education, and
-                  the AI operations career track hosted on NextGenIntern.
-                </p>
-                <MagneticButton
-                  href="mailto:partnerships@level9os.com?subject=Education%20Partnership%20-%20Level9OS"
-                  className="inline-flex items-center gap-3 px-7 py-4 rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold hover:shadow-2xl hover:shadow-emerald-500/30 transition-shadow"
-                >
-                  <span className="w-2 h-2 rounded-full bg-white/90 animate-pulse" />
-                  Become an Education Partner →
-                </MagneticButton>
-              </div>
-            </FadeIn>
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════════════════════
-          CTA
+          CTA — two partner paths, one block
           ═══════════════════════════════════════════════════════════ */}
       <section className="py-32 relative overflow-hidden" style={{ background: "#060610" }}>
         <div className="absolute inset-0 pointer-events-none">
@@ -386,16 +284,25 @@ export default function PartnershipsPage() {
               </span>
             </h2>
             <p className="text-white/45 text-base mb-12 max-w-xl mx-auto">
-              If you install, distribute, accelerate, or teach operations, let&apos;s build
-              something together.
+              Distribution partners put the products in front of operators. Education partners
+              train the next generation. Pick the path that fits.
             </p>
-            <MagneticButton
-              href="mailto:partnerships@level9os.com?subject=Partnership%20-%20Level9OS"
-              className="inline-flex items-center gap-3 px-10 py-5 rounded-full bg-gradient-to-r from-emerald-500 via-cyan-500 to-violet-500 text-white font-semibold hover:shadow-2xl hover:shadow-emerald-500/30 transition-shadow text-lg"
-            >
-              <span className="w-2.5 h-2.5 rounded-full bg-white/90 animate-pulse" />
-              Start a Partnership Conversation
-            </MagneticButton>
+            <div className="flex flex-wrap items-center justify-center gap-4">
+              <MagneticButton
+                href="mailto:partnerships@level9os.com?subject=Distribution%20Partnership%20-%20Level9OS"
+                className="inline-flex items-center gap-3 px-7 py-4 rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-600 text-white font-semibold hover:shadow-2xl hover:shadow-violet-500/30 transition-shadow"
+              >
+                <span className="w-2 h-2 rounded-full bg-white/90 animate-pulse" />
+                Distribution partner →
+              </MagneticButton>
+              <MagneticButton
+                href="mailto:partnerships@level9os.com?subject=Education%20Partnership%20-%20Level9OS"
+                className="inline-flex items-center gap-3 px-7 py-4 rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold hover:shadow-2xl hover:shadow-emerald-500/30 transition-shadow"
+              >
+                <span className="w-2 h-2 rounded-full bg-white/90 animate-pulse" />
+                Education partner →
+              </MagneticButton>
+            </div>
           </FadeIn>
         </div>
       </section>
