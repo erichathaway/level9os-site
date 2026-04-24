@@ -641,11 +641,11 @@ export default function HowWeWorkPage() {
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4">
               <MagneticButton
-                href="mailto:hello@level9os.com?subject=Level9OS%20-%20Let's%20Talk"
+                href="https://linkedin.com/in/erichathaway1"
                 className="inline-flex items-center gap-3 px-10 py-5 rounded-full bg-gradient-to-r from-violet-500 via-fuchsia-500 to-cyan-500 text-white font-semibold hover:shadow-2xl hover:shadow-violet-500/30 transition-shadow text-lg"
               >
                 <span className="w-2.5 h-2.5 rounded-full bg-white/90 animate-pulse" />
-                Start a Conversation
+                Start a Conversation on LinkedIn
               </MagneticButton>
               <MagneticButton
                 href="/products"

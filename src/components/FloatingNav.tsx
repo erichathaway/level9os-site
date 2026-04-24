@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
+import { products } from "@level9/brand/content/products";
 
 const pages = [
   { label: "Overview", href: "/" },
@@ -20,21 +21,33 @@ const secondary = [
 ];
 
 /**
- * Product roster. All chip icons resolve to the canonical logo database
- * at /brand/logos/<brand>/chip.svg (synced on npm install via the
- * sync-brand-logos postinstall hook, sourced from @level9/brand).
- *
- * MAX has no brand mark yet. It is a letter-mark fallback until the
- * brand-agent designs the final chip. Flagged in BRAND-AGENT-HANDOFF.md.
+ * Product roster derived from the canonical roster in
+ * `@level9/brand/content/products`. Only the nav-specific display metadata
+ * (chip desc, logo folder override for coo-playbook) is kept local.
+ * Names, IDs, colors, and order come from the brand package.
  */
-const products: { label: string; href: string; color: string; icon: string; desc: string; image?: string }[] = [
-  { label: "StratOS",      href: "/products#stratos",    color: "#8b5cf6", icon: "S", desc: "AI Decision Rooms",        image: "/brand/logos/stratos/chip.svg" },
-  { label: "CommandOS",    href: "/products#commandos",  color: "#10b981", icon: "C", desc: "Agent Orchestration",      image: "/brand/logos/commandos/chip.svg" },
-  { label: "OutboundOS",   href: "/products#outboundos", color: "#f59e0b", icon: "O", desc: "LinkupOS · ABM · AutoCS",  image: "/brand/logos/outboundos/chip.svg" },
-  { label: "COO Playbook", href: "/products#playbook",   color: "#64748b", icon: "P", desc: "Execution Methodology",    image: "/brand/logos/coo-playbook/chip.svg" },
-  { label: "LucidORG",     href: "/products#lucidorg",   color: "#06b6d4", icon: "O", desc: "Measurement Platform",     image: "/brand/logos/lucidorg/chip.svg" },
-  { label: "MAX",          href: "/products#max",        color: "#ec4899", icon: "M", desc: "Coming Soon",              image: "/brand/logos/max/chip.svg" },
-];
+const NAV_DESC: Record<string, string> = {
+  stratos:    "AI Decision Rooms",
+  commandos:  "Agent Orchestration",
+  outboundos: "LinkupOS · ABM · AutoCS",
+  playbook:   "Execution Methodology",
+  lucidorg:   "Measurement Platform",
+  max:        "Coming Soon",
+};
+
+// canonical logo folders don't always match product ids (playbook → coo-playbook)
+const LOGO_DIR: Record<string, string> = {
+  playbook: "coo-playbook",
+};
+
+const navProducts = products.map((p) => ({
+  label: p.name,
+  href: `/products#${p.id}`,
+  color: p.color,
+  icon: p.name.charAt(0),
+  desc: NAV_DESC[p.id] ?? p.tag,
+  image: `/brand/logos/${LOGO_DIR[p.id] ?? p.id}/chip.svg`,
+}));
 
 const external = [
   { label: "Lucid Insights", href: "https://lucidinsights.substack.com", desc: "Field notes · weekly" },
@@ -188,7 +201,7 @@ export default function FloatingNav() {
                 Products
               </div>
               <div className="space-y-3">
-                {products.map((p) => (
+                {navProducts.map((p) => (
                   <Link
                     key={p.label}
                     href={p.href}
