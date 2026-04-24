@@ -19,7 +19,7 @@ import { MagneticCard } from "@level9/brand/components/motion";
 import { RevealMask } from "@level9/brand/components/motion";
 import { pressurePoints, chassis, installManual } from "@level9/brand/content/pressurePoints";
 import { stack } from "@level9/brand/content/stack";
-import { playbookDomains, domainByTitle } from "@level9/brand/content/playbookDomains";
+import { domainByTitle } from "@level9/brand/content/playbookDomains";
 import SiteFooter from "@/components/SiteFooter";
 
 const layerById = (id: string) => stack.find((l) => l.id === id);
@@ -97,10 +97,9 @@ export default function ArchitecturePage() {
 
           <FadeIn delay={0.5}>
             <p className="text-white/55 text-lg max-w-2xl mb-10 font-light leading-relaxed">
-              The home page tells the four-pressure-point story because that&apos;s the buyer
-              surface. This page is the architecture underneath. Each pressure point is one
-              intervention site in the alignment cycle, mapped down to the operating-system layers
-              we build, and mapped up to the COO Playbook domains operators already know.
+              The buyer sees four pressure points. Inside the stack, each one maps down to the
+              operating-system layers we build, and up to the COO Playbook domains operators
+              already know. This is the full taxonomy.
             </p>
           </FadeIn>
 
@@ -135,113 +134,10 @@ export default function ArchitecturePage() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════════
-          THE CYCLE — Visual ribbon of the alignment loop
-          ═══════════════════════════════════════════════════════════ */}
-      <section className="py-24 relative" style={{ background: "#060610" }}>
-        <div className="max-w-6xl mx-auto px-6 sm:px-12">
-          <div className="text-center mb-12">
-            <RevealMask>
-              <div className="text-violet-400/50 text-[11px] tracking-[0.5em] uppercase font-mono font-semibold mb-4">
-                The Alignment Cycle
-              </div>
-            </RevealMask>
-            <RevealMask delay={100}>
-              <h2 className="text-3xl sm:text-4xl font-black text-white/90 leading-[1.1] max-w-3xl mx-auto">
-                Misalignment becomes drag.
-                <br />
-                <span className="text-white/40">
-                  Drag becomes cost. Cost forces reactive leadership. The loop locks in.
-                </span>
-              </h2>
-            </RevealMask>
-          </div>
-
-          {/* Cycle diagram — four nodes around a closed loop */}
-          <FadeIn delay={0.2}>
-            <div className="relative max-w-4xl mx-auto">
-              {/* Failure ribbon */}
-              <div className="mb-8 flex items-center justify-center flex-wrap gap-3 text-[11px] font-mono tracking-[0.25em] uppercase">
-                <span className="text-red-400/70">Misalignment</span>
-                <span className="text-white/20">→</span>
-                <span className="text-amber-400/70">Drag</span>
-                <span className="text-white/20">→</span>
-                <span className="text-orange-400/70">Cost</span>
-                <span className="text-white/20">→</span>
-                <span className="text-fuchsia-400/70">Reactive leadership</span>
-                <span className="text-white/20">↺</span>
-              </div>
-
-              {/* Pressure point ribbon */}
-              <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
-                {pressurePoints.map((pp) => (
-                  <Link
-                    key={pp.id}
-                    href={`#${pp.id}`}
-                    className="group relative block rounded-xl border bg-[#0a0a14]/60 p-5 transition-all hover:scale-[1.02] hover:bg-[#0a0a14]/80"
-                    style={{ borderColor: `${pp.color}25` }}
-                  >
-                    <div
-                      className="absolute top-0 left-0 right-0 h-[2px] rounded-t-xl"
-                      style={{
-                        background: `linear-gradient(90deg, ${pp.color}, ${pp.color}30)`,
-                      }}
-                    />
-                    <div
-                      className="text-[10px] font-mono tracking-wider mb-1"
-                      style={{ color: `${pp.color}aa` }}
-                    >
-                      {pp.number}
-                    </div>
-                    <div
-                      className="text-2xl font-black mb-1"
-                      style={{ color: pp.color }}
-                    >
-                      {pp.verb}
-                    </div>
-                    <div className="text-white/60 text-[11px] leading-snug">
-                      Breaks {pp.breaks.toLowerCase()}
-                    </div>
-                    <div
-                      className="text-[10px] font-mono tracking-wider mt-3 pt-3 border-t"
-                      style={{
-                        borderColor: `${pp.color}15`,
-                        color: `${pp.color}cc`,
-                      }}
-                    >
-                      {pp.product}
-                    </div>
-                  </Link>
-                ))}
-              </div>
-
-              {/* Chassis underline */}
-              <div
-                className="mt-3 rounded-xl border bg-[#0a0a14]/40 p-4 text-center"
-                style={{ borderColor: `${chassis.color}25` }}
-              >
-                <div
-                  className="text-[10px] font-mono tracking-[0.3em] uppercase mb-1"
-                  style={{ color: `${chassis.color}aa` }}
-                >
-                  {chassis.tag}
-                </div>
-                <div
-                  className="text-base font-bold"
-                  style={{ color: chassis.color }}
-                >
-                  {chassis.name} runs under all four
-                </div>
-              </div>
-            </div>
-          </FadeIn>
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════════════════════
           PER-PRESSURE-POINT DEEP DIVE
           Each section: 4-point context + 8-layer mapping + 8-domain mapping
           ═══════════════════════════════════════════════════════════ */}
-      <section className="py-24 relative" style={{ background: "var(--bg-root)" }}>
+      <section className="py-24 relative" style={{ background: "#060610" }}>
         <div className="max-w-6xl mx-auto px-6 sm:px-12">
           <div className="mb-16 text-center">
             <RevealMask>
@@ -575,31 +471,14 @@ export default function ArchitecturePage() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════════
-          THE INSTALL MANUAL — COO Playbook
+          THE INSTALL MANUAL — COO Playbook (slim pointer)
           ═══════════════════════════════════════════════════════════ */}
       <section className="py-24 relative" style={{ background: "var(--bg-root)" }}>
-        <div className="max-w-6xl mx-auto px-6 sm:px-12">
-          <div className="mb-12">
-            <RevealMask>
-              <div className="text-slate-400/60 text-[11px] tracking-[0.5em] uppercase font-mono font-semibold mb-4">
-                {installManual.tag}
-              </div>
-            </RevealMask>
-            <RevealMask delay={100}>
-              <h2 className="text-3xl sm:text-4xl font-black text-white/90 leading-[1.1] max-w-3xl">
-                {installManual.name}.
-                <br />
-                <span className="text-white/40">
-                  How the four pressure points get installed in 30 / 90 / 180.
-                </span>
-              </h2>
-            </RevealMask>
-          </div>
-
-          <FadeIn delay={0.2}>
+        <div className="max-w-5xl mx-auto px-6 sm:px-12">
+          <FadeIn>
             <MagneticCard
               className="rounded-2xl"
-              glowColor={`${installManual.color}25`}
+              glowColor={`${installManual.color}20`}
               maxTilt={2}
             >
               <div
@@ -612,44 +491,28 @@ export default function ArchitecturePage() {
                     background: `linear-gradient(90deg, ${installManual.color}, ${installManual.color}30, transparent)`,
                   }}
                 />
-                <div className="p-7 md:p-10">
-                  <p className="text-white/70 text-base leading-relaxed mb-8 max-w-3xl">
-                    {installManual.description}
-                  </p>
-
-                  <div className="text-white/30 text-[11px] uppercase tracking-[0.3em] font-mono mb-4">
-                    The eight operating domains
-                  </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    {playbookDomains.map((d) => (
-                      <div
-                        key={d.n}
-                        className="rounded-lg border bg-[#060610]/60 p-3"
-                        style={{ borderColor: `${d.color}20` }}
-                      >
-                        <div
-                          className="text-[10px] font-mono tracking-wider mb-1"
-                          style={{ color: d.color }}
-                        >
-                          DOMAIN {d.n}
-                        </div>
-                        <div className="text-white/85 text-[13px] font-bold leading-tight">
-                          {d.title}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="mt-8 pt-6 border-t border-white/[0.06] flex flex-wrap items-center justify-between gap-4">
-                    <div className="text-white/40 text-sm">
-                      The full playbook lives at{" "}
-                      <span className="text-white/70 font-mono">{installManual.domain}</span>
+                <div className="p-7 md:p-10 grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                  <div className="md:col-span-8">
+                    <div
+                      className="text-[11px] tracking-[0.5em] uppercase font-mono font-semibold mb-3"
+                      style={{ color: `${installManual.color}aa` }}
+                    >
+                      {installManual.tag}
                     </div>
+                    <h2 className="text-2xl sm:text-3xl font-black text-white/90 leading-[1.15] mb-3">
+                      {installManual.name}.
+                      <span className="text-white/40"> The 30 / 90 / 180 install protocol.</span>
+                    </h2>
+                    <p className="text-white/55 text-sm leading-relaxed max-w-2xl">
+                      {installManual.description}
+                    </p>
+                  </div>
+                  <div className="md:col-span-4 md:flex md:justify-end">
                     <a
                       href={installManual.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all hover:scale-[1.03]"
+                      className="inline-flex items-center gap-2 px-5 py-3 rounded-full text-sm font-semibold transition-all hover:scale-[1.03]"
                       style={{
                         background: `${installManual.color}15`,
                         border: `1px solid ${installManual.color}40`,
@@ -667,46 +530,7 @@ export default function ArchitecturePage() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════════
-          THE BUILDER — Cross-link to erichathaway.com/architect
-          ═══════════════════════════════════════════════════════════ */}
-      <section className="py-24 relative" style={{ background: "#060610" }}>
-        <div className="max-w-5xl mx-auto px-6 sm:px-12">
-          <FadeIn>
-            <div className="rounded-2xl border border-white/[0.08] bg-gradient-to-br from-violet-500/[0.04] via-cyan-500/[0.02] to-fuchsia-500/[0.04] p-10 md:p-14 relative overflow-hidden">
-              <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-violet-500 via-cyan-500 to-fuchsia-500" />
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center relative">
-                <div className="md:col-span-8">
-                  <div className="text-[11px] tracking-[0.5em] uppercase font-mono font-semibold text-white/40 mb-4">
-                    The Architect
-                  </div>
-                  <h2 className="text-3xl sm:text-4xl font-black text-white/95 leading-[1.1] mb-4">
-                    Want to know who built this?
-                  </h2>
-                  <p className="text-white/55 text-base leading-relaxed max-w-xl">
-                    The four pressure points came out of 20+ years running operations inside
-                    Microsoft, Credit Suisse, T-Mobile, S&amp;P Global, and global enterprises.
-                    The architecture is the productized version.
-                  </p>
-                </div>
-                <div className="md:col-span-4 flex md:justify-end">
-                  <a
-                    href="https://erichathaway.com/architect"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-3 px-7 py-4 rounded-full bg-gradient-to-r from-violet-500 to-cyan-500 text-white font-semibold hover:shadow-2xl hover:shadow-violet-500/30 transition-shadow"
-                  >
-                    Meet Eric Hathaway
-                    <span>→</span>
-                  </a>
-                </div>
-              </div>
-            </div>
-          </FadeIn>
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════════════════════
-          CTA
+          CTA — combined: pick a pressure point + meet the architect
           ═══════════════════════════════════════════════════════════ */}
       <section className="py-32 relative overflow-hidden" style={{ background: "var(--bg-root)" }}>
         <div className="absolute inset-0 pointer-events-none">
@@ -727,9 +551,10 @@ export default function ArchitecturePage() {
                 Install one product.
               </span>
             </h2>
-            <p className="text-white/45 text-base mb-10 max-w-lg mx-auto">
-              You don&apos;t need the whole stack on day one. Pick the pressure point that&apos;s
-              hurting most and start there. The rest snaps in when you&apos;re ready.
+            <p className="text-white/45 text-base mb-10 max-w-xl mx-auto">
+              The architecture came out of 20+ years running operations inside Microsoft, Credit
+              Suisse, T-Mobile, S&amp;P Global, and global enterprises. You don&apos;t need the
+              whole stack on day one. Start where it hurts most.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4">
               <MagneticButton
@@ -739,13 +564,14 @@ export default function ArchitecturePage() {
                 <span className="w-2 h-2 rounded-full bg-white/90 animate-pulse" />
                 See the products
               </MagneticButton>
-              <MagneticButton
-                href="/how-we-work"
+              <a
+                href="https://erichathaway.com/architect"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-flex items-center gap-3 px-8 py-4 rounded-full border border-white/[0.12] text-white/60 hover:text-white/90 hover:border-white/[0.25] text-sm font-semibold transition-colors"
-                strength={0.2}
               >
-                How we install →
-              </MagneticButton>
+                Meet the architect →
+              </a>
             </div>
           </FadeIn>
         </div>
