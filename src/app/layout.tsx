@@ -19,7 +19,7 @@ const playfair = Playfair_Display({
 export const metadata: Metadata = {
   title: "Level9OS · We build the half it all runs on",
   description:
-    "AI for operations. Six production products, 138 workflows, 48 domain officers. We build the half it all runs on. The operational layer that determines whether strategy survives contact with reality.",
+    "AI for operations. 6+ production products, 138 workflows, 48 domain officers. We build the half it all runs on. The operational layer that determines whether strategy survives contact with reality.",
   metadataBase: new URL("https://level9os.com"),
   openGraph: {
     title: "Level9OS · We build the half it all runs on",
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Level9OS · We build the half it all runs on",
     description:
-      "AI for operations. Six production products. Built, not advised.",
+      "AI for operations. 6+ production products. Built, not advised.",
   },
 };
 
