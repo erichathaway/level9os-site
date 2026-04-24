@@ -637,7 +637,7 @@ export default function HowWeWorkPage() {
             <p className="text-white/45 text-lg mb-12 max-w-xl mx-auto">
               Pick the pressure point that&apos;s hurting most and start there. Pricing depends on
               the pod, the deployment shape, and whether we install or you install. Easiest way to
-              find out: a thirty-minute call.
+              find out: a 30-minute call.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4">
               <MagneticButton

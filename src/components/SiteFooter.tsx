@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { LegalFooter } from "@level9/brand/legal";
 
 const navLinks = [
   { label: "Home", href: "/" },
@@ -19,7 +20,7 @@ export default function SiteFooter({ variant = "standard" }: { variant?: "standa
 
   return (
     <footer
-      className={`${variant === "minimal" ? "py-8" : "py-12"} border-t border-white/[0.04]`}
+      className={`${variant === "minimal" ? "pt-8" : "pt-12"} pb-4 border-t border-white/[0.04]`}
       style={{ background: "var(--bg-root)" }}
     >
       <div className="max-w-6xl mx-auto px-6 sm:px-12 flex flex-col sm:flex-row items-center justify-between gap-6">
@@ -95,6 +96,14 @@ export default function SiteFooter({ variant = "standard" }: { variant?: "standa
             Built, not advised.
           </div>
         )}
+      </div>
+
+      {/* Canonical legal row. Copyright + Privacy / Terms / Cookies links
+          resolved from @level9/brand/legal via siteSlug='level9os-site'.
+          The hand-rolled copyright above stays for the "Founder →" link;
+          this canonical row adds the legal-compliance surface. */}
+      <div className="mt-6 pt-4 border-t border-white/[0.03] opacity-60">
+        <LegalFooter siteSlug="level9os-site" className="!py-0" />
       </div>
     </footer>
   );

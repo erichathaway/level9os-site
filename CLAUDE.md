@@ -117,7 +117,11 @@ Plus:
   - All 7 raw `<img>` tags replaced with `next/image`
   - Mobile: apple-icon, OG image, NORTHSTAR title, touch targets, `min-h-dvh`, ConsoleGraphic mobile fallback
   - Net: -862 lines of source code. Build: 12/12 routes, 87.3 kB shared JS, CLEAN.
-  Open decisions pending Eric input: (A) LinkedIn banner SVGs keep/delete, (B) #fb923c orange-400 map to var(--amber) or leave.
+  Open decisions pending Eric input: (A) LinkedIn banner SVGs keep/delete.
+  RESOLVED 2026-04-24: (B) #fb923c and #f97316 orange shades are KEPT as-is.
+  These match canonical sub-pod colors in `@level9/brand/content/products.ts`
+  (ABM Engine: #fb923c, AutoCS: #f97316). They are intentional brand
+  differentiation, not drift. Do not flatten to var(--amber).
 
 ## Build verification
 
