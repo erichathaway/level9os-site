@@ -348,7 +348,7 @@ export default function HowWeWorkPage() {
                   maxTilt={3}
                 >
                   <div
-                    className="rounded-2xl border bg-[#0a0a14]/40 backdrop-blur-sm p-6 h-full hover:bg-[#0a0a14]/70 transition-colors group"
+                    className="rounded-2xl border bg-surface-40 backdrop-blur-sm p-6 h-full hover:bg-surface-70 transition-colors group"
                     style={{ borderColor: `${project.productColor}25` }}
                   >
                     <div
@@ -428,7 +428,7 @@ export default function HowWeWorkPage() {
       <section
         id="releases"
         className="py-32 relative scroll-mt-24"
-        style={{ background: "#060610" }}
+        style={{ background: "var(--bg-root)" }}
       >
         <div className="max-w-5xl mx-auto px-6 sm:px-12">
           <div className="mb-16">
@@ -454,7 +454,7 @@ export default function HowWeWorkPage() {
             {recentReleases.map((release, i) => (
               <FadeIn key={`${release.title}-${i}`} delay={i * 0.04}>
                 <div
-                  className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 p-6 rounded-2xl border bg-[#0a0a14]/40 backdrop-blur-sm hover:bg-[#0a0a14]/70 transition-colors group"
+                  className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 p-6 rounded-2xl border bg-surface-40 backdrop-blur-sm hover:bg-surface-70 transition-colors group"
                   style={{ borderColor: `${release.productColor}20` }}
                 >
                   {/* Date + tag column */}
@@ -586,7 +586,7 @@ export default function HowWeWorkPage() {
       {/* ═══════════════════════════════════════════════════════════
           DOGFOOD STRIP — compact proof beat before CTA
           ═══════════════════════════════════════════════════════════ */}
-      <section className="py-20 relative" style={{ background: "#060610" }}>
+      <section className="py-20 relative" style={{ background: "var(--bg-root)" }}>
         <div className="max-w-5xl mx-auto px-6 sm:px-12 text-center">
           <FadeIn>
             <div className="text-emerald-400/60 text-[11px] tracking-[0.5em] uppercase font-mono font-semibold mb-5">

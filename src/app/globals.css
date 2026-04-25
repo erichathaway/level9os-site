@@ -82,3 +82,21 @@ body {
 ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
 
+/* Canonical bg-root / bg-surface utility classes with alpha.
+   Tailwind v3 cannot apply opacity modifiers to arbitrary CSS-var colors,
+   so these wrap var(--bg-root) and var(--bg-surface) via color-mix for
+   the discrete alpha levels in use across the site. Source-of-truth for
+   the underlying color is still @level9/brand globals. */
+@layer utilities {
+  .bg-root-40 { background-color: color-mix(in srgb, var(--bg-root) 40%, transparent); }
+  .bg-root-70 { background-color: color-mix(in srgb, var(--bg-root) 70%, transparent); }
+  .bg-surface-40 { background-color: color-mix(in srgb, var(--bg-surface) 40%, transparent); }
+  .bg-surface-60 { background-color: color-mix(in srgb, var(--bg-surface) 60%, transparent); }
+  .bg-surface-70 { background-color: color-mix(in srgb, var(--bg-surface) 70%, transparent); }
+  .bg-surface-85 { background-color: color-mix(in srgb, var(--bg-surface) 85%, transparent); }
+  .bg-elevated-95 { background-color: color-mix(in srgb, var(--bg-elevated) 95%, transparent); }
+  .hover\:bg-root-70:hover { background-color: color-mix(in srgb, var(--bg-root) 70%, transparent); }
+  .hover\:bg-surface-60:hover { background-color: color-mix(in srgb, var(--bg-surface) 60%, transparent); }
+  .hover\:bg-surface-70:hover { background-color: color-mix(in srgb, var(--bg-surface) 70%, transparent); }
+}
+

@@ -93,7 +93,7 @@ export default function PartnershipsPage() {
           FEATURED — NextGenIntern
           ═══════════════════════════════════════════════════════════ */}
       {featured && (
-        <section className="py-24 relative" style={{ background: "#060610" }}>
+        <section className="py-24 relative" style={{ background: "var(--bg-root)" }}>
           <div className="max-w-6xl mx-auto px-6 sm:px-12">
             <RevealMask>
               <div
@@ -208,7 +208,7 @@ export default function PartnershipsPage() {
                   maxTilt={4}
                 >
                   <div
-                    className="rounded-2xl p-7 h-full border bg-[#0a0a14]/40 backdrop-blur-sm group hover:bg-[#0a0a14]/60 transition-colors flex flex-col"
+                    className="rounded-2xl p-7 h-full border bg-surface-40 backdrop-blur-sm group hover:bg-surface-60 transition-colors flex flex-col"
                     style={{ borderColor: `${partner.color}20` }}
                   >
                     <div
@@ -263,7 +263,7 @@ export default function PartnershipsPage() {
       {/* ═══════════════════════════════════════════════════════════
           CTA — two partner paths, one block
           ═══════════════════════════════════════════════════════════ */}
-      <section className="py-32 relative overflow-hidden" style={{ background: "#060610" }}>
+      <section className="py-32 relative overflow-hidden" style={{ background: "var(--bg-root)" }}>
         <div className="absolute inset-0 pointer-events-none">
           <div
             className="absolute w-[800px] h-[800px] rounded-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"

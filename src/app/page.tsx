@@ -146,7 +146,7 @@ export default function Home() {
       {/* ═══════════════════════════════════════════════════════════
           THE TWO HALVES — The positioning frame
           ═══════════════════════════════════════════════════════════ */}
-      <section className="py-32 relative" style={{ background: "#060610" }}>
+      <section className="py-32 relative" style={{ background: "var(--bg-root)" }}>
         <div className="max-w-6xl mx-auto px-6 sm:px-12">
           <div className="mb-20 text-center">
             <RevealMask>
@@ -426,7 +426,7 @@ export default function Home() {
       {/* ═══════════════════════════════════════════════════════════
           THE CYCLE — 4 pressure points where strategy breaks
           ═══════════════════════════════════════════════════════════ */}
-      <section className="py-32 relative" style={{ background: "#060610" }}>
+      <section className="py-32 relative" style={{ background: "var(--bg-root)" }}>
         <div className="max-w-6xl mx-auto px-6 sm:px-12">
           <div className="mb-16">
             <RevealMask>
@@ -477,7 +477,7 @@ export default function Home() {
                   maxTilt={3}
                 >
                   <div
-                    className="rounded-2xl border bg-[#0a0a14]/40 backdrop-blur-sm overflow-hidden group hover:bg-[#0a0a14]/60 transition-colors h-full"
+                    className="rounded-2xl border bg-surface-40 backdrop-blur-sm overflow-hidden group hover:bg-surface-60 transition-colors h-full"
                     style={{ borderColor: `${pp.color}20` }}
                   >
                     {/* Top accent line */}
@@ -595,7 +595,7 @@ export default function Home() {
                 maxTilt={2}
               >
                 <div
-                  className="rounded-2xl border bg-[#0a0a14]/40 backdrop-blur-sm overflow-hidden"
+                  className="rounded-2xl border bg-surface-40 backdrop-blur-sm overflow-hidden"
                   style={{ borderColor: `${chassis.color}25` }}
                 >
                   <div
@@ -666,7 +666,7 @@ export default function Home() {
       {/* ═══════════════════════════════════════════════════════════
           THE PROBLEM — Why operations needs AI
           ═══════════════════════════════════════════════════════════ */}
-      <section className="py-32 relative" style={{ background: "#060610" }}>
+      <section className="py-32 relative" style={{ background: "var(--bg-root)" }}>
         <div className="max-w-5xl mx-auto px-6 sm:px-12">
           <div className="text-center mb-20">
             <RevealMask>
@@ -790,7 +790,7 @@ export default function Home() {
           TWO MORE PIECES — Install manual + voice layer
           (the cycle handles the four pressure points; these wrap it)
           ═══════════════════════════════════════════════════════════ */}
-      <section className="py-32 relative" style={{ background: "#060610" }}>
+      <section className="py-32 relative" style={{ background: "var(--bg-root)" }}>
         <div className="max-w-6xl mx-auto px-6 sm:px-12">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-12 gap-6">
             <div>
@@ -831,7 +831,7 @@ export default function Home() {
                       maxTilt={4}
                     >
                       <div
-                        className="rounded-2xl p-7 h-full border bg-[#0a0a14]/60 backdrop-blur-sm group relative overflow-hidden"
+                        className="rounded-2xl p-7 h-full border bg-surface-60 backdrop-blur-sm group relative overflow-hidden"
                         style={{ borderColor: `${p.color}20` }}
                       >
                         <div
@@ -988,7 +988,7 @@ export default function Home() {
       {/* ═══════════════════════════════════════════════════════════
           PARTNERS PREVIEW
           ═══════════════════════════════════════════════════════════ */}
-      <section className="py-32 relative" style={{ background: "#060610" }}>
+      <section className="py-32 relative" style={{ background: "var(--bg-root)" }}>
         <div className="max-w-6xl mx-auto px-6 sm:px-12">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-12 gap-6">
             <div>
@@ -1029,7 +1029,7 @@ export default function Home() {
                     maxTilt={4}
                   >
                     <div
-                      className="rounded-2xl p-6 h-full border bg-[#0a0a14]/40 backdrop-blur-sm group hover:bg-[#0a0a14]/60 transition-colors"
+                      className="rounded-2xl p-6 h-full border bg-surface-40 backdrop-blur-sm group hover:bg-surface-60 transition-colors"
                       style={{ borderColor: `${partner.color}15` }}
                     >
                       <div

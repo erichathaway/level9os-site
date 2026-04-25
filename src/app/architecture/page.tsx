@@ -137,7 +137,7 @@ export default function ArchitecturePage() {
           PER-PRESSURE-POINT DEEP DIVE
           Each section: 4-point context + 8-layer mapping + 8-domain mapping
           ═══════════════════════════════════════════════════════════ */}
-      <section className="py-24 relative" style={{ background: "#060610" }}>
+      <section className="py-24 relative" style={{ background: "var(--bg-root)" }}>
         <div className="max-w-6xl mx-auto px-6 sm:px-12">
           <div className="mb-16 text-center">
             <RevealMask>
@@ -168,7 +168,7 @@ export default function ArchitecturePage() {
                     maxTilt={2}
                   >
                     <div
-                      className="rounded-2xl border bg-[#0a0a14]/40 backdrop-blur-sm overflow-hidden"
+                      className="rounded-2xl border bg-surface-40 backdrop-blur-sm overflow-hidden"
                       style={{ borderColor: `${pp.color}25` }}
                     >
                       <div
@@ -261,7 +261,7 @@ export default function ArchitecturePage() {
                               return (
                                 <div
                                   key={layerId}
-                                  className="flex items-start gap-3 p-3 rounded-lg border bg-[#060610]/40 transition-colors hover:bg-[#060610]/70"
+                                  className="flex items-start gap-3 p-3 rounded-lg border bg-root-40 transition-colors hover:bg-root-70"
                                   style={{ borderColor: `${layer.color}20` }}
                                 >
                                   <div
@@ -308,7 +308,7 @@ export default function ArchitecturePage() {
                               return (
                                 <div
                                   key={domainTitle}
-                                  className="flex items-start gap-3 p-3 rounded-lg border bg-[#060610]/40 transition-colors hover:bg-[#060610]/70"
+                                  className="flex items-start gap-3 p-3 rounded-lg border bg-root-40 transition-colors hover:bg-root-70"
                                   style={{ borderColor: `${d.color}20` }}
                                 >
                                   <div
@@ -373,7 +373,7 @@ export default function ArchitecturePage() {
       {/* ═══════════════════════════════════════════════════════════
           THE GOVERNANCE CHASSIS — runs under all four
           ═══════════════════════════════════════════════════════════ */}
-      <section className="py-24 relative" style={{ background: "#060610" }}>
+      <section className="py-24 relative" style={{ background: "var(--bg-root)" }}>
         <div className="max-w-6xl mx-auto px-6 sm:px-12">
           <div className="mb-12">
             <RevealMask>
@@ -400,7 +400,7 @@ export default function ArchitecturePage() {
               maxTilt={2}
             >
               <div
-                className="rounded-2xl border bg-[#0a0a14]/40 backdrop-blur-sm overflow-hidden"
+                className="rounded-2xl border bg-surface-40 backdrop-blur-sm overflow-hidden"
                 style={{ borderColor: `${chassis.color}30` }}
               >
                 <div
@@ -482,7 +482,7 @@ export default function ArchitecturePage() {
               maxTilt={2}
             >
               <div
-                className="rounded-2xl border bg-[#0a0a14]/40 backdrop-blur-sm overflow-hidden"
+                className="rounded-2xl border bg-surface-40 backdrop-blur-sm overflow-hidden"
                 style={{ borderColor: `${installManual.color}30` }}
               >
                 <div

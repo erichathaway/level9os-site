@@ -135,7 +135,7 @@ export default function ProductsPage() {
         <div className="max-w-6xl mx-auto px-6 sm:px-12">
           {/* Sticky tab selector */}
           <div className="sticky top-6 z-40 mb-16 pointer-events-none">
-            <div className="flex flex-wrap justify-center gap-2 sm:gap-3 p-3 rounded-full bg-[#0a0a14]/85 backdrop-blur-xl border border-white/[0.06] max-w-4xl mx-auto pointer-events-auto shadow-2xl shadow-black/50">
+            <div className="flex flex-wrap justify-center gap-2 sm:gap-3 p-3 rounded-full bg-surface-85 backdrop-blur-xl border border-white/[0.06] max-w-4xl mx-auto pointer-events-auto shadow-2xl shadow-black/50">
               {products.map((p, i) => (
                 <button
                   key={p.id}
@@ -266,7 +266,7 @@ export default function ProductsPage() {
                             {p.pods.map((pod) => (
                               <div
                                 key={pod.id}
-                                className="rounded-xl p-4 border bg-[#060610]/40 transition-colors hover:bg-[#060610]/70"
+                                className="rounded-xl p-4 border bg-root-40 transition-colors hover:bg-root-70"
                                 style={{ borderColor: `${pod.color}25` }}
                               >
                                 <div className="flex items-start gap-4">
@@ -575,7 +575,7 @@ export default function ProductsPage() {
       {/* ═══════════════════════════════════════════════════════════
           INTEGRATION STRIP — compact payoff before CTA
           ═══════════════════════════════════════════════════════════ */}
-      <section className="py-20 relative" style={{ background: "#060610" }}>
+      <section className="py-20 relative" style={{ background: "var(--bg-root)" }}>
         <div className="max-w-4xl mx-auto px-6 sm:px-12 text-center">
           <FadeIn>
             <div className="text-cyan-400/60 text-[11px] tracking-[0.5em] uppercase font-mono font-semibold mb-5">
