@@ -77,7 +77,7 @@ export default function AboutPage() {
       {/* ═══════════════════════════════════════════════════════════
           THE ORIGIN
           ═══════════════════════════════════════════════════════════ */}
-      <section className="py-32 relative" style={{ background: "#060610" }}>
+      <section className="py-32 relative" style={{ background: "var(--bg-root)" }}>
         <div className="max-w-4xl mx-auto px-6 sm:px-12">
           <RevealMask>
             <div className="text-emerald-400/50 text-[11px] tracking-[0.5em] uppercase font-mono font-semibold mb-6">
@@ -179,7 +179,7 @@ export default function AboutPage() {
       {/* ═══════════════════════════════════════════════════════════
           CTA
           ═══════════════════════════════════════════════════════════ */}
-      <section className="py-32 relative overflow-hidden" style={{ background: "#060610" }}>
+      <section className="py-32 relative overflow-hidden" style={{ background: "var(--bg-root)" }}>
         <div className="absolute inset-0 pointer-events-none">
           <div
             className="absolute w-[800px] h-[800px] rounded-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
