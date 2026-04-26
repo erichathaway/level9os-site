@@ -13,6 +13,7 @@
  */
 
 import { motion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
 
 // FloatingNav's chip is 44x44 at top-6 left-6 (sm:left-8), so its center on
 // the viewport is roughly (46, 46). We anchor the flash + ripples there.
@@ -37,6 +38,26 @@ const blobs = [
 ];
 
 export default function HomeHeroSplash() {
+  // The 5 mesh blobs run infinite CSS keyframe animations (28-46s loops). Once
+  // the user scrolls past the hero, those animations are still pumping the
+  // compositor on offscreen pixels. We watch the blob container with an
+  // IntersectionObserver and pause via animation-play-state when it's not
+  // visible. Visually identical (paused animation isn't visible anyway), but
+  // the GPU/main-thread cost drops to zero on the rest of the page.
+  const meshRef = useRef<HTMLDivElement>(null);
+  const [meshVisible, setMeshVisible] = useState(true);
+
+  useEffect(() => {
+    const el = meshRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(
+      ([entry]) => setMeshVisible(entry.isIntersecting),
+      { rootMargin: "100px" }, // small buffer so it resumes before the user scrolls back into view
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
   return (
     <>
       <style>{`
@@ -78,7 +99,7 @@ export default function HomeHeroSplash() {
       `}</style>
 
       {/* Animated mesh field (layers on top of the hero's existing base ambient) */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+      <div ref={meshRef} className="absolute inset-0 pointer-events-none overflow-hidden">
         {blobs.map((b, i) => (
           <div
             key={i}
@@ -92,6 +113,7 @@ export default function HomeHeroSplash() {
               filter: "blur(90px)",
               willChange: "transform",
               animation: `l9s-flow-${b.flow} ${b.dur}s ease-in-out infinite`,
+              animationPlayState: meshVisible ? "running" : "paused",
             }}
           />
         ))}

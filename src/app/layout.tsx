@@ -1,17 +1,34 @@
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
+import { interWeights, playfairWeights } from "@level9/brand/tokens/typography";
 import "./globals.css";
+
+// Canonical weight lists live in @level9/brand/tokens/typography
+// (`interWeights`, `playfairWeights`). next/font's SWC plugin requires
+// literal array arguments here, so we keep the literals inline AND assert
+// at the type level that they match the brand source. If brand updates the
+// canonical list, the type assertion below will fail until this file is
+// updated to match.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const _INTER_WEIGHTS = ["300", "400", "500", "600", "700", "900"] as const;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const _PLAYFAIR_WEIGHTS = ["400", "700"] as const;
+type _Eq<A, B> = (<T>() => T extends A ? 1 : 2) extends (<T>() => T extends B ? 1 : 2) ? true : false;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const _interMatch: _Eq<typeof _INTER_WEIGHTS, typeof interWeights> = true;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const _playfairMatch: _Eq<typeof _PLAYFAIR_WEIGHTS, typeof playfairWeights> = true;
 
 const inter = Inter({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700", "800", "900"],
+  weight: ["300", "400", "500", "600", "700", "900"],
   variable: "--font-inter",
   display: "swap",
 });
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800", "900"],
+  weight: ["400", "700"],
   variable: "--font-playfair",
   display: "swap",
 });
