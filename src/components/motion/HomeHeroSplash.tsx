@@ -15,13 +15,18 @@
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 
-// Anchor coords as percent strings so the splash tracks cube-center wherever
-// the responsive cube lives. The cube is the centered hero element, so 50/50.
-const ANCHOR_X = "50%";
-const ANCHOR_Y = "50%";
+// Anchor coords are PROPS now — passed in from the hero page so they
+// track the actual cube container's center, not the section center.
+// (50/50 of the section is offset from cube center because the section
+// has the eyebrow chip above and the tagline + CTAs below the cube.)
+const DEFAULT_ANCHOR_X = "50%";
+const DEFAULT_ANCHOR_Y = "50%";
 
-// Timing — synced to ForgeCube's dust→wire transition (~2.2s with skipDust=false).
-const ARRIVAL_T = 2.2;
+// Timing — pulled in from 2.2s to 1.4s so the splash starts during the
+// cube's dust phase and the ripple peak coincides with the dust→wire
+// transition (~2.2s with skipDust=false), making the visual feel like the
+// cube's completion creates the ripples rather than firing after them.
+const ARRIVAL_T = 1.4;
 const FLASH1_DUR = 0.6;
 
 const RIPPLE_COUNT = 4;
@@ -37,7 +42,16 @@ const blobs = [
   { color: "139,92,246", alpha: 0.30, size: 500, top: "18%", left: "60%", flow: 5, dur: 38 },
 ];
 
-export default function HomeHeroSplash() {
+export default function HomeHeroSplash({
+  anchorX = DEFAULT_ANCHOR_X,
+  anchorY = DEFAULT_ANCHOR_Y,
+}: {
+  /* Percent strings (e.g. "50%" or "47.3%") relative to the closest
+     positioned ancestor of the splash. The hero page passes the actual
+     cube container's center so the flash + ripples emanate from the cube. */
+  anchorX?: string;
+  anchorY?: string;
+} = {}) {
   // The 5 mesh blobs run infinite CSS keyframe animations (28-46s loops). Once
   // the user scrolls past the hero, those animations are still pumping the
   // compositor on offscreen pixels. We watch the blob container with an
@@ -123,8 +137,8 @@ export default function HomeHeroSplash() {
       <motion.div
         className="absolute pointer-events-none rounded-full"
         style={{
-          top: ANCHOR_Y,
-          left: ANCHOR_X,
+          top: anchorY,
+          left: anchorX,
           width: 320,
           height: 320,
           background:
@@ -159,8 +173,8 @@ export default function HomeHeroSplash() {
         return (
           <PondRipple
             key={i}
-            anchorX={ANCHOR_X}
-            anchorY={ANCHOR_Y}
+            anchorX={anchorX}
+            anchorY={anchorY}
             index={i}
             bandHalf={bandHalf}
             peakAlpha={peakAlpha}

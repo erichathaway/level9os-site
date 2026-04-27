@@ -100,3 +100,122 @@ body {
   .hover\:bg-surface-70:hover { background-color: color-mix(in srgb, var(--bg-surface) 70%, transparent); }
 }
 
+
+/* Stack flow — keyframes for the StackFlow explainer section. Particles
+   continuously stream down the spine; governance gates pulse on offset
+   phases; per-layer peer dots glow on staggered phases; humans-in-loop
+   indicators softly pulse to convey "review still happens here." */
+@keyframes stackflow-down {
+  /* Staged drop with pile-up at gate Y-positions. Travel segments are
+     speed-equalized: ~0.61% time per 1% Y across all four legs, so the
+     ball never appears to suddenly speed up between holds. Holds at G1,
+     G2, G3 are 10% of cycle each (~1.4s at 14s total) — long enough for
+     multiple jittered particles to fan into a visible cluster. */
+  0%, 2%   { top: 0%;   opacity: 0; }
+  5%       { opacity: 1; }
+  19%      { top: 23%; opacity: 1; }    /* arrive G1 (14% travel for 23% Y) */
+  29%      { top: 23%; opacity: 1; }    /* HOLD at G1 */
+  46%      { top: 51%; opacity: 1; }    /* arrive G2 (17% travel for 28% Y) */
+  56%      { top: 51%; opacity: 1; }    /* HOLD at G2 */
+  73%      { top: 79%; opacity: 1; }    /* arrive G3 (17% travel for 28% Y) */
+  83%      { top: 79%; opacity: 1; }    /* HOLD at G3 */
+  95%      { top: 100%; opacity: 1; }   /* exit (12% travel for 21% Y) */
+  100%     { top: 100%; opacity: 0; }
+}
+
+/* Jitter: ±10px horizontal wiggle so paused particles fan into a wider
+   visible cluster. Different jitter periods per particle keep the
+   cluster organic rather than synchronized. */
+@keyframes stackflow-jitter {
+  0%   { transform: translate(-50%, 0) translateX(0); }
+  20%  { transform: translate(-50%, 0) translateX(10px); }
+  40%  { transform: translate(-50%, 0) translateX(-7px); }
+  60%  { transform: translate(-50%, 0) translateX(6px); }
+  80%  { transform: translate(-50%, 0) translateX(-9px); }
+  100% { transform: translate(-50%, 0) translateX(0); }
+}
+@keyframes stackflow-gate {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50%      { opacity: 1;   transform: scale(1.4); }
+}
+@keyframes stackflow-peer {
+  0%, 100% { opacity: 0.25; }
+  50%      { opacity: 1; }
+}
+@keyframes stackflow-feed {
+  0%, 100% { transform: scale(1);   opacity: 0.5; }
+  50%      { transform: scale(1.4); opacity: 1; }
+}
+@keyframes stackflow-human {
+  0%, 100% { transform: scale(1);   opacity: 0.5; }
+  50%      { transform: scale(1.5); opacity: 1; }
+}
+@keyframes stackflow-loop {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+@keyframes stackflow-fadein {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Motion graphics for the StackFlow side-panel walkthroughs. */
+
+/* FlowRow: dot travels left-to-right along the row. */
+@keyframes stackflow-flow-row {
+  0%   { left: 0%;   opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { left: 100%; opacity: 0; }
+}
+
+/* Outcome tile: gentle pulse to draw the eye sequentially. */
+@keyframes stackflow-outcome-pulse {
+  0%, 100% { opacity: 0.5; transform: scale(1);    }
+  50%      { opacity: 1;   transform: scale(1.04); }
+}
+
+/* ECI gauge text + bar: subtle pulse + fill cycle for the right-panel
+   Strategy viz. The bar fills 30→90% of the track and back. */
+@keyframes stackflow-eci-pulse {
+  0%, 100% { opacity: 0.7; }
+  50%      { opacity: 1; }
+}
+@keyframes stackflow-eci-fill {
+  0%, 100% { width: 30%; }
+  50%      { width: 90%; }
+}
+
+/* Usage-pattern cycling: each row "lights up" on a stagger to suggest
+   "any one bucket — or all of them." */
+@keyframes stackflow-usage-cycle {
+  0%, 100%  { opacity: 0.35; transform: scale(1);    }
+  10%, 25%  { opacity: 1;    transform: scale(1.03); }
+}
+
+/* Plug-into-stack connectors: dot travels from corner toward center.
+   Four variants for the four corners. */
+@keyframes stackflow-plug-rl-tb {
+  0%   { left: 90%;  top: 20%; opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { left: 50%;  top: 50%; opacity: 0; }
+}
+@keyframes stackflow-plug-rl-bt {
+  0%   { left: 90%;  top: 75%; opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { left: 50%;  top: 50%; opacity: 0; }
+}
+@keyframes stackflow-plug-lr-tb {
+  0%   { left: 5%;   top: 20%; opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { left: 50%;  top: 50%; opacity: 0; }
+}
+@keyframes stackflow-plug-lr-bt {
+  0%   { left: 5%;   top: 75%; opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { left: 50%;  top: 50%; opacity: 0; }
+}

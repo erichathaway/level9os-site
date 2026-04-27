@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import FloatingNav from "@/components/FloatingNav";
@@ -23,6 +24,7 @@ import {
 } from "@level9/brand/components/tiles";
 import SiteFooter from "@/components/SiteFooter";
 import HomeHeroSplash from "@/components/motion/HomeHeroSplash";
+import StackFlow from "@/components/motion/StackFlow";
 
 /* Cube-viz product roster for the hero ForgeCube. The canonical product
  * data (id, name, color) comes from @level9/brand/content/products; the
@@ -69,6 +71,29 @@ const TILE_BY_PRODUCT: Record<string, () => JSX.Element> = {
 };
 
 export default function Home() {
+  /* Cube anchor coords for the splash. Computed from the cube container's
+     bounding box relative to the hero section so the flash + ripples
+     emanate from the actual cube center, not the section's geometric
+     middle (the section also holds eyebrow + tagline + CTAs). */
+  const cubeRef = useRef<HTMLDivElement>(null);
+  const heroRef = useRef<HTMLElement>(null);
+  const [cubeAnchor, setCubeAnchor] = useState({ x: "50%", y: "50%" });
+
+  useEffect(() => {
+    const compute = () => {
+      const cube = cubeRef.current?.getBoundingClientRect();
+      const hero = heroRef.current?.getBoundingClientRect();
+      if (!cube || !hero) return;
+      const xPct = ((cube.left + cube.width / 2 - hero.left) / hero.width) * 100;
+      const yPct = ((cube.top + cube.height / 2 - hero.top) / hero.height) * 100;
+      setCubeAnchor({ x: `${xPct.toFixed(2)}%`, y: `${yPct.toFixed(2)}%` });
+    };
+    compute();
+    /* Recompute on resize so the anchor follows responsive layout shifts. */
+    window.addEventListener("resize", compute);
+    return () => window.removeEventListener("resize", compute);
+  }, []);
+
   return (
     <main className="min-h-dvh relative">
       <FloatingNav />
@@ -83,6 +108,7 @@ export default function Home() {
           what we do above the fold; the gold-rush thesis lives on.
           ═══════════════════════════════════════════════════════════ */}
       <section
+        ref={heroRef}
         className="min-h-dvh relative overflow-hidden flex flex-col items-center justify-center"
         style={{ background: "var(--bg-root)" }}
       >
@@ -98,8 +124,9 @@ export default function Home() {
         />
 
         {/* Signature splash: mesh blobs + cube-anchored flash + pond ripples.
-            Anchor coords are 50%/50% so the splash always tracks cube center. */}
-        <HomeHeroSplash />
+            Anchor coords are computed from the cube container's actual
+            position (cubeAnchor), recomputed on resize. */}
+        <HomeHeroSplash anchorX={cubeAnchor.x} anchorY={cubeAnchor.y} />
 
         <div className="relative z-10 w-full max-w-6xl mx-auto px-6 sm:px-12 pt-28 pb-20 flex flex-col items-center">
           <FadeIn>
@@ -114,8 +141,9 @@ export default function Home() {
           {/* The cube. ~52vmin caps so it never overruns small screens.
               showPopup={false} on home — the popups belong on /products
               where there's room. Whole cube is a link to /products so any
-              click lands you in the catalog. */}
+              click lands you in the catalog. cubeRef anchors the splash. */}
           <div
+            ref={cubeRef}
             className="relative mb-10"
             style={{ width: "min(58vmin, 56vh, 560px)", height: "min(58vmin, 56vh, 560px)" }}
           >
@@ -371,6 +399,13 @@ export default function Home() {
           </FadeIn>
         </div>
       </section>
+
+      {/* ═══════════════════════════════════════════════════════════
+          THE STACK — explainer hero. Goes ABOVE the operating architecture
+          section because the visitor needs the "what flows where, governed
+          how" picture before they read the deeper console graphic.
+          ═══════════════════════════════════════════════════════════ */}
+      <StackFlow />
 
       {/* ═══════════════════════════════════════════════════════════
           WHAT WE DO — the operating architecture (Console graphic)
