@@ -15,14 +15,14 @@
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 
-// Anchor coords are PROPS now — passed in from the hero page so they
+// Anchor coords are PROPS now. passed in from the hero page so they
 // track the actual cube container's center, not the section center.
 // (50/50 of the section is offset from cube center because the section
 // has the eyebrow chip above and the tagline + CTAs below the cube.)
 const DEFAULT_ANCHOR_X = "50%";
 const DEFAULT_ANCHOR_Y = "50%";
 
-// Timing — pulled in from 2.2s to 1.4s so the splash starts during the
+// Timing. pulled in from 2.2s to 1.4s so the splash starts during the
 // cube's dust phase and the ripple peak coincides with the dust→wire
 // transition (~2.2s with skipDust=false), making the visual feel like the
 // cube's completion creates the ripples rather than firing after them.
@@ -133,7 +133,7 @@ export default function HomeHeroSplash({
         ))}
       </div>
 
-      {/* The HIT flash — anchored at cube center via percent + translate-50 */}
+      {/* The HIT flash. anchored at cube center via percent + translate-50 */}
       <motion.div
         className="absolute pointer-events-none rounded-full"
         style={{

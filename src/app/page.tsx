@@ -101,7 +101,7 @@ export default function Home() {
       <LiveTicker />
 
       {/* ═══════════════════════════════════════════════════════════
-          HERO — Cube as the centerpiece. The cube lands on the canvas
+          HERO. Cube as the centerpiece. The cube lands on the canvas
           (dust → wire transition at ~2.2s), at which point the splash
           flash + 4 pond ripples emanate from the cube center. The
           umbrella tagline is the closing line. The chip eyebrow names
@@ -139,7 +139,7 @@ export default function Home() {
           </FadeIn>
 
           {/* The cube. ~52vmin caps so it never overruns small screens.
-              showPopup={false} on home — the popups belong on /products
+              showPopup={false} on home. the popups belong on /products
               where there's room. Whole cube is a link to /products so any
               click lands you in the catalog. cubeRef anchors the splash. */}
           <div
@@ -195,7 +195,7 @@ export default function Home() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════════
-          WHAT WE BUILT — six product tile loops, live-rendered from
+          WHAT WE BUILT. six product tile loops, live-rendered from
           @level9/brand/components/tiles. Same animations Eric uses for
           LinkedIn Experience media. Click any tile to jump into the
           product on /products. Replaces the old "Two More Pieces"
@@ -287,7 +287,7 @@ export default function Home() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════════
-          THE TWO HALVES — The positioning frame
+          THE TWO HALVES. The positioning frame
           ═══════════════════════════════════════════════════════════ */}
       <section className="py-32 relative" style={{ background: "var(--bg-root)" }}>
         <div className="max-w-6xl mx-auto px-6 sm:px-12">
@@ -401,14 +401,14 @@ export default function Home() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════════
-          THE STACK — explainer hero. Goes ABOVE the operating architecture
+          THE STACK. explainer hero. Goes ABOVE the operating architecture
           section because the visitor needs the "what flows where, governed
           how" picture before they read the deeper console graphic.
           ═══════════════════════════════════════════════════════════ */}
       <StackFlow />
 
       {/* ═══════════════════════════════════════════════════════════
-          WHAT WE DO — the operating architecture (Console graphic)
+          WHAT WE DO. the operating architecture (Console graphic)
           ═══════════════════════════════════════════════════════════ */}
       <section className="py-24 relative" style={{ background: "var(--bg-root)" }}>
         <div className="max-w-6xl mx-auto px-6 sm:px-12">
@@ -430,7 +430,7 @@ export default function Home() {
           {/* Desktop / tablet: the radial console graphic.
               Hidden on <sm because the 4-ring viz with 48 officers + 4 buckets +
               8 products + 8 domains crams below ~640px. Mobile gets a larger,
-              stacked alternative below — same content, different presentation. */}
+              stacked alternative below. same content, different presentation. */}
           <FadeIn delay={0.2}>
             <div className="mb-10 hidden sm:block">
               <ConsoleGraphic />
@@ -513,7 +513,7 @@ export default function Home() {
             </FadeIn>
           </div>
 
-          {/* Desktop / tablet legend — four pillars, pulled up 50px into the
+          {/* Desktop / tablet legend. four pillars, pulled up 50px into the
               graphic's bottom whitespace so it reads as part of the same
               composition. Hidden on mobile (the cards above replace it). */}
           <div className="hidden sm:grid grid-cols-1 md:grid-cols-4 gap-8" style={{ marginTop: "-50px" }}>
@@ -574,7 +574,7 @@ export default function Home() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════════
-          THE CYCLE — 4 pressure points where strategy breaks
+          THE CYCLE. 4 pressure points where strategy breaks
           ═══════════════════════════════════════════════════════════ */}
       <section className="py-32 relative" style={{ background: "var(--bg-root)" }}>
         <div className="max-w-6xl mx-auto px-6 sm:px-12">
@@ -736,7 +736,7 @@ export default function Home() {
             ))}
           </div>
 
-          {/* Governance chassis — runs underneath all four */}
+          {/* Governance chassis. runs underneath all four */}
           <FadeIn delay={0.45}>
             <div className="mt-5">
               <MagneticCard
@@ -814,7 +814,7 @@ export default function Home() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════════
-          THE PROBLEM — Why operations needs AI
+          THE PROBLEM. Why operations needs AI
           ═══════════════════════════════════════════════════════════ */}
       <section className="py-32 relative" style={{ background: "var(--bg-root)" }}>
         <div className="max-w-5xl mx-auto px-6 sm:px-12">
@@ -939,7 +939,7 @@ export default function Home() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════════
-          CTA — Final call
+          CTA. Final call
           ═══════════════════════════════════════════════════════════ */}
       <section className="py-32 relative overflow-hidden" style={{ background: "var(--bg-root)" }}>
         <div className="absolute inset-0 pointer-events-none">
@@ -983,7 +983,7 @@ export default function Home() {
               </MagneticButton>
             </div>
 
-            {/* Umbrella tagline closer — the line the hero opened on,
+            {/* Umbrella tagline closer. the line the hero opened on,
                 returned at the end as the parting thought. */}
             <FadeIn delay={0.4}>
               <p className="mt-16 text-white/40 text-sm sm:text-base font-light italic max-w-xl mx-auto leading-relaxed">

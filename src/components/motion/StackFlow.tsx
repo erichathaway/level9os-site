@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * StackFlow — the level9os "decision tree" hero. Lives between the WHAT WE
+ * StackFlow. the level9os "decision tree" hero. Lives between the WHAT WE
  * BUILT product gallery and the operating-architecture console graphic.
  * The gallery shows what we shipped; this section shows HOW the four
  * buckets work together; the console below dives into the agents inside
@@ -68,7 +68,7 @@ const LAYERS: Layer[] = [
     governanceDescription:
       "Every option scored against kill criteria before it leaves the room. Unanimous votes force a dissent round.",
     governanceBullets: [
-      "Kill criteria built into every decision — no ship without exit terms",
+      "Kill criteria built into every decision. No ship without exit terms.",
       "Dissent forced when vote is unanimous to break groupthink",
       "Full vote/challenge audit trail per round",
     ],
@@ -144,7 +144,7 @@ const LAYERS: Layer[] = [
     techDescription:
       "Three coordinated pods share one voice profile: LinkupOS for autonomous LinkedIn signal, ABM Engine for multi-channel ABM, AutoCS for customer success. Same register, one governance trail.",
     techBullets: [
-      "LinkupOS: posts, comments, intros — anchored to your voice",
+      "LinkupOS: posts, comments, intros, anchored to your voice",
       "ABM Engine: account research + custom touches at company-of-1 cost",
       "AutoCS: QBR prep, expansion signals, churn watch in the same voice",
     ],
@@ -175,8 +175,8 @@ const LAYERS: Layer[] = [
     verb: "Measure",
     product: "LucidORG",
     color: "#06b6d4",
-    tagline: "ECI score, friction detection, velocity tracking — real-time.",
-    specs: ["ECI 0–1000", "11 metrics", "37 levers", "4 pillars"],
+    tagline: "ECI score, friction detection, velocity tracking. Real-time.",
+    specs: ["ECI 0-1000", "11 metrics", "37 levers", "4 pillars"],
     inputs: [
       "Telemetry from Execute layer pods",
       "System signals: latency, errors, cost, queue depth",
@@ -184,9 +184,9 @@ const LAYERS: Layer[] = [
       "Comparison baselines from prior cycles",
     ],
     techDescription:
-      "Four-pillar composite ECI score on a 0–1000 scale. Eleven measured metrics. Thirty-seven actionable levers. Friction detection at every handoff in real time.",
+      "Four-pillar composite ECI score on a 0-1000 scale. Eleven measured metrics. Thirty-seven actionable levers. Friction detection at every handoff in real time.",
     techBullets: [
-      "ECI · 0–1000 organizational efficiency index, four pillars",
+      "ECI · 0-1000 organizational efficiency index, four pillars",
       "11 metrics tell you what · 37 levers tell you which knob moves it",
       "Real-time friction detection: which handoff is slowing you down right now",
     ],
@@ -194,7 +194,7 @@ const LAYERS: Layer[] = [
     governanceDescription:
       "Output validation: ECI thresholds enforced, friction alerts triggered, lever recommendations validated before reaching humans.",
     governanceBullets: [
-      "ECI thresholds enforced — alerts route to the right human, not noise",
+      "ECI thresholds enforced. Alerts route to the right human, not noise.",
       "Friction alerts triggered only when above baseline + statistical filter",
       "Lever recommendations validated against prior outcomes before surfacing",
     ],
@@ -214,7 +214,7 @@ const LAYERS: Layer[] = [
   },
 ];
 
-/* Overview hover targets — Strategy header band at the top and the
+/* Overview hover targets. Strategy header band at the top and the
    modular-use caption at the bottom. Hovering either swaps the side
    panels to a stack-wide explainer instead of layer-specific detail. */
 type Overview = {
@@ -551,7 +551,7 @@ function StrategyRightViz() {
             animation: "stackflow-eci-pulse 3.6s ease-in-out infinite",
           }}
         >
-          0–1000
+          0-1000
         </div>
         <div className="relative h-1.5 mt-2 rounded-full bg-white/[0.06] overflow-hidden">
           <div
@@ -713,7 +713,7 @@ function SectionHeader({ label, color }: { label: string; color: string }) {
   );
 }
 
-/* Reusable bullet row — same dot + indent + size everywhere so reading
+/* Reusable bullet row. same dot + indent + size everywhere so reading
    feels uniform across input/output/governance/impact sections. */
 function BulletList({
   items,
@@ -751,13 +751,13 @@ function LeftPanel({ active, overview }: { active: Layer | null; overview: Overv
   if (active) {
     return (
       <div className="space-y-4" key={`L-${active.id}`}>
-        {/* INPUTS — what flows in. Bullets only, no preamble. */}
+        {/* INPUTS. what flows in. Bullets only, no preamble. */}
         <div className="space-y-2">
           <SectionHeader label={`Inputs · @ ${active.verb}`} color={active.color} />
           <BulletList items={active.inputs} color={active.color} size="xs" />
         </div>
 
-        {/* INSIDE — just the mini-viz. The prose tech description was
+        {/* INSIDE. just the mini-viz. The prose tech description was
             cut to reduce visual density; the visual carries the meaning. */}
         <div className="pt-3 border-t space-y-2.5" style={{ borderColor: `${active.color}22` }}>
           <SectionHeader label="Inside" color={active.color} />
@@ -778,20 +778,20 @@ function RightPanel({ active, overview }: { active: Layer | null; overview: Over
   if (active) {
     return (
       <div className="space-y-4" key={`R-${active.id}`}>
-        {/* GOVERNANCE — gate label + 2 short bullets. Description prose
+        {/* GOVERNANCE. gate label + 2 short bullets. Description prose
             cut to reduce density; gate label is enough context. */}
         <div className="space-y-2">
           <SectionHeader label={`Governance · ${active.governanceLabel}`} color={active.color} />
           <BulletList items={active.governanceBullets.slice(0, 2)} color={active.color} size="xs" />
         </div>
 
-        {/* OUTPUTS — three short lines, plain English. */}
+        {/* OUTPUTS. three short lines, plain English. */}
         <div className="pt-3 border-t space-y-2" style={{ borderColor: `${active.color}22` }}>
           <SectionHeader label={`Outputs · @ ${active.verb}`} color={active.color} />
           <BulletList items={active.outputs} color={active.color} size="xs" delayBase={0.08} />
         </div>
 
-        {/* IMPACT — two bullets, what changes for the org / user. */}
+        {/* IMPACT. two bullets, what changes for the org / user. */}
         <div className="pt-3 border-t space-y-2" style={{ borderColor: `${active.color}22` }}>
           <SectionHeader label="Impact · for your org" color={active.color} />
           <BulletList items={active.impact} color={active.color} size="xs" delayBase={0.14} />
@@ -831,7 +831,7 @@ function LayerCard({
       onMouseLeave={onLeave}
       onClick={() => (active ? onLeave() : onEnter())}
     >
-      {/* Top accent stripe — brightens when active */}
+      {/* Top accent stripe. brightens when active */}
       <div
         className="absolute top-0 left-0 right-0 h-px rounded-t-xl transition-opacity duration-300"
         style={{
@@ -951,7 +951,7 @@ export default function StackFlow() {
   };
 
   useEffect(() => {
-    /* Duration window 12-17s gives the slow, deliberate flow the user wanted —
+    /* Duration window 12-17s gives the slow, deliberate flow the user wanted .
        the equalized keyframe segments make travel speed feel uniform across
        all four legs. Larger leftOffset (±18) plus the bumped jitter (±10)
        widens the cluster spread at each gate. */
@@ -998,7 +998,7 @@ export default function StackFlow() {
             activeId, so the layout never grows. */}
         <div className="relative grid grid-cols-1 md:grid-cols-[260px_1fr_260px] gap-6 md:gap-8 max-w-6xl mx-auto items-stretch">
 
-          {/* LEFT PANEL — default = existing systems, hover layer = inputs +
+          {/* LEFT PANEL. default = existing systems, hover layer = inputs +
               inside, hover Strategy/Modular = stack-wide overview */}
           <aside
             className="md:self-stretch md:min-h-[520px] rounded-2xl border bg-white/[0.015] backdrop-blur-sm p-4 transition-colors duration-300"
@@ -1009,9 +1009,9 @@ export default function StackFlow() {
             <LeftPanel active={active} overview={overview} />
           </aside>
 
-          {/* CENTER — spine */}
+          {/* CENTER. spine */}
           <div className="relative">
-            {/* Strategy header band — hoverable. Triggers stack-wide
+            {/* Strategy header band. hoverable. Triggers stack-wide
                 overview in the side panels (top-down inputs / full-stack
                 outcomes) instead of any single layer's detail. */}
             <div
@@ -1043,7 +1043,7 @@ export default function StackFlow() {
                   /* Two animations run in parallel: stackflow-down handles
                      the staged Y travel with pile-up pauses; stackflow-jitter
                      adds a tiny X wiggle on a different period so paused
-                     particles don't all sit at the same X — reads as a
+                     particles don't all sit at the same X. reads as a
                      small cluster instead of a synchronized line. */
                   const jitterDur = 1.5 + (p.id % 3) * 0.4;
                   return (
@@ -1108,7 +1108,7 @@ export default function StackFlow() {
             </div>
           </div>
 
-          {/* RIGHT PANEL — default = humans in loop, hover layer = governance +
+          {/* RIGHT PANEL. default = humans in loop, hover layer = governance +
               outputs + impact, hover Strategy/Modular = stack-wide outcomes */}
           <aside
             className="md:self-stretch md:min-h-[520px] rounded-2xl border bg-white/[0.015] backdrop-blur-sm p-4 transition-colors duration-300"
@@ -1120,7 +1120,7 @@ export default function StackFlow() {
           </aside>
         </div>
 
-        {/* Modular-use line — hoverable. Answers "what if i just need one
+        {/* Modular-use line. hoverable. Answers "what if i just need one
             piece?" by swapping the side panels to a stack-wide explainer
             (usage patterns / what it plugs into). */}
         <div className="text-center mt-10 max-w-3xl mx-auto">

@@ -4,7 +4,7 @@
 
 /* ═══════════════════════════════════════════════════════════
    LEVEL9OS GLOBAL DESIGN SYSTEM
-   Tag: [REUSABLE] — copy to new projects (linkupos-v2, thenewcoo-v2, etc.)
+   Tag: [REUSABLE]. copy to new projects (linkupos-v2, thenewcoo-v2, etc.)
    ═══════════════════════════════════════════════════════════ */
 
 :root {
@@ -101,7 +101,7 @@ body {
 }
 
 
-/* Stack flow — keyframes for the StackFlow explainer section. Particles
+/* Stack flow. keyframes for the StackFlow explainer section. Particles
    continuously stream down the spine; governance gates pulse on offset
    phases; per-layer peer dots glow on staggered phases; humans-in-loop
    indicators softly pulse to convey "review still happens here." */
@@ -109,7 +109,7 @@ body {
   /* Staged drop with pile-up at gate Y-positions. Travel segments are
      speed-equalized: ~0.61% time per 1% Y across all four legs, so the
      ball never appears to suddenly speed up between holds. Holds at G1,
-     G2, G3 are 10% of cycle each (~1.4s at 14s total) — long enough for
+     G2, G3 are 10% of cycle each (~1.4s at 14s total). long enough for
      multiple jittered particles to fan into a visible cluster. */
   0%, 2%   { top: 0%;   opacity: 0; }
   5%       { opacity: 1; }
@@ -187,7 +187,7 @@ body {
 }
 
 /* Usage-pattern cycling: each row "lights up" on a stagger to suggest
-   "any one bucket — or all of them." */
+   "any one bucket. or all of them." */
 @keyframes stackflow-usage-cycle {
   0%, 100%  { opacity: 0.35; transform: scale(1);    }
   10%, 25%  { opacity: 1;    transform: scale(1.03); }
