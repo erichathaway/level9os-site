@@ -4,25 +4,25 @@
  * Home-hero splash. Lives inside the home page hero section.
  * Renders:
  *   - Animated mesh field (5 blobs drifting on slow CSS loops)
- *   - The HIT flash at t=ARRIVAL_T, centered on the FloatingNav chip
- *   - 4 pond ripples expanding from the chip across the full hero, drifting off
+ *   - The HIT flash at t=ARRIVAL_T, centered on the ForgeCube
+ *   - 4 pond ripples expanding from the cube across the full hero, drifting off
  *
- * The CHIP itself and the wordmark live in FloatingNav; when rendered on the
- * home page, FloatingNav animates its chip's crystallization in sync with
- * ARRIVAL_T below.
+ * The cube itself is the hero centerpiece (rendered by the page). It enters
+ * with a dust phase that resolves into a wireframe at t=2.2s; that moment IS
+ * the "hit" and triggers the flash + ripples emanating from cube center.
  */
 
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 
-// FloatingNav's chip is 44x44 at top-6 left-6 (sm:left-8), so its center on
-// the viewport is roughly (46, 46). We anchor the flash + ripples there.
-const CHIP_X = 46;
-const CHIP_Y = 46;
+// Anchor coords as percent strings so the splash tracks cube-center wherever
+// the responsive cube lives. The cube is the centered hero element, so 50/50.
+const ANCHOR_X = "50%";
+const ANCHOR_Y = "50%";
 
-// Timing (must match FloatingNav's home-mode chip animation)
-const ARRIVAL_T = 1.7;
-const FLASH1_DUR = 0.55;
+// Timing — synced to ForgeCube's dust→wire transition (~2.2s with skipDust=false).
+const ARRIVAL_T = 2.2;
+const FLASH1_DUR = 0.6;
 
 const RIPPLE_COUNT = 4;
 const RIPPLE_STAGGER = 0.7;
@@ -119,25 +119,24 @@ export default function HomeHeroSplash() {
         ))}
       </div>
 
-      {/* The HIT flash */}
+      {/* The HIT flash — anchored at cube center via percent + translate-50 */}
       <motion.div
         className="absolute pointer-events-none rounded-full"
         style={{
-          top: CHIP_Y,
-          left: CHIP_X,
-          width: 200,
-          height: 200,
-          marginLeft: -100,
-          marginTop: -100,
+          top: ANCHOR_Y,
+          left: ANCHOR_X,
+          width: 320,
+          height: 320,
           background:
             "radial-gradient(circle, rgba(255,255,255,0.95) 0%, rgba(167,139,250,0.6) 28%, rgba(6,182,212,0.3) 55%, transparent 75%)",
           filter: "blur(14px)",
           willChange: "transform, opacity",
           mixBlendMode: "screen",
           zIndex: 5,
+          transform: "translate(-50%, -50%)",
         }}
         initial={{ opacity: 0, scale: 0.3 }}
-        animate={{ opacity: [0, 1, 0], scale: [0.3, 2.4, 3.2] }}
+        animate={{ opacity: [0, 1, 0], scale: [0.3, 2.0, 2.8] }}
         transition={{
           duration: FLASH1_DUR,
           delay: ARRIVAL_T,
@@ -160,8 +159,8 @@ export default function HomeHeroSplash() {
         return (
           <PondRipple
             key={i}
-            chipX={CHIP_X}
-            chipY={CHIP_Y}
+            anchorX={ANCHOR_X}
+            anchorY={ANCHOR_Y}
             index={i}
             bandHalf={bandHalf}
             peakAlpha={peakAlpha}
@@ -177,8 +176,8 @@ export default function HomeHeroSplash() {
 }
 
 type PondRippleProps = {
-  chipX: number;
-  chipY: number;
+  anchorX: string;
+  anchorY: string;
   index: number;
   bandHalf: number;
   peakAlpha: number;
@@ -189,8 +188,8 @@ type PondRippleProps = {
 };
 
 function PondRipple({
-  chipX,
-  chipY,
+  anchorX,
+  anchorY,
   index,
   bandHalf,
   peakAlpha,
@@ -203,7 +202,7 @@ function PondRipple({
   const feather = Math.round(bandHalf * 0.55);
 
   const background =
-    `radial-gradient(circle at ${chipX}px ${chipY}px, ` +
+    `radial-gradient(circle at ${anchorX} ${anchorY}, ` +
     `transparent calc(var(${varName}) - ${bandHalf}px), ` +
     `rgba(${tint},${(peakAlpha * 0.25).toFixed(3)}) calc(var(${varName}) - ${feather}px), ` +
     `rgba(${tint},${peakAlpha.toFixed(3)}) var(${varName}), ` +

@@ -3,19 +3,70 @@
 import Link from "next/link";
 import Image from "next/image";
 import FloatingNav from "@/components/FloatingNav";
-import { FadeIn, Counter, AnimatedBar } from "@level9/brand/components/motion";
+import { FadeIn, Counter } from "@level9/brand/components/motion";
 import { CursorGradient } from "@level9/brand/components/motion";
 import { MagneticButton } from "@level9/brand/components/motion";
 import { LiveTicker } from "@level9/brand/components/motion";
 import { MagneticCard } from "@level9/brand/components/motion";
 import { RevealMask } from "@level9/brand/components/motion";
-import { dnaStats, problemStats, clientLogos, transformations, twoHalves } from "@/data/stats";
-import { products } from "@level9/brand/content/products";
+import { dnaStats, problemStats, clientLogos, twoHalves } from "@/data/stats";
 import { pressurePoints, chassis } from "@level9/brand/content/pressurePoints";
-import { partners } from "@/data/partners";
-import { ConsoleGraphic } from "@level9/brand/components/architecture";
+import { UMBRELLA_TAGLINE_PARTS, UMBRELLA_TAGLINE } from "@level9/brand/content";
+import { ConsoleGraphic, ForgeCube, type ForgeProduct } from "@level9/brand/components/architecture";
+import {
+  StratosTile,
+  CommandosTile,
+  OutboundosTile,
+  LucidorgTile,
+  PlaybookTile,
+  MaxTile,
+} from "@level9/brand/components/tiles";
 import SiteFooter from "@/components/SiteFooter";
 import HomeHeroSplash from "@/components/motion/HomeHeroSplash";
+
+/* Cube-viz product roster for the hero ForgeCube. The canonical product
+ * data (id, name, color) comes from @level9/brand/content/products; the
+ * cube-specific extras (rgb tuple for canvas fills, single-letter icon,
+ * one-line role, specs/stack arrays for the hover popup, fixed popup side)
+ * are tuned for the visualization and live here until they earn promotion
+ * to the brand package. Order = cube face order. */
+const FORGE_PRODUCTS: ForgeProduct[] = [
+  { id: "stratos",    name: "StratOS",      short: "Decision OS",         color: "#8b5cf6", rgb: [139, 92, 246], icon: "S", side: "left",
+    role: "10-person simulated exec room. 3 rounds. Kill criteria built in.",
+    specs: ["10 workflows · 3 rounds / run", "$5.89 per run · Sonnet 4.6", "Governance-audited recommendations"],
+    stack: ["n8n", "Supabase", "Claude Sonnet 4.6", "Next.js", "Vercel"] },
+  { id: "commandos",  name: "CommandOS",    short: "Fleet Orchestration", color: "#10b981", rgb: [16, 185, 129], icon: "C", side: "right",
+    role: "48 domain officers. 3 governance gates. Agents managing agents.",
+    specs: ["48 officers · 8 categories", "G1 plan · G2 mid · G3 final", "22 n8n workflows · multi-LLM routing"],
+    stack: ["Claude Haiku + Sonnet", "GPT-4o", "Perplexity", "n8n NAS", "tmux"] },
+  { id: "outboundos", name: "OutboundOS",   short: "Outbound Umbrella",   color: "#f59e0b", rgb: [245, 158, 11], icon: "O", side: "right",
+    role: "LinkupOS + ABM Engine + AutoCS. One voice, one governance trail.",
+    specs: ["3 pods under one voice profile", "Multi-channel · voice-calibrated", "Replaces marketing + outbound + CS"],
+    stack: ["Postgres triggers", "Apollo", "LinkedIn API", "Supabase", "Vercel"] },
+  { id: "lucidorg",   name: "LucidORG",     short: "Digital Twin",        color: "#06b6d4", rgb: [6, 182, 212],  icon: "L", side: "left",
+    role: "The nervous system. Measures AI vs human at every interaction point.",
+    specs: ["4 pillars · 11 metrics · 37 levers", "ECI scoring · 0-1000 scale", "Real-time friction detection"],
+    stack: ["Supabase", "TypeScript", "Recharts", "Next.js", "Vercel"] },
+  { id: "playbook",   name: "COO Playbook", short: "Methodology Product", color: "#64748b", rgb: [100, 116, 139], icon: "P", side: "left",
+    role: "87K+ words. 24-week install. The operating layer beneath EOS and OKRs.",
+    specs: ["4-part methodology · book + product", "ECI / CxfO / Lean Ops / AHI", "9 training courses bundled"],
+    stack: ["Substack", "n8n", "ElevenLabs", "Perplexity", "Notion"] },
+  { id: "max",        name: "MAX",          short: "Voice Layer",         color: "#ec4899", rgb: [236, 72, 153], icon: "M", side: "right",
+    role: "Conversational layer over all four pressure points. Plain-English answers, metric-grounded.",
+    specs: ["Cross-product query layer", "Voice-aware · governance-aware", "Coming soon"],
+    stack: ["Claude Sonnet 4.6", "Supabase RAG", "Next.js", "Vercel"] },
+];
+
+/* Tile component map for the WHAT WE BUILT gallery. Order matches the
+ * cube face order so the two surfaces tell the same story. */
+const TILE_BY_PRODUCT: Record<string, () => JSX.Element> = {
+  stratos: StratosTile,
+  commandos: CommandosTile,
+  outboundos: OutboundosTile,
+  lucidorg: LucidorgTile,
+  playbook: PlaybookTile,
+  max: MaxTile,
+};
 
 export default function Home() {
   return (
@@ -25,37 +76,17 @@ export default function Home() {
       <LiveTicker />
 
       {/* ═══════════════════════════════════════════════════════════
-          HERO — The Two Halves thesis
+          HERO — Cube as the centerpiece. The cube lands on the canvas
+          (dust → wire transition at ~2.2s), at which point the splash
+          flash + 4 pond ripples emanate from the cube center. The
+          umbrella tagline is the closing line. The chip eyebrow names
+          what we do above the fold; the gold-rush thesis lives on.
           ═══════════════════════════════════════════════════════════ */}
       <section
-        className="min-h-dvh relative overflow-hidden flex items-center"
+        className="min-h-dvh relative overflow-hidden flex flex-col items-center justify-center"
         style={{ background: "var(--bg-root)" }}
       >
-        {/* Ambient gradient mesh */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div
-            className="absolute w-[800px] h-[800px] rounded-full top-1/4 right-0 -translate-y-1/2"
-            style={{
-              background: "radial-gradient(circle, rgba(139,92,246,0.12) 0%, transparent 60%)",
-              filter: "blur(100px)",
-            }}
-          />
-          <div
-            className="absolute w-[600px] h-[600px] rounded-full bottom-0 left-1/4"
-            style={{
-              background: "radial-gradient(circle, rgba(6,182,212,0.08) 0%, transparent 60%)",
-              filter: "blur(100px)",
-            }}
-          />
-          <div
-            className="absolute w-[500px] h-[500px] rounded-full top-1/3 left-0"
-            style={{
-              background: "radial-gradient(circle, rgba(236,72,153,0.05) 0%, transparent 60%)",
-              filter: "blur(100px)",
-            }}
-          />
-        </div>
-
+        {/* Faint grid wash */}
         <div
           className="absolute inset-0 pointer-events-none opacity-[0.04]"
           style={{
@@ -66,56 +97,48 @@ export default function Home() {
           }}
         />
 
-        {/* Signature hero splash: animated mesh + logo-hit flash + pond ripples.
-            Syncs with FloatingNav's chip crystallization (home-only). */}
+        {/* Signature splash: mesh blobs + cube-anchored flash + pond ripples.
+            Anchor coords are 50%/50% so the splash always tracks cube center. */}
         <HomeHeroSplash />
 
-        <div className="max-w-6xl mx-auto px-6 sm:px-12 py-32 relative z-10 w-full">
+        <div className="relative z-10 w-full max-w-6xl mx-auto px-6 sm:px-12 pt-28 pb-20 flex flex-col items-center">
           <FadeIn>
             <div className="inline-flex items-center gap-3 mb-10 px-4 py-2 rounded-full border border-white/[0.08] bg-white/[0.02] backdrop-blur-sm">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
               <span className="text-[12px] font-mono tracking-[0.3em] uppercase text-white/60">
-                Operations is the only side you actually control
+                AI for operations · the half it all runs on
               </span>
             </div>
           </FadeIn>
 
-          <div className="space-y-2 mb-12">
-            <RevealMask>
-              <h1 className="text-[clamp(2.5rem,6vw,5.5rem)] font-black leading-[1.05] tracking-tight text-white/95">
-                AI is a gold rush.
-              </h1>
-            </RevealMask>
-            <RevealMask delay={140}>
-              <h1 className="text-[clamp(2rem,5vw,4.5rem)] font-black leading-[1.05] tracking-tight text-white/55">
-                Everyone&apos;s building it to make more money.
-              </h1>
-            </RevealMask>
-            <RevealMask delay={280}>
-              <h1 className="text-[clamp(2.5rem,6vw,5.5rem)] font-black leading-[1.05] tracking-tight pt-4">
-                <span className="bg-gradient-to-r from-violet-400 via-cyan-400 to-fuchsia-400 bg-clip-text text-transparent">
-                  We build it for the side
-                </span>
-                <br />
-                <span className="bg-gradient-to-r from-violet-400 via-cyan-400 to-fuchsia-400 bg-clip-text text-transparent">
-                  you actually control.
-                </span>
-              </h1>
-            </RevealMask>
+          {/* The cube. ~52vmin caps so it never overruns small screens.
+              showPopup={false} on home — the popups belong on /products
+              where there's room. Whole cube is a link to /products so any
+              click lands you in the catalog. */}
+          <div
+            className="relative mb-10"
+            style={{ width: "min(58vmin, 56vh, 560px)", height: "min(58vmin, 56vh, 560px)" }}
+          >
+            <ForgeCube products={FORGE_PRODUCTS} href="/products" showPopup={false} />
           </div>
 
-          <FadeIn delay={0.6}>
-            <p className="text-white/50 text-lg sm:text-xl leading-relaxed max-w-2xl mb-12 font-light">
-              Save the money. Save the time. Control the outcome.{" "}
-              <span className="text-white/80">
-                AI for operations. The function that connects everything and determines whether
-                strategy actually survives contact with reality.
-              </span>
+          <h1 className="text-center text-[clamp(1.7rem,3.6vw,3.2rem)] font-black leading-[1.1] tracking-tight max-w-3xl mb-5">
+            <span className="text-white/85">{UMBRELLA_TAGLINE_PARTS.before}</span>{" "}
+            <span className="bg-gradient-to-r from-violet-300 via-cyan-300 to-fuchsia-300 bg-clip-text text-transparent">
+              {UMBRELLA_TAGLINE_PARTS.emphasis}
+            </span>{" "}
+            <span className="text-white/85">{UMBRELLA_TAGLINE_PARTS.after}</span>
+          </h1>
+
+          <FadeIn delay={0.4}>
+            <p className="text-center text-white/50 text-base sm:text-lg leading-relaxed max-w-2xl mb-10 font-light">
+              Six AI products on the operations side. One operating chassis. The function that
+              connects everything and decides whether strategy actually survives contact with reality.
             </p>
           </FadeIn>
 
-          <FadeIn delay={0.9}>
-            <div className="flex flex-wrap items-center gap-4">
+          <FadeIn delay={0.55}>
+            <div className="flex flex-wrap items-center justify-center gap-4">
               <MagneticButton
                 href="/products"
                 className="inline-flex items-center gap-3 px-8 py-4 rounded-full bg-gradient-to-r from-violet-500 to-cyan-500 text-white font-semibold hover:shadow-2xl hover:shadow-violet-500/30 transition-shadow"
@@ -135,11 +158,103 @@ export default function Home() {
         </div>
 
         {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce">
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce z-10 pointer-events-none">
           <span className="text-[11px] font-mono tracking-[0.3em] uppercase text-white/20">
             Scroll
           </span>
           <div className="w-px h-8 bg-gradient-to-b from-white/20 to-transparent" />
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════════
+          WHAT WE BUILT — six product tile loops, live-rendered from
+          @level9/brand/components/tiles. Same animations Eric uses for
+          LinkedIn Experience media. Click any tile to jump into the
+          product on /products. Replaces the old "Two More Pieces"
+          (Playbook + MAX) section by including those two as tiles.
+          ═══════════════════════════════════════════════════════════ */}
+      <section className="py-24 sm:py-32 relative" style={{ background: "var(--bg-root)" }}>
+        <div className="max-w-7xl mx-auto px-6 sm:px-12">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-12 gap-6">
+            <div>
+              <RevealMask>
+                <div className="text-violet-400/50 text-[11px] tracking-[0.5em] uppercase font-mono font-semibold mb-4">
+                  What we built
+                </div>
+              </RevealMask>
+              <RevealMask delay={100}>
+                <h2 className="text-4xl sm:text-5xl font-black text-white/90 leading-[1.05] max-w-3xl">
+                  Six products, live in production.
+                  <br />
+                  <span className="text-white/40">One per pressure point.</span>
+                </h2>
+              </RevealMask>
+            </div>
+            <FadeIn delay={0.3}>
+              <Link
+                href="/products"
+                className="group text-sm font-semibold text-violet-400/80 hover:text-violet-400 transition-colors inline-flex items-center gap-2"
+              >
+                All six in detail{" "}
+                <span className="transition-transform group-hover:translate-x-1">→</span>
+              </Link>
+            </FadeIn>
+          </div>
+
+          {/* 3 cols on desktop, 2 on tablet, 1 on mobile. Each card is a
+              16:9 aspect window scaled around the 1200x630 tile component. */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {FORGE_PRODUCTS.map((p, i) => {
+              const Tile = TILE_BY_PRODUCT[p.id];
+              return (
+                <FadeIn key={p.id} delay={i * 0.08}>
+                  <Link
+                    href={`/products#${p.id}`}
+                    className="group block rounded-2xl border bg-surface-40 backdrop-blur-sm overflow-hidden transition-colors hover:bg-surface-60"
+                    style={{ borderColor: `${p.color}20` }}
+                  >
+                    <div
+                      className="relative w-full overflow-hidden"
+                      style={{
+                        aspectRatio: "1200 / 630",
+                        background: "#000",
+                        containerType: "inline-size",
+                      }}
+                    >
+                      {/* Tile is authored at fixed 1200x630. Scale it down to
+                          card width via container query units (cqw = % of
+                          container inline-size). transform-origin top-left so
+                          the scaled tile fills the card from the upper-left. */}
+                      <div
+                        className="absolute top-0 left-0"
+                        style={{
+                          width: 1200,
+                          height: 630,
+                          /* length/length yields a unitless scale factor.
+                             100cqw / 1200px = (container width / 1200) */
+                          transform: "scale(calc(100cqw / 1200px))",
+                          transformOrigin: "top left",
+                        }}
+                      >
+                        <Tile />
+                      </div>
+                    </div>
+                    <div className="p-5 border-t" style={{ borderColor: `${p.color}15` }}>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <h3 className="text-lg font-black tracking-tight" style={{ color: p.color }}>
+                          {p.name}
+                        </h3>
+                        <span className="text-[10px] font-mono tracking-wider uppercase" style={{ color: `${p.color}aa` }}>
+                          {p.short}
+                        </span>
+                      </div>
+                      <p className="text-white/55 text-xs leading-relaxed">{p.role}</p>
+                    </div>
+                  </Link>
+                </FadeIn>
+              );
+            })}
+          </div>
         </div>
       </section>
 
@@ -715,203 +830,6 @@ export default function Home() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════════
-          WHY OPERATIONS — The control thesis
-          ═══════════════════════════════════════════════════════════ */}
-      <section className="py-32 relative" style={{ background: "var(--bg-root)" }}>
-        <div className="max-w-6xl mx-auto px-6 sm:px-12">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <FadeIn direction="left">
-              <div className="text-violet-400/50 text-[11px] tracking-[0.5em] uppercase font-mono font-semibold mb-6">
-                The Control Argument
-              </div>
-              <h2 className="text-4xl sm:text-5xl font-black text-white/90 mb-8 leading-[1.05]">
-                You can&apos;t control the market.
-                <br />
-                You can&apos;t control your competitors.
-                <br />
-                <span className="bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">
-                  You can control how you operate.
-                </span>
-              </h2>
-              <p className="text-white/50 text-base leading-relaxed mb-5">
-                That&apos;s why we build for the operations side of the house. The function where
-                30 years of pattern recognition meets modern AI architecture, and where leverage
-                actually compounds, because you decide every input.
-              </p>
-              <p className="text-white/35 text-sm leading-relaxed mb-10">
-                Sales AI helps you sell more. Marketing AI helps you generate more. Both are
-                useful. Neither controls the outcome. Operations AI controls the outcome, because
-                operations is the only thing inside your perimeter.
-              </p>
-              <div className="flex flex-wrap gap-3">
-                {[
-                  "Outcome-Controlled",
-                  "AI-Native",
-                  "Self-Correcting",
-                  "Measurable",
-                  "Governance-First",
-                ].map((tag) => (
-                  <span
-                    key={tag}
-                    className="text-[12px] px-4 py-2 rounded-full border border-violet-500/25 text-violet-400/70 font-mono tracking-wider uppercase hover:border-violet-500/50 hover:text-violet-400 transition-colors cursor-default"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            </FadeIn>
-
-            <FadeIn direction="right" delay={0.2}>
-              <div className="space-y-4">
-                {transformations.map((item) => (
-                  <div
-                    key={item.after}
-                    className="group p-5 rounded-2xl border border-white/[0.05] hover:border-white/[0.12] transition-all hover:bg-white/[0.02]"
-                  >
-                    <div className="flex items-center gap-3 mb-3">
-                      <span className="text-red-400/40 text-[13px] line-through font-mono">
-                        {item.before}
-                      </span>
-                      <span className="text-white/20">→</span>
-                      <span className="text-white/80 text-sm font-semibold group-hover:text-white transition-colors">
-                        {item.after}
-                      </span>
-                    </div>
-                    <AnimatedBar value={item.barVal} color={item.color} />
-                  </div>
-                ))}
-              </div>
-            </FadeIn>
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════════════════════
-          TWO MORE PIECES — Install manual + voice layer
-          (the cycle handles the four pressure points; these wrap it)
-          ═══════════════════════════════════════════════════════════ */}
-      <section className="py-32 relative" style={{ background: "var(--bg-root)" }}>
-        <div className="max-w-6xl mx-auto px-6 sm:px-12">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-12 gap-6">
-            <div>
-              <RevealMask>
-                <div className="text-violet-400/50 text-[11px] tracking-[0.5em] uppercase font-mono font-semibold mb-4">
-                  Wrapping The Cycle
-                </div>
-              </RevealMask>
-              <RevealMask delay={100}>
-                <h2 className="text-4xl sm:text-5xl font-black text-white/90 leading-[1.05] max-w-2xl">
-                  How you install it.
-                  <br />
-                  <span className="text-white/40">How you talk to it.</span>
-                </h2>
-              </RevealMask>
-            </div>
-            <FadeIn delay={0.3}>
-              <Link
-                href="/products"
-                className="group text-sm font-semibold text-violet-400/80 hover:text-violet-400 transition-colors inline-flex items-center gap-2"
-              >
-                All six products in detail{" "}
-                <span className="transition-transform group-hover:translate-x-1">→</span>
-              </Link>
-            </FadeIn>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-            {products
-              .filter((p) => p.id === "playbook" || p.id === "max")
-              .map((p, i) => (
-                <FadeIn key={p.id} delay={i * 0.1}>
-                  <Link href={p.external ? p.href : `/products#${p.id}`} className="block h-full"
-                    {...(p.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}>
-                    <MagneticCard
-                      className="rounded-2xl h-full"
-                      glowColor={`${p.color}25`}
-                      maxTilt={4}
-                    >
-                      <div
-                        className="rounded-2xl p-7 h-full border bg-surface-60 backdrop-blur-sm group relative overflow-hidden"
-                        style={{ borderColor: `${p.color}20` }}
-                      >
-                        <div
-                          className="absolute top-0 left-0 right-0 h-[2px]"
-                          style={{ background: `linear-gradient(90deg, ${p.color}, ${p.color}30, transparent)` }}
-                        />
-
-                        <div className="flex items-start justify-between mb-5">
-                          <div>
-                            <div
-                              className="text-[11px] font-mono tracking-[0.3em] mb-2"
-                              style={{ color: `${p.color}aa` }}
-                            >
-                              {p.id === "playbook" ? "INSTALL MANUAL" : "VOICE LAYER"}
-                            </div>
-                            <h3
-                              className="text-3xl font-black tracking-tight"
-                              style={{ color: p.color }}
-                            >
-                              {p.name}
-                            </h3>
-                            <div className="text-white/40 text-[11px] mt-1.5 font-mono uppercase tracking-wider">
-                              {p.layer}
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-1.5">
-                            <div
-                              className="w-1.5 h-1.5 rounded-full animate-pulse"
-                              style={{ background: p.color }}
-                            />
-                            <span
-                              className="text-[10px] font-mono tracking-wider"
-                              style={{ color: `${p.color}cc` }}
-                            >
-                              {p.status}
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="mb-4">
-                          <div className="text-white/30 text-[11px] uppercase tracking-wider font-mono mb-1.5">
-                            Problem
-                          </div>
-                          <p className="text-white/60 text-sm leading-relaxed">{p.problem}</p>
-                        </div>
-                        <div className="mb-6 pl-3 border-l-2" style={{ borderColor: p.color }}>
-                          <div
-                            className="text-[11px] uppercase tracking-wider font-mono mb-1.5"
-                            style={{ color: `${p.color}aa` }}
-                          >
-                            Role in the cycle
-                          </div>
-                          <p className="text-white/85 text-sm leading-relaxed font-medium">
-                            {p.id === "playbook"
-                              ? "The 30 / 90 / 180 install protocol that turns the four pressure points into a phased rollout plan. Built from 20+ years of operational pattern recognition."
-                              : "The conversational layer that sits across all four pressure points. Ask any question about your operation in plain English and get a metric-grounded answer."}
-                          </p>
-                        </div>
-
-                        <div
-                          className="flex items-center justify-end pt-4 border-t"
-                          style={{ borderColor: `${p.color}15` }}
-                        >
-                          <span
-                            className="text-xs font-semibold transition-all group-hover:translate-x-1"
-                            style={{ color: p.color }}
-                          >
-                            {p.external ? `Visit ${p.domain} →` : "Explore →"}
-                          </span>
-                        </div>
-                      </div>
-                    </MagneticCard>
-                  </Link>
-                </FadeIn>
-              ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════════════════════
           OPERATIONAL DNA
           ═══════════════════════════════════════════════════════════ */}
       <section className="py-32 relative" style={{ background: "var(--bg-root)" }}>
@@ -986,89 +904,6 @@ export default function Home() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════════
-          PARTNERS PREVIEW
-          ═══════════════════════════════════════════════════════════ */}
-      <section className="py-32 relative" style={{ background: "var(--bg-root)" }}>
-        <div className="max-w-6xl mx-auto px-6 sm:px-12">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-12 gap-6">
-            <div>
-              <RevealMask>
-                <div className="text-emerald-400/50 text-[11px] tracking-[0.5em] uppercase font-mono font-semibold mb-4">
-                  The Partner Network
-                </div>
-              </RevealMask>
-              <RevealMask delay={100}>
-                <h2 className="text-4xl sm:text-5xl font-black text-white/90 leading-[1.05] max-w-3xl">
-                  We don&apos;t sell to individuals.
-                  <br />
-                  <span className="text-white/40">We partner with the people who do.</span>
-                </h2>
-              </RevealMask>
-            </div>
-            <FadeIn delay={0.3}>
-              <Link
-                href="/partnerships"
-                className="group text-sm font-semibold text-emerald-400/80 hover:text-emerald-400 transition-colors inline-flex items-center gap-2"
-              >
-                Full network{" "}
-                <span className="transition-transform group-hover:translate-x-1">→</span>
-              </Link>
-            </FadeIn>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {partners.map((partner, i) => (
-              <FadeIn key={partner.id} delay={i * 0.1}>
-                <Link
-                  href="/partnerships"
-                  className="block h-full"
-                >
-                  <MagneticCard
-                    className="rounded-2xl h-full"
-                    glowColor={`${partner.color}20`}
-                    maxTilt={4}
-                  >
-                    <div
-                      className="rounded-2xl p-6 h-full border bg-surface-40 backdrop-blur-sm group hover:bg-surface-60 transition-colors"
-                      style={{ borderColor: `${partner.color}15` }}
-                    >
-                      <div
-                        className="text-[8px] font-mono tracking-[0.2em] uppercase mb-3"
-                        style={{ color: `${partner.color}aa` }}
-                      >
-                        {partner.type}
-                      </div>
-                      <h3 className="text-lg font-black text-white/90 mb-2 group-hover:text-white transition-colors">
-                        {partner.name}
-                      </h3>
-                      <p className="text-white/45 text-xs leading-relaxed">{partner.tagline}</p>
-                    </div>
-                  </MagneticCard>
-                </Link>
-              </FadeIn>
-            ))}
-          </div>
-
-          <FadeIn delay={0.5}>
-            <div className="mt-10 p-5 rounded-2xl border border-emerald-500/15 bg-emerald-500/[0.03] text-center">
-              <p className="text-white/60 text-sm">
-                <span className="text-emerald-400 font-semibold">Looking for a career in AI?</span>{" "}
-                Individual learning lives on our non-profit education arm.{" "}
-                <a
-                  href="https://nextgenintern.com/individual-learning"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-emerald-400 hover:text-emerald-300 font-semibold underline underline-offset-4 transition-colors"
-                >
-                  nextgenintern.com →
-                </a>
-              </p>
-            </div>
-          </FadeIn>
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════════════════════
           CTA — Final call
           ═══════════════════════════════════════════════════════════ */}
       <section className="py-32 relative overflow-hidden" style={{ background: "var(--bg-root)" }}>
@@ -1112,6 +947,14 @@ export default function Home() {
                 See the Architecture →
               </MagneticButton>
             </div>
+
+            {/* Umbrella tagline closer — the line the hero opened on,
+                returned at the end as the parting thought. */}
+            <FadeIn delay={0.4}>
+              <p className="mt-16 text-white/40 text-sm sm:text-base font-light italic max-w-xl mx-auto leading-relaxed">
+                {UMBRELLA_TAGLINE}
+              </p>
+            </FadeIn>
           </FadeIn>
         </div>
       </section>

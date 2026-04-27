@@ -164,9 +164,17 @@ export default function FloatingNav() {
         >
           {/* Mobile: pt-24 leaves room for the fixed top-right hamburger close
               button (top-6 + 44px button = ~70px). Desktop: items-center handles
-              spacing. Reduced mobile gap so the long stacked menu doesn't
-              push past viewport. */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-16 max-w-6xl w-full pt-24 pb-12 sm:py-0">
+              spacing.
+              The Products column (the iPhone-grid of 6 product chips) is only
+              shown on /products — that's the page where the visitor came to
+              shop products and benefits from a quick chip nav. On every other
+              page the menu collapses to two columns: Navigate + Our Thinking,
+              which keeps the menu small and the content sharp. */}
+          <div
+            className={`grid grid-cols-1 ${
+              pathname === "/products" ? "sm:grid-cols-3" : "sm:grid-cols-2"
+            } gap-8 sm:gap-16 ${pathname === "/products" ? "max-w-6xl" : "max-w-3xl"} w-full pt-24 pb-12 sm:py-0`}
+          >
             {/* Primary nav */}
             <div>
               <div className="text-[11px] tracking-[0.3em] uppercase font-mono text-white/25 mb-8">
@@ -206,59 +214,60 @@ export default function FloatingNav() {
               </div>
             </div>
 
-            {/* Products */}
-            <div>
-              <div className="text-[11px] tracking-[0.3em] uppercase font-mono text-white/25 mb-8">
-                Products
-              </div>
-              <div className="space-y-3">
-                {navProducts.map((p) => (
-                  <Link
-                    key={p.label}
-                    href={p.href}
-                    onClick={() => setOpen(false)}
-                    className="flex items-center gap-4 group cursor-pointer py-2"
-                  >
-                    {/* iPhone home-screen style: every icon sits in an identical
-                        rounded-square chip frame with the product accent color
-                        as a subtle border + background tint. Internal art varies
-                        (logo SVG vs letter mark), the outer frame stays uniform. */}
-                    <div
-                      className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden transition-all duration-300 group-hover:scale-110"
-                      style={{
-                        background: `${p.color}12`,
-                        border: `1px solid ${p.color}30`,
-                      }}
+            {/* Products column — only shown on /products. The iPhone-grid of
+                six product chips is intentionally a /products-page detail. On
+                every other page the same six are reachable in one click via
+                Navigate > Products. */}
+            {pathname === "/products" && (
+              <div>
+                <div className="text-[11px] tracking-[0.3em] uppercase font-mono text-white/25 mb-8">
+                  Products
+                </div>
+                <div className="space-y-3">
+                  {navProducts.map((p) => (
+                    <Link
+                      key={p.label}
+                      href={p.href}
+                      onClick={() => setOpen(false)}
+                      className="flex items-center gap-4 group cursor-pointer py-2"
                     >
-                      {p.image ? (
-                        <Image
-                          src={p.image}
-                          alt={p.label}
-                          width={44}
-                          height={44}
-                          className="w-full h-full object-contain"
-                        />
-                      ) : (
-                        <span
-                          className="text-sm font-black"
-                          style={{ color: `${p.color}cc` }}
-                        >
-                          {p.icon}
-                        </span>
-                      )}
-                    </div>
-                    <div>
-                      <h4 className="text-base sm:text-lg font-bold text-white/60 group-hover:text-white transition-colors">
-                        {p.label}
-                      </h4>
-                      <p className="text-[12px] transition-colors" style={{ color: `${p.color}80` }}>
-                        {p.desc}
-                      </p>
-                    </div>
-                  </Link>
-                ))}
+                      <div
+                        className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden transition-all duration-300 group-hover:scale-110"
+                        style={{
+                          background: `${p.color}12`,
+                          border: `1px solid ${p.color}30`,
+                        }}
+                      >
+                        {p.image ? (
+                          <Image
+                            src={p.image}
+                            alt={p.label}
+                            width={44}
+                            height={44}
+                            className="w-full h-full object-contain"
+                          />
+                        ) : (
+                          <span
+                            className="text-sm font-black"
+                            style={{ color: `${p.color}cc` }}
+                          >
+                            {p.icon}
+                          </span>
+                        )}
+                      </div>
+                      <div>
+                        <h4 className="text-base sm:text-lg font-bold text-white/60 group-hover:text-white transition-colors">
+                          {p.label}
+                        </h4>
+                        <p className="text-[12px] transition-colors" style={{ color: `${p.color}80` }}>
+                          {p.desc}
+                        </p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Thinking / Resources */}
             <div>
