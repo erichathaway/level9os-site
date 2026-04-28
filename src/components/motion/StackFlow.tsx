@@ -457,58 +457,96 @@ function FlowRow({
   );
 }
 
-/** Default LEFT viz: existing systems feeding in, animated. Shows 5
- *  source labels each with a flowing dot traveling toward the spine. */
+/** Default LEFT viz: "USE ANY ONE PIECE." Each of the four pods rendered
+ *  as a standalone tile with a plain-English action line and a technical
+ *  proof point. Reads as a 7-year-old can grok ("drop in just one"), with
+ *  the per-tile mono line carrying the technical signal that impresses. */
 function DefaultLeftViz() {
+  const pods = [
+    { name: "StratOS",    color: "#8b5cf6", plain: "Drop-in exec room.",     tech: "10 seats · 3 rounds · multi-LLM" },
+    { name: "CommandOS",  color: "#10b981", plain: "Drop-in orchestrator.",  tech: "48 officers · 3 gates · routing" },
+    { name: "OutboundOS", color: "#f59e0b", plain: "Drop-in outbound + CS.", tech: "voice-calibrated · multi-channel" },
+    { name: "LucidORG",   color: "#06b6d4", plain: "Drop-in measurement.",   tech: "ECI 0-1000 · 37 levers · real-time" },
+  ];
   return (
     <div className="space-y-3">
-      <SectionHeader label="Existing systems · feed in" color="#a78bfa" />
-      <div className="space-y-2.5">
-        <FlowRow label="Slack" color="#a78bfa" delay={0} />
-        <FlowRow label="Email" color="#a78bfa" delay={0.4} />
-        <FlowRow label="Salesforce" color="#a78bfa" delay={0.8} />
-        <FlowRow label="Notion" color="#a78bfa" delay={1.2} />
-        <FlowRow label="Drive" color="#a78bfa" delay={1.6} />
+      <SectionHeader label="Use any one piece" color="#a78bfa" />
+      <div className="text-[11px] text-white/55 leading-relaxed mb-1">
+        Each pod ships as a standalone system. Plug it into your existing stack.
+      </div>
+      <div className="space-y-2">
+        {pods.map((p) => (
+          <div
+            key={p.name}
+            className="rounded-lg border px-3 py-2.5 transition-colors duration-300"
+            style={{ borderColor: `${p.color}30`, background: `${p.color}08` }}
+          >
+            <div className="flex items-baseline justify-between gap-2 mb-0.5">
+              <span className="text-[12px] font-bold" style={{ color: p.color }}>{p.name}</span>
+              <span className="text-[10px] text-white/55">{p.plain}</span>
+            </div>
+            <div className="text-[10px] font-mono tracking-wider text-white/45">{p.tech}</div>
+          </div>
+        ))}
       </div>
       <div className="text-[10px] text-white/35 pt-2 border-t border-white/[0.06] leading-relaxed">
-        Hover any layer for tool detail · or hover Strategy / the modular pill for stack-wide overview.
+        Hover a layer to see how that bucket works.
       </div>
     </div>
   );
 }
 
-/** Default RIGHT viz: outcomes coming out of the stack. Four outcome
- *  tiles stagger-pulse to convey "what you get back." Humans-in-loop
- *  collapsed to a single caption so the panel reads as one idea, not two. */
+/** Default RIGHT viz: "OR RUN AS ONE STACK." Visual converges 4 colored
+ *  bars into one unified rail, with the outcomes you only get when all
+ *  four are wired together. Same plain/technical balance as the left
+ *  panel: short outcome lines, short proof line under each. */
 function DefaultRightViz() {
   const outcomes = [
-    { label: "Decisions", color: "#8b5cf6" },
-    { label: "Execution", color: "#10b981" },
-    { label: "Touchpoints", color: "#f59e0b" },
-    { label: "ECI score", color: "#06b6d4" },
+    { plain: "Decisions tied to outcomes",          tech: "not opinion debates" },
+    { plain: "Cross-functional execution",          tech: "company-of-1 cost" },
+    { plain: "ECI: org efficiency in one number",   tech: "0-1000 score, weekly delta" },
+    { plain: "End-to-end audit trail",              tech: "intent → execution → measure" },
   ];
   return (
     <div className="space-y-3">
-      <SectionHeader label="What you get back" color="#67e8f9" />
-      <div className="grid grid-cols-2 gap-2">
-        {outcomes.map((o, i) => (
-          <div
-            key={o.label}
-            className="rounded-lg border px-3 py-3 text-[11px] font-mono uppercase tracking-wider text-center"
-            style={{
-              borderColor: `${o.color}30`,
-              background: `${o.color}10`,
-              color: `${o.color}E6`,
-              animation: "stackflow-outcome-pulse 4.2s ease-in-out infinite",
-              animationDelay: `${i * 1}s`,
-            }}
-          >
-            {o.label}
+      <SectionHeader label="Or run all four as one stack" color="#67e8f9" />
+      <div className="text-[11px] text-white/55 leading-relaxed mb-2">
+        Four buckets wired into one operating system. One governance trail end to end.
+      </div>
+
+      {/* Converging-rails visual: 4 colored bars feed into 1 unified rail */}
+      <div className="relative rounded-lg border bg-white/[0.02] p-3 mb-2" style={{ borderColor: "#67e8f928" }}>
+        <div className="flex items-center gap-1.5">
+          <div className="flex-1 space-y-1">
+            {[ "#8b5cf6", "#10b981", "#f59e0b", "#06b6d4" ].map((c, i) => (
+              <div key={c} className="h-1.5 rounded-full" style={{
+                background: `linear-gradient(90deg, ${c}55, ${c}cc)`,
+                animation: "stackflow-converge 3.6s ease-in-out infinite",
+                animationDelay: `${i * 0.18}s`,
+              }} />
+            ))}
+          </div>
+          <span className="text-white/30 text-[14px]">→</span>
+          <div className="w-10 h-10 rounded-md flex items-center justify-center" style={{
+            background: "linear-gradient(135deg, #8b5cf633, #06b6d433)",
+            border: "1px solid #67e8f966",
+          }}>
+            <span className="text-[9px] font-mono tracking-wider text-white/85">OS</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-1.5">
+        {outcomes.map((o) => (
+          <div key={o.plain} className="text-[11px] leading-snug">
+            <span className="text-white/80">{o.plain}.</span>
+            <span className="text-white/40 font-mono text-[10px] ml-1.5">{o.tech}</span>
           </div>
         ))}
       </div>
-      <div className="text-[10px] text-white/40 leading-relaxed pt-2 border-t border-white/[0.06]">
-        Humans in the loop: review · override · intervene at every layer.
+
+      <div className="text-[10px] text-white/35 pt-2 border-t border-white/[0.06] leading-relaxed">
+        Hover any layer to see the inside.
       </div>
     </div>
   );
@@ -899,72 +937,39 @@ export default function StackFlow() {
     activeId === "strategy" || activeId === "modular" ? OVERVIEWS[activeId] : null;
   const activeColor = active?.color ?? overview?.color ?? null;
 
-  /* Auto-walkthrough: when the section enters viewport for the first time
-     AND the visitor hasn't moved their cursor inside it yet, cycle through
-     the four layers (Decide → Coordinate → Execute → Measure) on a 4s
-     cadence so the visitor sees the rollover pattern without hunting for
-     it. Any mousemove inside the section stops the walk and hands control
-     back to the visitor. */
+  /* Static-first interaction model: nothing happens until the visitor
+     moves their cursor inside the section. Default panels show the
+     "modular vs unified" story; the particle spine only spawns and the
+     section "wakes up" once interactionLock flips. */
   const sectionRef = useRef<HTMLElement>(null);
-  const [autoWalking, setAutoWalking] = useState(false);
   const [interactionLock, setInteractionLock] = useState(false);
   const interactionLockRef = useRef(false);
 
-  useEffect(() => {
-    if (!sectionRef.current) return;
-    const obs = new IntersectionObserver(
-      (entries) => {
-        const e = entries[0];
-        if (e.isIntersecting && !interactionLockRef.current) setAutoWalking(true);
-      },
-      { threshold: 0.4 }
-    );
-    obs.observe(sectionRef.current);
-    return () => obs.disconnect();
-  }, []);
-
-  useEffect(() => {
-    if (!autoWalking || interactionLock) return;
-    const ids = ["decide", "coordinate", "execute", "measure"];
-    let i = 0;
-    setActiveId(ids[0]);
-    const tick = setInterval(() => {
-      i += 1;
-      if (i >= ids.length || interactionLockRef.current) {
-        clearInterval(tick);
-        setAutoWalking(false);
-        if (!interactionLockRef.current) setActiveId(null);
-        return;
-      }
-      setActiveId(ids[i]);
-    }, 4000);
-    return () => clearInterval(tick);
-  }, [autoWalking, interactionLock]);
-
-  /* Lock the auto-walk the moment the visitor moves their cursor inside
-     the section. The ref version is read inside the interval closure
-     above so the cycle aborts mid-flight, not just at the next tick. */
   const lockInteraction = () => {
     if (interactionLockRef.current) return;
     interactionLockRef.current = true;
     setInteractionLock(true);
   };
 
+  /* Particles are deferred — nothing animates on initial page load. The
+     particle spine only spawns when the visitor first rolls over a layer
+     card. Saves CPU on visitors who scroll past, and gives the static
+     entry state a calmer first read. */
   useEffect(() => {
-    /* Duration window 12-17s gives the slow, deliberate flow the user wanted .
-       the equalized keyframe segments make travel speed feel uniform across
-       all four legs. Larger leftOffset (±18) plus the bumped jitter (±10)
-       widens the cluster spread at each gate. */
+    if (!interactionLock || particles.length > 0) return;
+    /* Alternating rhythm: every other particle gets a shorter duration so
+       the spine reads as different projects flowing through at different
+       paces, rather than a single-tempo conveyor belt. */
     const ps: Particle[] = Array.from({ length: PARTICLE_COUNT }, (_, i) => ({
       id: i,
       leftOffset: (Math.random() - 0.5) * 36,
-      duration: 12 + Math.random() * 5,
+      duration: i % 2 === 0 ? 9 + Math.random() * 3 : 14 + Math.random() * 4,
       delay: -(Math.random() * 14),
       color: PARTICLE_COLORS[i % PARTICLE_COLORS.length],
       size: 5 + Math.random() * 3,
     }));
     setParticles(ps);
-  }, []);
+  }, [interactionLock, particles.length]);
 
   return (
     <section

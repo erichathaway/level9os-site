@@ -11,7 +11,7 @@
     "postinstall": "npm run sync-brand-logos"
   },
   "dependencies": {
-    "@level9/brand": "github:erichathaway/level9-brand#780f90e",
+    "@level9/brand": "github:erichathaway/level9-brand#a9c9069",
     "framer-motion": "^12.38.0",
     "next": "14.2.35",
     "react": "^18",

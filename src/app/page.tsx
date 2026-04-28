@@ -13,7 +13,7 @@ import { RevealMask } from "@level9/brand/components/motion";
 import { dnaStats, problemStats, clientLogos, twoHalves } from "@/data/stats";
 import { pressurePoints, chassis } from "@level9/brand/content/pressurePoints";
 import { UMBRELLA_TAGLINE_PARTS, UMBRELLA_TAGLINE } from "@level9/brand/content";
-import { ConsoleGraphic, ForgeCube, type ForgeProduct } from "@level9/brand/components/architecture";
+import { ConsoleGraphic, ForgeCube, type ForgeProduct, type ConsoleHighlight } from "@level9/brand/components/architecture";
 import {
   StratosTile,
   CommandosTile,
@@ -25,6 +25,7 @@ import {
 import SiteFooter from "@/components/SiteFooter";
 import HomeHeroSplash from "@/components/motion/HomeHeroSplash";
 import StackFlow from "@/components/motion/StackFlow";
+import DecisionTrace from "@/components/motion/DecisionTrace";
 
 /* Cube-viz product roster for the hero ForgeCube. The canonical product
  * data (id, name, color) comes from @level9/brand/content/products; the
@@ -70,6 +71,25 @@ const TILE_BY_PRODUCT: Record<string, () => JSX.Element> = {
   max: MaxTile,
 };
 
+/* Per-stage highlight config for the operating console. Each entry maps a
+   DecisionTrace stage (index 0-7, matching STAGES order) to the canvas
+   elements that should glow up while that stage is active. R1 sector ids
+   come from GOVERNANCE.categories in ConsoleGraphic. R4 numbers come from
+   each product's canonical .domains list. Stages 1 and 8 (Input + Loop)
+   are biased to decide and measure respectively so the canvas does not
+   open up between cycles. packetPairs bias the cross-core bezier traffic
+   toward the active product instead of random pairs. */
+const STAGE_HIGHLIGHT: ConsoleHighlight[] = [
+  { bucket: "decide",  product: "stratos",   r1Sectors: ["biz_strategy", "governance_risk"], r4Numbers: [1, 4],       packetPairs: [["stratos", "playbook"]] },
+  { bucket: "decide",  product: "stratos",   r1Sectors: ["biz_strategy", "research"],        r4Numbers: [1, 5, 7],    packetPairs: [["stratos", "playbook"], ["stratos", "commandos"]] },
+  { bucket: "decide",  product: "stratos",   r1Sectors: ["governance_risk", "biz_strategy"], r4Numbers: [1, 5],       packetPairs: [["stratos", "commandos"]] },
+  { bucket: "coord",   product: "commandos", r1Sectors: ["people_org", "governance_risk"],   r4Numbers: [2, 3, 4, 5], packetPairs: [["commandos", "linkup"], ["commandos", "autocs"]] },
+  { bucket: "exec",    product: "linkup",    r1Sectors: ["sales_cs", "creative"],            r4Numbers: [3, 6],       packetPairs: [["linkup", "abm"]] },
+  { bucket: "exec",    product: "abm",       r1Sectors: ["sales_cs", "creative"],            r4Numbers: [3, 6],       packetPairs: [["abm", "autocs"], ["abm", "linkup"]] },
+  { bucket: "measure", product: "lucidorg",  r1Sectors: ["governance_risk", "technical"],    r4Numbers: [4, 5, 7, 8], packetPairs: [["lucidorg", "stratos"], ["lucidorg", "commandos"]] },
+  { bucket: "measure", product: "lucidorg",  r1Sectors: ["research", "biz_strategy", "governance_risk"], r4Numbers: [1, 4, 8], packetPairs: [["lucidorg", "stratos"]] },
+];
+
 export default function Home() {
   /* Cube anchor coords for the splash. Computed from the cube container's
      bounding box relative to the hero section so the flash + ripples
@@ -78,6 +98,12 @@ export default function Home() {
   const cubeRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLElement>(null);
   const [cubeAnchor, setCubeAnchor] = useState({ x: "50%", y: "50%" });
+
+  /* Decision-trace state lifted to page level so a single source of truth
+     drives the auto-cycle. The trace lives inline directly under the
+     ConsoleGraphic; no overlay on the canvas itself. */
+  const [traceIdx, setTraceIdx] = useState(0);
+  const [tracePaused, setTracePaused] = useState(false);
 
   useEffect(() => {
     const compute = () => {
@@ -427,13 +453,11 @@ export default function Home() {
             </RevealMask>
           </div>
 
-          {/* Desktop / tablet: the radial console graphic.
-              Hidden on <sm because the 4-ring viz with 48 officers + 4 buckets +
-              8 products + 8 domains crams below ~640px. Mobile gets a larger,
-              stacked alternative below. same content, different presentation. */}
+          {/* Desktop / tablet: the radial console graphic. Hidden on mobile
+              (the stacked layer cards above replace it). */}
           <FadeIn delay={0.2}>
-            <div className="mb-10 hidden sm:block">
-              <ConsoleGraphic />
+            <div className="hidden sm:block">
+              <ConsoleGraphic highlight={STAGE_HIGHLIGHT[traceIdx]} />
             </div>
           </FadeIn>
 
@@ -513,62 +537,21 @@ export default function Home() {
             </FadeIn>
           </div>
 
-          {/* Desktop / tablet legend. four pillars, pulled up 50px into the
-              graphic's bottom whitespace so it reads as part of the same
-              composition. Hidden on mobile (the cards above replace it). */}
-          <div className="hidden sm:grid grid-cols-1 md:grid-cols-4 gap-8" style={{ marginTop: "-50px" }}>
-            <FadeIn delay={0.3}>
-              <div>
-                <div className="text-amber-400/80 text-[10px] font-mono tracking-[0.3em] uppercase mb-3">
-                  R1 · Perimeter
-                </div>
-                <h4 className="text-lg font-bold text-white/90 mb-2 tracking-tight">
-                  Governance
-                </h4>
-                <p className="text-white/50 text-sm leading-relaxed">
-                  48 domain officers across 8 categories. 3 governance gates. COO and CxfO at the wheel.
-                </p>
-              </div>
-            </FadeIn>
-            <FadeIn delay={0.4}>
-              <div>
-                <div className="text-violet-400/80 text-[10px] font-mono tracking-[0.3em] uppercase mb-3">
-                  R2 · Mid ring
-                </div>
-                <h4 className="text-lg font-bold text-white/90 mb-2 tracking-tight">
-                  Four buckets
-                </h4>
-                <p className="text-white/50 text-sm leading-relaxed">
-                  Decide. Coordinate. Execute. Measure. The four places strategy breaks on the way to execution.
-                </p>
-              </div>
-            </FadeIn>
-            <FadeIn delay={0.5}>
-              <div>
-                <div className="text-cyan-400/80 text-[10px] font-mono tracking-[0.3em] uppercase mb-3">
-                  R3 · Inner band
-                </div>
-                <h4 className="text-lg font-bold text-white/90 mb-2 tracking-tight">
-                  Eight products
-                </h4>
-                <p className="text-white/50 text-sm leading-relaxed">
-                  One product per pressure point, docked into its bucket. Each a real system in production.
-                </p>
-              </div>
-            </FadeIn>
-            <FadeIn delay={0.6}>
-              <div>
-                <div className="text-fuchsia-400/80 text-[10px] font-mono tracking-[0.3em] uppercase mb-3">
-                  R4 · Core
-                </div>
-                <h4 className="text-lg font-bold text-white/90 mb-2 tracking-tight">
-                  Eight domains
-                </h4>
-                <p className="text-white/50 text-sm leading-relaxed">
-                  The 8 Operating Domains every COO must master. Radiating from the core, served by the products.
-                </p>
-              </div>
-            </FadeIn>
+          {/* Inline decision trace, desktop only. Replaces the prior
+              4-pillar legend so the visitor sees the engine working
+              instead of a static taxonomy key. The active stage's color
+              drives the glow overlay on the canvas above. */}
+          {/* Pulled up via -mt to close the dead space inside the canvas
+              frame (the elliptical floor projection leaves ~150px of empty
+              pixels at the bottom of the canvas). */}
+          <div className="hidden sm:block -mt-24">
+            <DecisionTrace
+              activeIdx={traceIdx}
+              setActiveIdx={setTraceIdx}
+              paused={tracePaused}
+              setPaused={setTracePaused}
+              inline
+            />
           </div>
         </div>
       </section>
