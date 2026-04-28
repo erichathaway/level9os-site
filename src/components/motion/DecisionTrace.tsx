@@ -156,7 +156,7 @@ function StageCard({
     <div
       className="relative rounded-xl border backdrop-blur-sm transition-all duration-300 cursor-pointer flex-shrink-0"
       style={{
-        width: 150,
+        width: 124,
         borderColor: active ? stage.productColor : `${stage.productColor}22`,
         background: active ? `${stage.productColor}10` : "rgba(255,255,255,0.02)",
         boxShadow: active

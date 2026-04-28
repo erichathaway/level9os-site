@@ -307,9 +307,28 @@ export default function FloatingNav() {
                 </div>
                 <a
                   href="mailto:hello@level9os.com"
-                  className="text-white/50 hover:text-white/80 text-sm font-mono transition-colors"
+                  className="text-white/50 hover:text-white/80 text-sm font-mono transition-colors block"
                 >
                   hello@level9os.com
+                </a>
+                <a
+                  href="https://www.linkedin.com/company/98800696"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group inline-flex items-center gap-3 mt-4 transition-all duration-300"
+                  aria-label="LinkedIn"
+                >
+                  <span
+                    className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 transition-all duration-300 group-hover:scale-110 ring-1 ring-white/[0.08] group-hover:ring-white/[0.20]"
+                    style={{ background: "#0A66C215", color: "#0A66C2dd" }}
+                  >
+                    <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+                      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.063 2.063 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                    </svg>
+                  </span>
+                  <span className="text-sm text-white/65 group-hover:text-white/95 transition-colors font-medium">
+                    LinkedIn
+                  </span>
                 </a>
               </div>
             </div>
