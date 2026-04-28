@@ -96,11 +96,19 @@ const STAGE_HIGHLIGHT: ConsoleHighlight[] = [
 function DesktopArchitecture() {
   const [traceIdx, setTraceIdx] = useState(0);
   const [tracePaused, setTracePaused] = useState(false);
+  const [canvasUserActive, setCanvasUserActive] = useState(false);
+  /* Auto-cycle pauses while the visitor is hovering/pinning a bucket
+     directly on the canvas, so canvas exploration and trace cycle do not
+     fight each other. */
+  const cyclePaused = tracePaused || canvasUserActive;
   return (
     <>
       <FadeIn delay={0.2}>
         <div className="hidden sm:block">
-          <ConsoleGraphic highlight={STAGE_HIGHLIGHT[traceIdx]} />
+          <ConsoleGraphic
+            highlight={STAGE_HIGHLIGHT[traceIdx]}
+            onUserActiveChange={setCanvasUserActive}
+          />
         </div>
       </FadeIn>
       {/* Pulled up via -mt to close the dead space inside the canvas frame
@@ -110,7 +118,7 @@ function DesktopArchitecture() {
         <DecisionTrace
           activeIdx={traceIdx}
           setActiveIdx={setTraceIdx}
-          paused={tracePaused}
+          paused={cyclePaused}
           setPaused={setTracePaused}
           inline
         />
