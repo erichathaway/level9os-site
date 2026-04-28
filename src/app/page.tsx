@@ -4,15 +4,19 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import FloatingNav from "@/components/FloatingNav";
-import { FadeIn, Counter } from "@level9/brand/components/motion";
-import { CursorGradient } from "@level9/brand/components/motion";
-import { MagneticButton } from "@level9/brand/components/motion";
-import { LiveTicker } from "@level9/brand/components/motion";
-import { MagneticCard } from "@level9/brand/components/motion";
-import { RevealMask } from "@level9/brand/components/motion";
+import {
+  FadeIn,
+  Counter,
+  CursorGradient,
+  MagneticButton,
+  LiveTicker,
+  MagneticCard,
+  RevealMask,
+} from "@level9/brand/components/motion";
 import { dnaStats, problemStats, clientLogos, twoHalves } from "@/data/stats";
 import { pressurePoints, chassis } from "@level9/brand/content/pressurePoints";
 import { UMBRELLA_TAGLINE_PARTS, UMBRELLA_TAGLINE } from "@level9/brand/content";
+import { products as CANONICAL_PRODUCTS } from "@level9/brand/content/products";
 import { ConsoleGraphic, ForgeCube, type ForgeProduct, type ConsoleHighlight } from "@level9/brand/components/architecture";
 import {
   StratosTile,
@@ -26,39 +30,76 @@ import SiteFooter from "@/components/SiteFooter";
 import HomeHeroSplash from "@/components/motion/HomeHeroSplash";
 import StackFlow from "@/components/motion/StackFlow";
 import DecisionTrace from "@/components/motion/DecisionTrace";
+import RenderWhenVisible from "@/components/RenderWhenVisible";
 
-/* Cube-viz product roster for the hero ForgeCube. The canonical product
- * data (id, name, color) comes from @level9/brand/content/products; the
- * cube-specific extras (rgb tuple for canvas fills, single-letter icon,
- * one-line role, specs/stack arrays for the hover popup, fixed popup side)
- * are tuned for the visualization and live here until they earn promotion
- * to the brand package. Order = cube face order. */
-const FORGE_PRODUCTS: ForgeProduct[] = [
-  { id: "stratos",    name: "StratOS",      short: "Decision OS",         color: "#8b5cf6", rgb: [139, 92, 246], icon: "S", side: "left",
+/* Cube-viz product roster for the hero ForgeCube. id, name, and color come
+ * from @level9/brand/content/products (the canonical product roster). The
+ * cube-specific extras (single-letter icon, one-line role, specs/stack
+ * arrays for the hover popup, fixed popup side) live below and merge in by
+ * id. The rgb tuple used for canvas fills is derived from the canonical
+ * hex color so it can never drift. Order = cube face order. */
+function hexToRgb(hex: string): [number, number, number] {
+  const h = hex.replace("#", "");
+  return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
+}
+
+type CubeExtras = Pick<ForgeProduct, "short" | "icon" | "side" | "role" | "specs" | "stack">;
+
+const CUBE_EXTRAS: Record<string, CubeExtras> = {
+  stratos: {
+    short: "Decision OS", icon: "S", side: "left",
     role: "10-person simulated exec room. 3 rounds. Kill criteria built in.",
     specs: ["10 workflows · 3 rounds / run", "$5.89 per run · Sonnet 4.6", "Governance-audited recommendations"],
-    stack: ["n8n", "Supabase", "Claude Sonnet 4.6", "Next.js", "Vercel"] },
-  { id: "commandos",  name: "CommandOS",    short: "Fleet Orchestration", color: "#10b981", rgb: [16, 185, 129], icon: "C", side: "right",
+    stack: ["n8n", "Supabase", "Claude Sonnet 4.6", "Next.js", "Vercel"],
+  },
+  commandos: {
+    short: "Fleet Orchestration", icon: "C", side: "right",
     role: "48 domain officers. 3 governance gates. Agents managing agents.",
     specs: ["48 officers · 8 categories", "G1 plan · G2 mid · G3 final", "22 n8n workflows · multi-LLM routing"],
-    stack: ["Claude Haiku + Sonnet", "GPT-4o", "Perplexity", "n8n NAS", "tmux"] },
-  { id: "outboundos", name: "OutboundOS",   short: "Outbound Umbrella",   color: "#f59e0b", rgb: [245, 158, 11], icon: "O", side: "right",
+    stack: ["Claude Haiku + Sonnet", "GPT-4o", "Perplexity", "n8n NAS", "tmux"],
+  },
+  outboundos: {
+    short: "Outbound Umbrella", icon: "O", side: "right",
     role: "LinkupOS + ABM Engine + AutoCS. One voice, one governance trail.",
     specs: ["3 pods under one voice profile", "Multi-channel · voice-calibrated", "Replaces marketing + outbound + CS"],
-    stack: ["Postgres triggers", "Apollo", "LinkedIn API", "Supabase", "Vercel"] },
-  { id: "lucidorg",   name: "LucidORG",     short: "Digital Twin",        color: "#06b6d4", rgb: [6, 182, 212],  icon: "L", side: "left",
+    stack: ["Postgres triggers", "Apollo", "LinkedIn API", "Supabase", "Vercel"],
+  },
+  lucidorg: {
+    short: "Digital Twin", icon: "L", side: "left",
     role: "The nervous system. Measures AI vs human at every interaction point.",
     specs: ["4 pillars · 11 metrics · 37 levers", "ECI scoring · 0-1000 scale", "Real-time friction detection"],
-    stack: ["Supabase", "TypeScript", "Recharts", "Next.js", "Vercel"] },
-  { id: "playbook",   name: "COO Playbook", short: "Methodology Product", color: "#64748b", rgb: [100, 116, 139], icon: "P", side: "left",
+    stack: ["Supabase", "TypeScript", "Recharts", "Next.js", "Vercel"],
+  },
+  playbook: {
+    short: "Methodology Product", icon: "P", side: "left",
     role: "87K+ words. 24-week install. The operating layer beneath EOS and OKRs.",
     specs: ["4-part methodology · book + product", "ECI / CxfO / Lean Ops / AHI", "9 training courses bundled"],
-    stack: ["Substack", "n8n", "ElevenLabs", "Perplexity", "Notion"] },
-  { id: "max",        name: "MAX",          short: "Voice Layer",         color: "#ec4899", rgb: [236, 72, 153], icon: "M", side: "right",
+    stack: ["Substack", "n8n", "ElevenLabs", "Perplexity", "Notion"],
+  },
+  max: {
+    short: "Voice Layer", icon: "M", side: "right",
     role: "Conversational layer over all four pressure points. Plain-English answers, metric-grounded.",
     specs: ["Cross-product query layer", "Voice-aware · governance-aware", "Coming soon"],
-    stack: ["Claude Sonnet 4.6", "Supabase RAG", "Next.js", "Vercel"] },
-];
+    stack: ["Claude Sonnet 4.6", "Supabase RAG", "Next.js", "Vercel"],
+  },
+};
+
+const CUBE_FACE_ORDER = ["stratos", "commandos", "outboundos", "lucidorg", "playbook", "max"] as const;
+
+const productByID = Object.fromEntries(CANONICAL_PRODUCTS.map((p) => [p.id, p]));
+
+const FORGE_PRODUCTS: ForgeProduct[] = CUBE_FACE_ORDER.map((id) => {
+  const canonical = productByID[id];
+  const extras = CUBE_EXTRAS[id];
+  if (!canonical) throw new Error(`FORGE_PRODUCTS: id "${id}" not found in canonical products`);
+  return {
+    id: canonical.id,
+    name: canonical.name,
+    color: canonical.color,
+    rgb: hexToRgb(canonical.color),
+    ...extras,
+  };
+});
 
 /* Tile component map for the WHAT WE BUILT gallery. Order matches the
  * cube face order so the two surfaces tell the same story. */
@@ -330,20 +371,42 @@ export default function Home() {
                       {/* Tile is authored at fixed 1200x630. Scale it down to
                           card width via container query units (cqw = % of
                           container inline-size). transform-origin top-left so
-                          the scaled tile fills the card from the upper-left. */}
-                      <div
-                        className="absolute top-0 left-0"
-                        style={{
-                          width: 1200,
-                          height: 630,
-                          /* length/length yields a unitless scale factor.
-                             100cqw / 1200px = (container width / 1200) */
-                          transform: "scale(calc(100cqw / 1200px))",
-                          transformOrigin: "top left",
-                        }}
-                      >
-                        <Tile />
-                      </div>
+                          the scaled tile fills the card from the upper-left.
+                          Bottom 3 tiles (i >= 3) defer rendering until they
+                          intersect the viewport (with a 300px pre-warm
+                          buffer), so first paint isn't running 6 animated
+                          SVGs simultaneously when only 1-2 are visible.
+                          The first 3 render eagerly to keep above-the-fold
+                          paint immediate. */}
+                      {i < 3 ? (
+                        <div
+                          className="absolute top-0 left-0"
+                          style={{
+                            width: 1200,
+                            height: 630,
+                            transform: "scale(calc(100cqw / 1200px))",
+                            transformOrigin: "top left",
+                          }}
+                        >
+                          <Tile />
+                        </div>
+                      ) : (
+                        <RenderWhenVisible
+                          rootMargin="300px"
+                          className="absolute top-0 left-0"
+                        >
+                          <div
+                            style={{
+                              width: 1200,
+                              height: 630,
+                              transform: "scale(calc(100cqw / 1200px))",
+                              transformOrigin: "top left",
+                            }}
+                          >
+                            <Tile />
+                          </div>
+                        </RenderWhenVisible>
+                      )}
                     </div>
                     <div className="p-5 border-t" style={{ borderColor: `${p.color}15` }}>
                       <div className="flex items-center justify-between mb-1.5">
