@@ -93,6 +93,17 @@ const STAGE_HIGHLIGHT: ConsoleHighlight[] = [
    component (which has ~1100 lines and many heavy children). Mobile
    stacked cards stay rendered by Home, between this block and its sibling
    mobile fallback. */
+/* Map each canvas bucket to a representative stage index in
+   STAGE_HIGHLIGHT so canvas hover jumps the rich highlight to match the
+   visitor's cursor. Pick the stage where that bucket's primary product
+   carries the most distinctive R1+R4 pattern. */
+const BUCKET_TO_STAGE: Record<string, number> = {
+  decide: 1,   // ELT debate: stratos primary, biz_strategy + research, R4 1/5/7
+  coord: 3,    // Org + distribution: commandos, people_org + governance_risk, R4 2/3/4/5
+  exec: 4,     // Outbound: linkup, sales_cs + creative, R4 3/6
+  measure: 6,  // Measure: lucidorg, governance_risk + technical, R4 4/5/7/8
+};
+
 function DesktopArchitecture() {
   const [traceIdx, setTraceIdx] = useState(0);
   const [tracePaused, setTracePaused] = useState(false);
@@ -101,6 +112,15 @@ function DesktopArchitecture() {
      directly on the canvas, so canvas exploration and trace cycle do not
      fight each other. */
   const cyclePaused = tracePaused || canvasUserActive;
+  /* When the visitor hovers a bucket on the canvas, jump the highlight
+     prop to a stage that matches that bucket. The auto-cycle is paused
+     for the duration, so canvas hover and the rich stage emphasis stay
+     in lockstep. */
+  const handleBucketHover = (bucket: string | null) => {
+    if (bucket && bucket in BUCKET_TO_STAGE) {
+      setTraceIdx(BUCKET_TO_STAGE[bucket]);
+    }
+  };
   return (
     <>
       <FadeIn delay={0.2}>
@@ -108,6 +128,7 @@ function DesktopArchitecture() {
           <ConsoleGraphic
             highlight={STAGE_HIGHLIGHT[traceIdx]}
             onUserActiveChange={setCanvasUserActive}
+            onBucketHover={handleBucketHover}
           />
         </div>
       </FadeIn>
