@@ -142,14 +142,6 @@ body {
   0%, 100% { opacity: 0.25; }
   50%      { opacity: 1; }
 }
-@keyframes stackflow-feed {
-  0%, 100% { transform: scale(1);   opacity: 0.5; }
-  50%      { transform: scale(1.4); opacity: 1; }
-}
-@keyframes stackflow-human {
-  0%, 100% { transform: scale(1);   opacity: 0.5; }
-  50%      { transform: scale(1.5); opacity: 1; }
-}
 @keyframes stackflow-loop {
   0%   { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
@@ -193,38 +185,7 @@ body {
   10%, 25%  { opacity: 1;    transform: scale(1.03); }
 }
 
-/* Plug-into-stack connectors: dot travels from corner toward center.
-   Four variants for the four corners. */
-@keyframes stackflow-plug-rl-tb {
-  0%   { left: 90%;  top: 20%; opacity: 0; }
-  10%  { opacity: 1; }
-  90%  { opacity: 1; }
-  100% { left: 50%;  top: 50%; opacity: 0; }
-}
-@keyframes stackflow-plug-rl-bt {
-  0%   { left: 90%;  top: 75%; opacity: 0; }
-  10%  { opacity: 1; }
-  90%  { opacity: 1; }
-  100% { left: 50%;  top: 50%; opacity: 0; }
-}
-@keyframes stackflow-plug-lr-tb {
-  0%   { left: 5%;   top: 20%; opacity: 0; }
-  10%  { opacity: 1; }
-  90%  { opacity: 1; }
-  100% { left: 50%;  top: 50%; opacity: 0; }
-}
-@keyframes stackflow-plug-lr-bt {
-  0%   { left: 5%;   top: 75%; opacity: 0; }
-  10%  { opacity: 1; }
-  90%  { opacity: 1; }
-  100% { left: 50%;  top: 50%; opacity: 0; }
-}
-
 /* DecisionTrace keyframes */
-@keyframes trace-gate {
-  0%, 100% { opacity: 0.4; transform: scale(1); }
-  50%      { opacity: 1;   transform: scale(1.5); }
-}
 @keyframes trace-fadein {
   from { opacity: 0; transform: translateY(4px); }
   to   { opacity: 1; transform: translateY(0); }

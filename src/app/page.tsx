@@ -73,12 +73,10 @@ const TILE_BY_PRODUCT: Record<string, () => JSX.Element> = {
 
 /* Per-stage highlight config for the operating console. Each entry maps a
    DecisionTrace stage (index 0-7, matching STAGES order) to the canvas
-   elements that should glow up while that stage is active. R1 sector ids
-   come from GOVERNANCE.categories in ConsoleGraphic. R4 numbers come from
-   each product's canonical .domains list. Stages 1 and 8 (Input + Loop)
-   are biased to decide and measure respectively so the canvas does not
-   open up between cycles. packetPairs bias the cross-core bezier traffic
-   toward the active product instead of random pairs. */
+   elements that should glow up while that stage is active. Stages 1 and 8
+   (Input + Loop) bias to decide and measure so the canvas does not open up
+   between cycles. packetPairs bias the cross-core bezier traffic toward
+   the active product. */
 const STAGE_HIGHLIGHT: ConsoleHighlight[] = [
   { bucket: "decide",  product: "stratos",   r1Sectors: ["biz_strategy", "governance_risk"], r4Numbers: [1, 4],       packetPairs: [["stratos", "playbook"]] },
   { bucket: "decide",  product: "stratos",   r1Sectors: ["biz_strategy", "research"],        r4Numbers: [1, 5, 7],    packetPairs: [["stratos", "playbook"], ["stratos", "commandos"]] },
@@ -90,6 +88,37 @@ const STAGE_HIGHLIGHT: ConsoleHighlight[] = [
   { bucket: "measure", product: "lucidorg",  r1Sectors: ["research", "biz_strategy", "governance_risk"], r4Numbers: [1, 4, 8], packetPairs: [["lucidorg", "stratos"]] },
 ];
 
+/* Desktop-only architecture block. Owns its own traceIdx + tracePaused so
+   the 3.5s auto-cycle re-renders ONLY this subtree, not the entire Home
+   component (which has ~1100 lines and many heavy children). Mobile
+   stacked cards stay rendered by Home, between this block and its sibling
+   mobile fallback. */
+function DesktopArchitecture() {
+  const [traceIdx, setTraceIdx] = useState(0);
+  const [tracePaused, setTracePaused] = useState(false);
+  return (
+    <>
+      <FadeIn delay={0.2}>
+        <div className="hidden sm:block">
+          <ConsoleGraphic highlight={STAGE_HIGHLIGHT[traceIdx]} />
+        </div>
+      </FadeIn>
+      {/* Pulled up via -mt to close the dead space inside the canvas frame
+          (the elliptical floor projection leaves transparent pixels at the
+          bottom of the canvas backing store). */}
+      <div className="hidden sm:block -mt-24">
+        <DecisionTrace
+          activeIdx={traceIdx}
+          setActiveIdx={setTraceIdx}
+          paused={tracePaused}
+          setPaused={setTracePaused}
+          inline
+        />
+      </div>
+    </>
+  );
+}
+
 export default function Home() {
   /* Cube anchor coords for the splash. Computed from the cube container's
      bounding box relative to the hero section so the flash + ripples
@@ -98,12 +127,6 @@ export default function Home() {
   const cubeRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLElement>(null);
   const [cubeAnchor, setCubeAnchor] = useState({ x: "50%", y: "50%" });
-
-  /* Decision-trace state lifted to page level so a single source of truth
-     drives the auto-cycle. The trace lives inline directly under the
-     ConsoleGraphic; no overlay on the canvas itself. */
-  const [traceIdx, setTraceIdx] = useState(0);
-  const [tracePaused, setTracePaused] = useState(false);
 
   useEffect(() => {
     const compute = () => {
@@ -453,13 +476,10 @@ export default function Home() {
             </RevealMask>
           </div>
 
-          {/* Desktop / tablet: the radial console graphic. Hidden on mobile
-              (the stacked layer cards above replace it). */}
-          <FadeIn delay={0.2}>
-            <div className="hidden sm:block">
-              <ConsoleGraphic highlight={STAGE_HIGHLIGHT[traceIdx]} />
-            </div>
-          </FadeIn>
+          {/* Desktop / tablet: the radial console graphic + inline decision
+              trace, both wrapped in DesktopArchitecture which owns the
+              auto-cycle state so it does not re-render the rest of Home. */}
+          <DesktopArchitecture />
 
           {/* Mobile-only: 4 BIG stacked layer cards. Same architecture, no
               shrinking, generous space, on-brand glow. Each card is one ring
@@ -537,22 +557,6 @@ export default function Home() {
             </FadeIn>
           </div>
 
-          {/* Inline decision trace, desktop only. Replaces the prior
-              4-pillar legend so the visitor sees the engine working
-              instead of a static taxonomy key. The active stage's color
-              drives the glow overlay on the canvas above. */}
-          {/* Pulled up via -mt to close the dead space inside the canvas
-              frame (the elliptical floor projection leaves ~150px of empty
-              pixels at the bottom of the canvas). */}
-          <div className="hidden sm:block -mt-24">
-            <DecisionTrace
-              activeIdx={traceIdx}
-              setActiveIdx={setTraceIdx}
-              paused={tracePaused}
-              setPaused={setTracePaused}
-              inline
-            />
-          </div>
         </div>
       </section>
 
