@@ -38,7 +38,7 @@ export const STAGES: Stage[] = [
     id: 1,
     verb: "Input",
     product: "Strategy",
-    productColor: "#a78bfa",
+    productColor: "#8b5cf6",
     ring: "R1",
     mini: "Strategic move",
     detail: "A board-level proposal lands. Vision, capital constraints, and brand guardrails feed into the stack as typed inputs.",
@@ -108,7 +108,7 @@ export const STAGES: Stage[] = [
     id: 8,
     verb: "Loop",
     product: "Strategy",
-    productColor: "#a78bfa",
+    productColor: "#8b5cf6",
     ring: "R1 + R3",
     mini: "Feedback to Strategy",
     detail: "ECI score, friction alerts, and velocity insights close the loop back into the next Strategy round. The stack learns from its own signal.",
@@ -205,7 +205,7 @@ function TraceBeam({ activeIndex, total }: { activeIndex: number; total: number 
   const pct = total > 1 ? (activeIndex / (total - 1)) * 100 : 0;
   return (
     <div className="relative h-px mx-auto my-3" style={{ width: "calc(100% - 60px)" }}>
-      <div className="absolute inset-0 bg-gradient-to-r from-violet-500/30 via-amber-400/30 to-cyan-400/30" />
+      <div className="absolute inset-0 bg-gradient-to-r from-violet-500/30 via-amber-500/30 to-cyan-500/30" />
       <span
         className="absolute -top-1 w-2.5 h-2.5 rounded-full"
         style={{

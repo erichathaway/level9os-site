@@ -229,7 +229,7 @@ type Overview = {
 const OVERVIEWS: Record<"strategy" | "modular", Overview> = {
   strategy: {
     id: "strategy",
-    color: "#a78bfa",
+    color: "#8b5cf6",
     leftHeader: "Top-down inputs",
     leftItems: [
       "Vision and the company's north-star",
@@ -247,7 +247,7 @@ const OVERVIEWS: Record<"strategy" | "modular", Overview> = {
   },
   modular: {
     id: "modular",
-    color: "#67e8f9",
+    color: "#06b6d4",
     leftHeader: "Usage patterns",
     leftItems: [
       "Whole stack: install all four buckets, ECI lift in 90 days",
@@ -266,7 +266,7 @@ const OVERVIEWS: Record<"strategy" | "modular", Overview> = {
 };
 
 const PARTICLE_COUNT = 18;
-const PARTICLE_COLORS = ["#8b5cf6", "#06b6d4", "#10b981", "#a78bfa", "#67e8f9"];
+const PARTICLE_COLORS = ["#8b5cf6", "#06b6d4", "#10b981", "#f59e0b", "#ec4899"];
 
 type Particle = {
   id: number;
@@ -470,7 +470,7 @@ function DefaultLeftViz() {
   ];
   return (
     <div className="space-y-3">
-      <SectionHeader label="Use any one piece" color="#a78bfa" />
+      <SectionHeader label="Use any one piece" color="#8b5cf6" />
       <div className="text-[11px] text-white/55 leading-relaxed mb-1">
         Each pod ships as a standalone system. Plug it into your existing stack.
       </div>
@@ -509,13 +509,13 @@ function DefaultRightViz() {
   ];
   return (
     <div className="space-y-3">
-      <SectionHeader label="Or run all four as one stack" color="#67e8f9" />
+      <SectionHeader label="Or run all four as one stack" color="#06b6d4" />
       <div className="text-[11px] text-white/55 leading-relaxed mb-2">
         Four buckets wired into one operating system. One governance trail end to end.
       </div>
 
       {/* Converging-rails visual: 4 colored bars feed into 1 unified rail */}
-      <div className="relative rounded-lg border bg-white/[0.02] p-3 mb-2" style={{ borderColor: "#67e8f928" }}>
+      <div className="relative rounded-lg border bg-white/[0.02] p-3 mb-2" style={{ borderColor: "#06b6d428" }}>
         <div className="flex items-center gap-1.5">
           <div className="flex-1 space-y-1">
             {[ "#8b5cf6", "#10b981", "#f59e0b", "#06b6d4" ].map((c, i) => (
@@ -529,7 +529,7 @@ function DefaultRightViz() {
           <span className="text-white/30 text-[14px]">→</span>
           <div className="w-10 h-10 rounded-md flex items-center justify-center" style={{
             background: "linear-gradient(135deg, #8b5cf633, #06b6d433)",
-            border: "1px solid #67e8f966",
+            border: "1px solid #06b6d466",
           }}>
             <span className="text-[9px] font-mono tracking-wider text-white/85">OS</span>
           </div>
@@ -557,10 +557,10 @@ function DefaultRightViz() {
 function StrategyLeftViz() {
   return (
     <div className="space-y-3">
-      <SectionHeader label="Top-down inputs" color="#a78bfa" />
+      <SectionHeader label="Top-down inputs" color="#8b5cf6" />
       <div className="space-y-3">
-        <FlowRow label="Vision" color="#a78bfa" delay={0} />
-        <FlowRow label="Capital" color="#67e8f9" delay={0.5} />
+        <FlowRow label="Vision" color="#8b5cf6" delay={0} />
+        <FlowRow label="Capital" color="#06b6d4" delay={0.5} />
         <FlowRow label="Market" color="#10b981" delay={1.0} />
         <FlowRow label="Guardrails" color="#f59e0b" delay={1.5} />
       </div>
@@ -576,16 +576,16 @@ function StrategyLeftViz() {
 function StrategyRightViz() {
   return (
     <div className="space-y-4">
-      <SectionHeader label="Full-stack outcomes" color="#a78bfa" />
+      <SectionHeader label="Full-stack outcomes" color="#8b5cf6" />
       {/* ECI animated gauge */}
-      <div className="relative rounded-lg border p-4 text-center" style={{ borderColor: "#a78bfa28", background: "#a78bfa08" }}>
+      <div className="relative rounded-lg border p-4 text-center" style={{ borderColor: "#8b5cf628", background: "#8b5cf608" }}>
         <div className="text-[9px] font-mono uppercase tracking-[0.3em] text-white/45 mb-2">
           ECI · org-wide efficiency
         </div>
         <div
           className="text-3xl font-black tabular-nums"
           style={{
-            color: "#a78bfa",
+            color: "#8b5cf6",
             animation: "stackflow-eci-pulse 3.6s ease-in-out infinite",
           }}
         >
@@ -595,7 +595,7 @@ function StrategyRightViz() {
           <div
             className="absolute inset-y-0 left-0 rounded-full"
             style={{
-              background: "linear-gradient(90deg, #a78bfa, #67e8f9)",
+              background: "linear-gradient(90deg, #8b5cf6, #06b6d4)",
               animation: "stackflow-eci-fill 4s ease-in-out infinite",
             }}
           />
@@ -644,7 +644,7 @@ function ModularLeftViz() {
   ];
   return (
     <div className="space-y-3">
-      <SectionHeader label="Usage patterns" color="#67e8f9" />
+      <SectionHeader label="Usage patterns" color="#06b6d4" />
       <div className="space-y-1.5">
         {buckets.map((b, i) => (
           <div
@@ -682,7 +682,7 @@ function ModularRightViz() {
   ];
   return (
     <div className="space-y-3">
-      <SectionHeader label="Plugs into" color="#67e8f9" />
+      <SectionHeader label="Plugs into" color="#06b6d4" />
       <div className="relative h-44 rounded-xl border border-white/[0.06] bg-white/[0.02] overflow-hidden">
         {/* Center node = the stack */}
         <div
@@ -1022,7 +1022,7 @@ export default function StackFlow() {
             <div
               className="rounded-xl border bg-white/[0.02] backdrop-blur-sm p-3 mb-2 text-center cursor-pointer transition-all duration-300"
               style={{
-                borderColor: activeId === "strategy" ? "#a78bfa" : "rgba(255,255,255,0.08)",
+                borderColor: activeId === "strategy" ? "#8b5cf6" : "rgba(255,255,255,0.08)",
                 background:
                   activeId === "strategy" ? "rgba(167,139,250,0.08)" : "rgba(255,255,255,0.02)",
               }}
@@ -1043,7 +1043,7 @@ export default function StackFlow() {
             {/* Vertical particle spine */}
             <div className="pointer-events-none absolute inset-x-0 top-[68px] bottom-[40px] flex justify-center z-0">
               <div className="relative w-px h-full">
-                <div className="absolute inset-0 bg-gradient-to-b from-violet-400/30 via-white/[0.10] to-cyan-400/30" />
+                <div className="absolute inset-0 bg-gradient-to-b from-violet-500/30 via-white/[0.10] to-cyan-500/30" />
                 {particles.map((p) => {
                   /* Two animations run in parallel: stackflow-down handles
                      the staged Y travel with pile-up pauses; stackflow-jitter
@@ -1132,7 +1132,7 @@ export default function StackFlow() {
           <div
             className="inline-block px-4 py-2 rounded-full border text-sm cursor-pointer transition-all duration-300"
             style={{
-              borderColor: activeId === "modular" ? "#67e8f9" : "rgba(139,92,246,0.25)",
+              borderColor: activeId === "modular" ? "#06b6d4" : "rgba(139,92,246,0.25)",
               background:
                 activeId === "modular" ? "rgba(103,232,249,0.10)" : "rgba(139,92,246,0.05)",
               color: activeId === "modular" ? "rgba(255,255,255,0.95)" : "rgba(255,255,255,0.65)",
