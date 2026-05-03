@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Governance Document · The Vault · Level9</title>
+<meta name="theme-color" content="#ef4444" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js" integrity="sha384-rPrZpiiwFlxbpd5N0tBDp2cP8PymyjOX27JnzGyl7r1U7YzsaLkRNkhGBaDvpk23" crossorigin="anonymous"></script>
+
+<style>
+:root {
+  --vault: #ef4444;
+  --vault-soft: rgba(239, 68, 68, 0.10);
+  --vault-deep: #b91c1c;
+  --obsidian-1: #14082E;
+  --obsidian-2: #041521;
+  --cool-1: #8B5CF6;
+  --cool-2: #06B6D4;
+  --cool-3: #0D9488;
+  --cream: #faf8f5;
+  --paper: #ffffff;
+  --ink-1: rgba(0, 0, 0, 0.92);
+  --ink-2: rgba(0, 0, 0, 0.68);
+  --ink-3: rgba(0, 0, 0, 0.45);
+  --rule: rgba(0, 0, 0, 0.10);
+  --rule-soft: rgba(0, 0, 0, 0.06);
+  --shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06);
+  --mono: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--ink-1);
+  background: var(--cream);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Top banner */
+.banner {
+  background: linear-gradient(160deg, var(--obsidian-1) 0%, var(--obsidian-2) 100%);
+  color: rgba(255,255,255,0.92);
+  padding: 24px 48px;
+  border-bottom: 4px solid var(--vault);
+}
+.banner-row {
+  max-width: 880px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.banner a {
+  color: rgba(255,255,255,0.7);
+  text-decoration: none;
+  font-size: 13px;
+  font-family: var(--mono);
+  letter-spacing: 0.05em;
+}
+.banner a:hover { color: var(--vault); }
+.banner .crumbs { display: flex; align-items: center; gap: 12px; }
+.banner .vault-badge {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--vault);
+  background: var(--vault-soft);
+  border: 1px solid rgba(239, 68, 68, 0.45);
+  padding: 5px 12px;
+  border-radius: 999px;
+}
+
+.doc {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 48px 48px 96px;
+}
+
+@media (max-width: 720px) {
+  .banner { padding: 16px 20px; }
+  .doc { padding: 28px 20px 64px; }
+}
+
+/* Markdown rendering */
+.doc h1 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  margin: 0 0 24px;
+  padding-bottom: 16px;
+  border-bottom: 4px solid var(--vault);
+}
+.doc h2 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 28px;
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 56px 0 16px;
+  padding-left: 16px;
+  border-left: 4px solid var(--vault);
+}
+.doc h3 {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 36px 0 12px;
+}
+.doc p { margin: 0 0 14px; }
+.doc ul, .doc ol { margin: 0 0 14px; padding-left: 22px; }
+.doc li { margin-bottom: 6px; }
+.doc a { color: var(--vault-deep); text-decoration: none; border-bottom: 1px solid rgba(185,28,28,0.4); }
+.doc a:hover { border-bottom-color: var(--vault-deep); }
+.doc strong { font-weight: 600; }
+.doc em { color: var(--ink-2); }
+.doc code {
+  font-family: var(--mono);
+  font-size: 0.88em;
+  background: var(--rule-soft);
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: var(--vault-deep);
+}
+.doc pre {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.55;
+  background: #0d0d18;
+  color: rgba(255,255,255,0.88);
+  padding: 16px 20px;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin: 16px 0 22px;
+  border-left: 3px solid var(--vault);
+}
+.doc pre code { background: transparent; padding: 0; color: inherit; font-size: inherit; }
+.doc blockquote {
+  border-left: 3px solid var(--vault);
+  background: var(--vault-soft);
+  padding: 12px 18px;
+  margin: 16px 0;
+  border-radius: 0 4px 4px 0;
+}
+.doc blockquote p:last-child { margin-bottom: 0; }
+.doc table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 18px 0 28px;
+  font-size: 13.5px;
+}
+.doc th {
+  text-align: left;
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  padding: 10px 14px 10px 0;
+  border-bottom: 2px solid var(--vault);
+  vertical-align: bottom;
+}
+.doc td {
+  padding: 10px 14px 10px 0;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+}
+.doc hr {
+  border: none;
+  border-top: 1px solid var(--rule);
+  margin: 32px 0;
+}
+
+.loading, .error {
+  max-width: 600px;
+  margin: 80px auto;
+  padding: 24px 32px;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 14px;
+  color: var(--ink-3);
+}
+.error { color: var(--vault-deep); }
+</style>
+</head>
+<body>
+
+<header class="banner">
+  <div class="banner-row">
+    <div class="crumbs">
+      <a href="/governance">← Governance</a>
+      <span style="color: rgba(255,255,255,0.3)">·</span>
+      <span class="vault-badge" id="doc-id">Vault</span>
+    </div>
+    <div>
+      <a id="raw-link" href="#" download>Download .md</a>
+    </div>
+  </div>
+</header>
+
+<article class="doc" id="doc">
+  <div class="loading">Loading document…</div>
+</article>
+
+<script>
+(async function () {
+  const params = new URLSearchParams(window.location.search);
+  const file = params.get('doc');
+  const docEl = document.getElementById('doc');
+  const docIdEl = document.getElementById('doc-id');
+  const rawLink = document.getElementById('raw-link');
+
+  if (!file) {
+    docEl.innerHTML = '<div class="error">No document specified. Add ?doc=&lt;filename&gt;.md to the URL.</div>';
+    return;
+  }
+
+  // Sanitize: only allow files in this directory, no traversal.
+  if (file.includes('/') || file.includes('..') || !file.endsWith('.md')) {
+    docEl.innerHTML = '<div class="error">Invalid document path.</div>';
+    return;
+  }
+
+  // Display label (turn "anti-lie-report.md" → "anti-lie-report")
+  docIdEl.textContent = file.replace(/\.md$/, '').replace(/-/g, ' ');
+  rawLink.href = file;
+  rawLink.setAttribute('download', file);
+
+  try {
+    const resp = await fetch(file);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const md = await resp.text();
+    docEl.innerHTML = marked.parse(md, { gfm: true, breaks: false });
+    document.title = (docEl.querySelector('h1')?.textContent || file) + ' · The Vault · Level9';
+  } catch (e) {
+    docEl.innerHTML = '<div class="error">Failed to load document: ' + e.message + '</div>';
+  }
+})();
+</script>
+
+</body>
+</html>
