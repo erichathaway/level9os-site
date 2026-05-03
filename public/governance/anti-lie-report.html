@@ -1,0 +1,924 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Anti-Lie Governance . Product Report . Level9</title>
+<meta name="description" content="Keep the LLM out of court. Deterministic verification for AI agent honesty. Build 17.10." />
+<meta name="theme-color" content="#ef4444" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --vault: #ef4444;
+  --vault-soft: rgba(239, 68, 68, 0.10);
+  --vault-deep: #b91c1c;
+  --obsidian-1: #14082E;
+  --obsidian-2: #041521;
+  --cool-1: #8B5CF6;
+  --cool-2: #06B6D4;
+  --cool-3: #0D9488;
+  --cream: #faf8f5;
+  --paper: #ffffff;
+  --ink-1: rgba(0, 0, 0, 0.92);
+  --ink-2: rgba(0, 0, 0, 0.68);
+  --ink-3: rgba(0, 0, 0, 0.45);
+  --ink-4: rgba(0, 0, 0, 0.28);
+  --rule: rgba(0, 0, 0, 0.10);
+  --rule-soft: rgba(0, 0, 0, 0.06);
+  --shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06);
+  --mono: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--ink-1);
+  background: var(--cream);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.doc {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 0 32px 96px;
+}
+
+@page {
+  size: letter;
+  margin: 0.75in 0.5in 0.85in 0.5in;
+}
+
+/* ──────────────────────── COVER ──────────────────────── */
+
+.cover {
+  background: linear-gradient(160deg, var(--obsidian-1) 0%, var(--obsidian-2) 100%);
+  color: rgba(255,255,255,0.92);
+  margin: 0 -32px 48px;
+  padding: 96px 64px 80px;
+  position: relative;
+  overflow: hidden;
+  page-break-after: always;
+  border-bottom: 6px solid var(--vault);
+}
+.cover::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 80% 20%, rgba(239,68,68,0.18), transparent 50%);
+  pointer-events: none;
+}
+.cover-mark {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 88px;
+  position: relative;
+  z-index: 1;
+}
+.cover-chip { width: 56px; height: 56px; display: block; }
+.cover-wordmark {
+  font-weight: 900;
+  font-size: 22px;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, var(--cool-1) 0%, var(--cool-2) 55%, var(--cool-3) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.cover-classification {
+  position: absolute; top: 32px; right: 64px;
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: rgba(255,255,255,0.55);
+  border: 1px solid rgba(255,255,255,0.18);
+  padding: 6px 12px; border-radius: 4px; z-index: 1;
+}
+.cover-vault-badge {
+  display: inline-block; font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--vault); background: var(--vault-soft);
+  border: 1px solid rgba(239, 68, 68, 0.45);
+  padding: 6px 14px; border-radius: 999px;
+  margin-bottom: 28px; position: relative; z-index: 1;
+}
+.cover h1 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 64px; line-height: 1.05; font-weight: 700;
+  letter-spacing: -0.02em; margin: 0 0 18px;
+  position: relative; z-index: 1;
+}
+.cover .subtitle {
+  font-size: 22px; line-height: 1.35;
+  color: rgba(255,255,255,0.78); font-weight: 300;
+  max-width: 680px; margin-bottom: 64px;
+  position: relative; z-index: 1;
+}
+.cover-meta {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 28px 40px; position: relative; z-index: 1;
+}
+.cover-meta dt {
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: rgba(255,255,255,0.5); margin-bottom: 4px;
+}
+.cover-meta dd {
+  margin: 0; font-size: 14px; font-weight: 500;
+  color: rgba(255,255,255,0.92);
+}
+
+/* ──────────────────────── TYPOGRAPHY ──────────────────────── */
+
+h2 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 30px; line-height: 1.2; font-weight: 700;
+  letter-spacing: -0.01em; margin: 56px 0 16px;
+  padding-left: 16px; border-left: 4px solid var(--vault);
+  page-break-after: avoid;
+}
+h2 .num {
+  display: inline-block; font-family: var(--mono);
+  font-size: 14px; font-weight: 500; color: var(--vault);
+  margin-right: 12px; letter-spacing: 0.05em; vertical-align: 4px;
+}
+h3 {
+  font-size: 18px; font-weight: 700;
+  margin: 36px 0 12px; letter-spacing: -0.01em;
+  page-break-after: avoid;
+}
+h4 {
+  font-size: 14px; font-weight: 600;
+  margin: 24px 0 8px; letter-spacing: 0;
+  text-transform: uppercase; color: var(--ink-2);
+  font-family: var(--mono); letter-spacing: 0.08em;
+}
+p { margin: 0 0 14px; }
+ul, ol { margin: 0 0 14px; padding-left: 22px; }
+li { margin-bottom: 6px; }
+a { color: var(--vault-deep); text-decoration: none; border-bottom: 1px solid rgba(185,28,28,0.4); }
+a:hover { border-bottom-color: var(--vault-deep); }
+strong { font-weight: 600; color: var(--ink-1); }
+em { color: var(--ink-2); }
+
+code {
+  font-family: var(--mono); font-size: 0.88em;
+  background: var(--rule-soft); padding: 2px 6px;
+  border-radius: 3px; color: var(--vault-deep);
+}
+pre {
+  font-family: var(--mono); font-size: 12px; line-height: 1.55;
+  background: #0d0d18; color: rgba(255,255,255,0.88);
+  padding: 16px 20px; border-radius: 6px;
+  overflow-x: auto; margin: 16px 0 22px;
+  border-left: 3px solid var(--vault);
+  page-break-inside: avoid;
+}
+pre code { background: transparent; padding: 0; color: inherit; font-size: inherit; }
+blockquote {
+  margin: 18px 0 22px; padding: 0 0 0 20px;
+  border-left: 3px solid var(--vault);
+  font-style: italic; color: var(--ink-2);
+}
+hr { border: 0; border-top: 1px solid var(--rule); margin: 36px 0; }
+
+/* ──────────────────────── TABLES ──────────────────────── */
+
+table {
+  width: 100%; border-collapse: collapse;
+  margin: 18px 0 28px; font-size: 13.5px;
+  page-break-inside: avoid;
+}
+th {
+  text-align: left; font-weight: 600; font-size: 11px;
+  letter-spacing: 0.10em; text-transform: uppercase;
+  color: var(--ink-2); padding: 10px 14px 10px 0;
+  border-bottom: 2px solid var(--vault); vertical-align: bottom;
+}
+td {
+  padding: 10px 14px 10px 0;
+  border-bottom: 1px solid var(--rule); vertical-align: top;
+}
+td code { font-size: 0.85em; }
+
+/* ──────────────────────── CALLOUTS ──────────────────────── */
+
+.callout {
+  border-left: 3px solid var(--vault);
+  background: var(--vault-soft);
+  padding: 14px 20px; margin: 18px 0 22px;
+  border-radius: 0 4px 4px 0;
+  page-break-inside: avoid;
+}
+.callout .label {
+  font-family: var(--mono); font-size: 10px; font-weight: 600;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--vault-deep); margin-bottom: 6px;
+}
+.callout p:last-child { margin-bottom: 0; }
+.callout.verified { border-left-color: #10b981; background: rgba(16, 185, 129, 0.08); }
+.callout.verified .label { color: #047857; }
+.callout.open { border-left-color: #f59e0b; background: rgba(245, 158, 11, 0.08); }
+.callout.open .label { color: #b45309; }
+.callout.thesis {
+  border-left-color: var(--vault); background: var(--obsidian-1);
+  color: rgba(255,255,255,0.92);
+}
+.callout.thesis .label { color: var(--vault); }
+.callout.thesis p { color: rgba(255,255,255,0.92); }
+
+/* ──────────────────────── DOC CONTROL ──────────────────────── */
+
+.doc-control {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 0;
+  margin: 0 0 32px;
+  border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
+}
+.doc-control > div {
+  padding: 12px 16px; border-bottom: 1px solid var(--rule);
+  display: flex; flex-direction: column;
+}
+.doc-control > div:nth-child(odd) { border-right: 1px solid var(--rule); }
+.doc-control > div:nth-last-child(-n+2) { border-bottom: none; }
+.doc-control dt {
+  font-family: var(--mono); font-size: 10px; font-weight: 600;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--ink-3); margin-bottom: 2px;
+}
+.doc-control dd { margin: 0; font-size: 14px; font-weight: 500; }
+
+/* ──────────────────────── ASCII DIAGRAM ──────────────────────── */
+
+.diagram {
+  font-family: var(--mono); font-size: 10.5px; line-height: 1.35;
+  background: var(--paper);
+  border: 1px solid var(--rule); border-left: 3px solid var(--vault);
+  padding: 18px 20px; border-radius: 0 4px 4px 0;
+  white-space: pre; overflow-x: auto;
+  margin: 18px 0 22px; color: var(--ink-1);
+  box-shadow: var(--shadow);
+}
+
+/* ──────────────────────── TOC ──────────────────────── */
+
+.toc {
+  background: var(--paper); border: 1px solid var(--rule);
+  padding: 28px 32px; margin: 48px 0;
+  border-radius: 4px; box-shadow: var(--shadow);
+  page-break-after: always;
+}
+.toc h2 {
+  margin-top: 0; font-size: 20px;
+  border-left: none; padding-left: 0;
+}
+.toc ol {
+  list-style: none; padding: 0; margin: 0;
+  columns: 2; column-gap: 32px;
+}
+.toc li {
+  break-inside: avoid; margin-bottom: 8px;
+  display: flex; align-items: baseline; gap: 10px;
+}
+.toc li .n {
+  font-family: var(--mono); font-size: 11px;
+  color: var(--vault); font-weight: 600; min-width: 2em;
+}
+.toc li a { border-bottom: none; color: var(--ink-1); font-size: 14px; }
+.toc li a:hover { color: var(--vault-deep); }
+
+/* ──────────────────────── SECTION FRAME ──────────────────────── */
+
+section { margin-bottom: 0; }
+section + section h2 { margin-top: 56px; }
+
+.section-intro {
+  font-size: 16px; color: var(--ink-2);
+  margin-bottom: 24px; line-height: 1.6;
+}
+
+/* ──────────────────────── METRICS GRID ──────────────────────── */
+
+.metrics {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 16px; margin: 24px 0 28px;
+}
+.metric {
+  background: var(--paper); border: 1px solid var(--rule);
+  border-top: 3px solid var(--vault);
+  padding: 16px 18px; border-radius: 4px;
+  box-shadow: var(--shadow);
+}
+.metric .v {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 30px; font-weight: 700;
+  color: var(--ink-1); line-height: 1; margin-bottom: 6px;
+}
+.metric .l {
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: 0.10em; text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+/* ──────────────────────── FOOTER ──────────────────────── */
+
+footer.doc-footer {
+  margin: 96px -32px -96px;
+  padding: 32px 64px 40px;
+  background: var(--obsidian-2);
+  color: rgba(255,255,255,0.7);
+  font-size: 12px; line-height: 1.6;
+  border-top: 4px solid var(--vault);
+}
+footer.doc-footer .end-mark {
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: 0.20em; text-transform: uppercase;
+  color: var(--vault); margin-bottom: 12px;
+}
+footer.doc-footer a {
+  color: rgba(255,255,255,0.85);
+  border-bottom-color: rgba(239,68,68,0.5);
+}
+
+/* ──────────────────────── PRINT ──────────────────────── */
+
+@media print {
+  body { background: white; font-size: 11pt; }
+  .doc { padding: 0; max-width: none; }
+  .cover { margin: 0; padding: 1in 0.6in; page-break-after: always; min-height: 9in; }
+  .toc { page-break-after: always; box-shadow: none; }
+  h2 { page-break-after: avoid; }
+  pre, .diagram { page-break-inside: avoid; }
+  table, .callout { page-break-inside: avoid; }
+  footer.doc-footer { margin: 0; }
+}
+
+@media (max-width: 720px) {
+  .doc { padding: 0 16px 64px; }
+  .cover { padding: 64px 24px 48px; margin: 0 -16px 32px; }
+  .cover h1 { font-size: 40px; }
+  .cover-meta { grid-template-columns: 1fr 1fr; gap: 18px; }
+  .cover-classification { right: 24px; top: 24px; font-size: 9px; }
+  .toc ol { columns: 1; }
+  .doc-control { grid-template-columns: 1fr; }
+  .doc-control > div:nth-child(odd) { border-right: none; }
+  table { font-size: 12px; }
+  .metrics { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ──────────────────────── SIDE NAV ──────────────────────── */
+
+.sidenav { display: none; }
+@media (min-width: 1180px) {
+  .sidenav {
+    display: block; position: fixed; top: 32px; left: 32px;
+    width: 220px; max-height: calc(100vh - 64px); overflow-y: auto;
+    background: var(--paper); border: 1px solid var(--rule);
+    border-radius: 4px; padding: 18px 16px 18px 18px;
+    font-size: 12px; line-height: 1.45;
+    box-shadow: var(--shadow); z-index: 100; scrollbar-width: thin;
+  }
+  .sidenav::-webkit-scrollbar { width: 6px; }
+  .sidenav::-webkit-scrollbar-thumb { background: var(--rule); border-radius: 3px; }
+  .sidenav .sidenav-label {
+    font-family: var(--mono); font-size: 9px;
+    letter-spacing: 0.20em; text-transform: uppercase;
+    color: var(--vault); font-weight: 700;
+    margin: 0 0 12px; padding-bottom: 10px;
+    border-bottom: 2px solid var(--vault);
+  }
+  .sidenav ol { list-style: none; padding: 0; margin: 0; }
+  .sidenav li { margin: 0; padding: 0; }
+  .sidenav a {
+    display: flex; align-items: baseline; gap: 8px;
+    padding: 5px 8px 5px 10px; margin-left: -10px;
+    color: var(--ink-2); border-bottom: none;
+    border-left: 2px solid transparent;
+    border-radius: 0 3px 3px 0;
+    transition: background 0.12s, color 0.12s, border-color 0.12s;
+  }
+  .sidenav a .n {
+    font-family: var(--mono); font-size: 10px;
+    color: var(--ink-3); font-weight: 500;
+    min-width: 1.8em; flex-shrink: 0;
+  }
+  .sidenav a:hover { background: var(--rule-soft); color: var(--ink-1); }
+  .sidenav a.active {
+    border-left-color: var(--vault);
+    background: var(--vault-soft);
+    color: var(--vault-deep); font-weight: 600;
+  }
+  .sidenav a.active .n { color: var(--vault); }
+}
+@media print { .sidenav { display: none !important; } }
+</style>
+</head>
+<body>
+
+<!-- ──────────────────────── SIDE NAV ──────────────────────── -->
+<aside class="sidenav" aria-label="Section navigation">
+  <div class="sidenav-label">ANTI-LIE GOV</div>
+  <ol>
+    <li><a href="#s1"><span class="n">01</span>The Problem</a></li>
+    <li><a href="#s2"><span class="n">02</span>What it Is</a></li>
+    <li><a href="#s3"><span class="n">03</span>Live Numbers</a></li>
+    <li><a href="#s4"><span class="n">04</span>Necessity</a></li>
+    <li><a href="#s5"><span class="n">05</span>Market Position</a></li>
+    <li><a href="#s6"><span class="n">06</span>Performance</a></li>
+    <li><a href="#s7"><span class="n">07</span>Push Harder</a></li>
+  </ol>
+</aside>
+
+<div class="doc">
+
+<!-- ──────────────────────── COVER ──────────────────────── -->
+<header class="cover">
+  <div class="cover-classification">Internal · NDA-Shareable</div>
+  <div class="cover-mark">
+    <svg class="cover-chip" viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg" aria-label="Level9">
+      <defs>
+        <linearGradient id="cool" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%"  stop-color="#8B5CF6"/>
+          <stop offset="55%" stop-color="#06B6D4"/>
+          <stop offset="100%" stop-color="#0D9488"/>
+        </linearGradient>
+        <linearGradient id="obs" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%"  stop-color="#14082E"/>
+          <stop offset="100%" stop-color="#041521"/>
+        </linearGradient>
+      </defs>
+      <rect x="40" y="40" width="240" height="240" rx="56" fill="url(#obs)" stroke="url(#cool)" stroke-width="1.5"/>
+      <text x="160" y="162" text-anchor="middle" dominant-baseline="central"
+            font-family="Inter, system-ui, sans-serif" font-weight="900" font-size="180"
+            fill="#FFFFFF" transform="rotate(-14 160 162)" style="letter-spacing:-0.04em">9</text>
+    </svg>
+    <span class="cover-wordmark">Level9</span>
+  </div>
+
+  <div class="cover-vault-badge">The Vault · Governance Chassis</div>
+  <h1>Anti-Lie Governance</h1>
+  <div class="subtitle">Keep the LLM out of court. Deterministic verification for AI agent honesty. The empty quadrant in the 2026 governance market, occupied.</div>
+
+  <dl class="cover-meta">
+    <div><dt>Build</dt><dd>17.10</dd></div>
+    <div><dt>Effective</dt><dd>2026-05-02</dd></div>
+    <div><dt>Owner</dt><dd>Eric Hathaway</dd></div>
+    <div><dt>Sibling chassis</dt><dd>LVL9-GOV-001</dd></div>
+    <div><dt>Operating LLC</dt><dd>Level9OS LLC</dd></div>
+    <div><dt>Status</dt><dd>Live in production</dd></div>
+  </dl>
+</header>
+
+<!-- ──────────────────────── DOC CONTROL ──────────────────────── -->
+<dl class="doc-control">
+  <div><dt>Document Type</dt><dd>Product Report . Strategic Positioning</dd></div>
+  <div><dt>Build</dt><dd>17.10 (all 10 commercial-grade hardening items verified)</dd></div>
+  <div><dt>Effective Date</dt><dd>2026-05-02</dd></div>
+  <div><dt>Owner</dt><dd>Eric Hathaway</dd></div>
+  <div><dt>Classification</dt><dd>Internal . shareable under NDA</dd></div>
+  <div><dt>Production endpoint</dt><dd><code>level9-governance.vercel.app</code></dd></div>
+  <div><dt>Verifier registry</dt><dd>9 verifiers, 13 SHA-256-protected files</dd></div>
+  <div><dt>Companion docs</dt><dd>DOCUMENTATION.md, MARKET-RESEARCH.md, PERPLEXITY-RESEARCH.md, COST-ANALYSIS.md</dd></div>
+</dl>
+
+<!-- ──────────────────────── TOC ──────────────────────── -->
+<nav class="toc">
+  <h2>Contents</h2>
+  <ol>
+    <li><span class="n">01</span><a href="#s1">The problem in one sentence</a></li>
+    <li><span class="n">02</span><a href="#s2">What the product is</a></li>
+    <li><span class="n">03</span><a href="#s3">The governance the system performs (live numbers)</a></li>
+    <li><span class="n">04</span><a href="#s4">Why this is necessary, on top of typical governance</a></li>
+    <li><span class="n">05</span><a href="#s5">Where this sits in the market</a></li>
+    <li><span class="n">06</span><a href="#s6">Performance verdict</a></li>
+    <li><span class="n">07</span><a href="#s7">Push harder . the ahead-of-the-game playbook</a></li>
+  </ol>
+</nav>
+
+<!-- ──────────────────────── 1. THE PROBLEM ──────────────────────── -->
+<section id="s1">
+  <h2><span class="num">01</span>The problem in one sentence</h2>
+
+  <p class="section-intro">LLM agents are good at sounding done. They are bad at being done. The cost of that gap is not a bad sentence. It is a wrong claim that downstream systems trust, then act on.</p>
+
+  <p>Apollo polluted 278 ICP records with 403'd enrichments because an agent reported a successful run that never happened. Real money, real cleanup. The agent's "done" sentence read identically to its "done" sentence on every successful run. There was no signal in the text itself.</p>
+
+  <p>The standard answer to <em>"is this LLM output any good"</em> is to let another LLM judge it. Score factuality. Score helpfulness. Flag hallucinations probabilistically. That is <strong>court</strong>. We do not want LLMs in court. The LLM is the defendant, the prosecutor, AND the judge, and it is verbally fluent. It will win.</p>
+
+  <div class="callout thesis">
+    <div class="label">Thesis</div>
+    <p>This system takes a different posture: <strong>keep the LLM out of court entirely.</strong></p>
+    <p>When an agent says something is done, it must register a deterministic verifier. A small piece of code that reads canonical state from outside the LLM's control (Vercel API, GitHub API, Supabase rows, n8n workflow JSON, file system, DB constraints) and returns PASS / FAIL / ERROR. No model. No probability. No "the assistant is 87% likely to be grounded." Just: did the row exist or not. Did the deployment succeed or not. Does the file contain the string or not.</p>
+    <p>The model can write, the model can plan, the model can reason. The model cannot <strong>adjudicate completion</strong>.</p>
+  </div>
+</section>
+
+<!-- ──────────────────────── 2. WHAT IT IS ──────────────────────── -->
+<section id="s2">
+  <h2><span class="num">02</span>What the product is</h2>
+
+  <h3>Eight components, one architecture</h3>
+
+  <pre class="diagram">┌─────────────────────────────────────────────────────────────────────┐
+│                      ANTI-LIE GOVERNANCE STACK                       │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  ┌─────────────┐    ┌─────────────────┐    ┌──────────────────┐    │
+│  │ A. Hooks    │    │ B. Claim CLI    │    │ C. Verifier      │    │
+│  │ (Stop,      │───▶│ (claim-verify,  │───▶│ Registry         │    │
+│  │ TodoWrite,  │    │  claim-resolve) │    │ (9 verifiers)    │    │
+│  │ Subagent)   │    │                 │    │                  │    │
+│  └─────────────┘    └────────┬────────┘    └────────┬─────────┘    │
+│                              │                      │              │
+│                              ▼                      ▼              │
+│  ┌─────────────────────────────────────────────────────────────┐   │
+│  │ D. Data plane (Supabase)                                    │   │
+│  │ cmd_claims · cmd_verifications · cmd_law_violations         │   │
+│  │ cmd_summaries (proxy_call audit + integrity hashes)         │   │
+│  │ + RLS lockdown so anon can FILE claims but not flip status  │   │
+│  └─────────────────────────────────────────────────────────────┘   │
+│                              ▲                                     │
+│                              │                                     │
+│  ┌─────────────────┐  ┌──────┴──────────┐  ┌──────────────────┐    │
+│  │ E. Proxy        │  │ F. Watchdog     │  │ G. Integrity     │    │
+│  │ (Layer F:       │  │ (n8n            │  │ (SHA-256 of      │    │
+│  │  Anthropic +    │  │  OPS-Lie-       │  │  all 13 verifier │    │
+│  │  OpenAI +       │  │  Watchdog,      │  │  files. Refuses  │    │
+│  │  Perplexity     │  │  hourly)        │  │  to run if any   │    │
+│  │  via            │  │                 │  │  has been        │    │
+│  │  level9-        │  └─────────────────┘  │  tampered with.) │    │
+│  │  governance.    │                       └──────────────────┘    │
+│  │  vercel.app)    │  ┌─────────────────┐                          │
+│  └─────────────────┘  │ H. Dashboards   │                          │
+│                       │ /api/health     │                          │
+│                       │ /api/costs      │                          │
+│                       └─────────────────┘                          │
+└─────────────────────────────────────────────────────────────────────┘</pre>
+
+  <h3>Component-by-component</h3>
+
+  <h4>A. Hooks (Claude Code)</h4>
+  <p>Three hooks attach to every Claude session:</p>
+  <ul>
+    <li><strong>Stop hook</strong>. Runs when the agent tries to end its turn. Scans the assistant's final message for ~30 banned-word patterns ("is deployed", "now live", "tests pass", "all set", "in production", etc.). If matched and there is no PASS claim for the current session, it OPENS a <code>cmd_law_violations</code> row and blocks the turn. The agent literally cannot end on a wrong claim. It must either retract (<code>claim-resolve --action retracted</code>), escalate, or fix and re-verify.</li>
+    <li><strong>TodoWrite hook</strong>. Fires whenever Claude marks a todo <code>completed</code>. If no PASS claim exists for the session, it logs a <code>todowrite_completed_no_claim</code> violation. This catches the "I'll just check the box" failure mode where the agent claims internal-state completion without externalizing the claim.</li>
+    <li><strong>Subagent PreToolUse hook</strong>. Same scan applied to spawned sub-agent prompts, so a parent Claude can't launder a banned-word claim through a child agent.</li>
+  </ul>
+
+  <h4>B. Claim CLI</h4>
+  <p>Two commands, both standalone Node scripts, both run an integrity check on the verifier files before doing anything else:</p>
+  <ul>
+    <li><code>claim-verify.mjs --claim-id &lt;uuid&gt;</code> re-runs the immutable verifier_params for an existing claim. Writes a <code>cmd_verifications</code> row. Updates claim status to PASS / FAIL / leaves at UNVERIFIED on ERROR.</li>
+    <li><code>claim-verify.mjs --type &lt;kind&gt; --params '&lt;json&gt;'</code> runs an ad-hoc verifier without registering a claim. Used by hooks for fast checks.</li>
+    <li><code>claim-resolve.mjs --claim-id &lt;uuid&gt; --action fixed|retracted|escalate</code> closes violations on PASS, increments attempt_count on FAIL, ESCALATES at &ge; 3 attempts. RETRACTED says "I was wrong," closes linked violations, but the original claim row stays in the audit log as evidence the agent admitted the lie.</li>
+  </ul>
+
+  <h4>C. Verifier registry. 9 verifiers, all deterministic</h4>
+  <p>Each verifier is a ~150-line ES module with one exported <code>verify*(params)</code> function returning <code>{result, evidence}</code>. The 9:</p>
+
+  <table>
+    <thead><tr><th>Verifier</th><th>Reads</th><th>Used for</th></tr></thead>
+    <tbody>
+      <tr><td><code>vercel_deploy</code></td><td>Vercel API <code>/v13/deployments/{id}</code></td><td>"this code is live" claims</td></tr>
+      <tr><td><code>git_commit_landed</code></td><td>GitHub <code>/compare/{sha}...{branch}</code></td><td>"I pushed this commit"</td></tr>
+      <tr><td><code>file_contains</code></td><td>local FS</td><td>"I added this string to this file"</td></tr>
+      <tr><td><code>db_data</code></td><td>Supabase PostgREST (service-role to bypass RLS)</td><td>"this row exists / N rows match"</td></tr>
+      <tr><td><code>api_route_returns</code></td><td>live HTTP fetch</td><td>"this endpoint returns 200"</td></tr>
+      <tr><td><code>db_rls</code></td><td>Supabase service-role catalog query</td><td>"table X has RLS policy Y"</td></tr>
+      <tr><td><code>n8n_node_contains</code></td><td>n8n NAS REST <code>/api/v1/workflows/{id}</code></td><td>"node X in workflow Y has code Z"</td></tr>
+      <tr><td><code>db_grants</code></td><td><code>pg_catalog.has_table_privilege</code></td><td>"role R has SELECT on table T"</td></tr>
+      <tr><td><code>db_constraint</code></td><td><code>information_schema.table_constraints</code></td><td>"constraint C exists on T"</td></tr>
+    </tbody>
+  </table>
+
+  <h4>D. Data plane (Supabase, RLS-locked)</h4>
+  <p>Three tables plus a re-used summaries table. Append-only ledger:</p>
+  <ul>
+    <li><strong><code>cmd_claims</code></strong> (id, session_id, project_key, verifier_type, <strong>immutable</strong> verifier_params, claim_text, evidence_required, status). Anon can INSERT with status=UNVERIFIED, anon CANNOT update status. Only the service-role-keyed verifier can flip to PASS/FAIL. This is the cornerstone of integrity: an agent cannot file a claim and then lie to itself by flipping its own status.</li>
+    <li><strong><code>cmd_verifications</code></strong> (claim_id, result, evidence, verifier_version). Every verifier run, ever. Append-only audit log.</li>
+    <li><strong><code>cmd_law_violations</code></strong> (claim_id, violation_type, status, attempt_count). Status moves OPEN → CLOSED (fixed and re-verified) or OPEN → ESCALATED (3 failed attempts; human required).</li>
+    <li><strong><code>cmd_summaries</code></strong> reused for: integrity hashes, proxy call audit rows, build artifact evidence.</li>
+  </ul>
+
+  <h4>E. Proxy (Layer F)</h4>
+  <p><code>level9-governance.vercel.app</code> is a multi-provider LLM proxy:</p>
+  <ul>
+    <li><strong>Upstream</strong>: Anthropic (<code>/v1/messages</code>, <code>/count_tokens</code>, Batches, Files retrieve+list+content), OpenAI (<code>/v1/chat/completions</code>, embeddings, models), Perplexity (<code>/chat/completions</code>). 9 endpoints.</li>
+    <li><strong>Auth</strong>: per-caller <code>X-Governance-Key</code> (4 keys: <code>proxy_key</code> legacy, <code>proxy_key_n8n_nas</code>, <code>proxy_key_scripts</code>, <code>proxy_key_claude_code_subagent</code>). Every call attributed to a caller.</li>
+    <li><strong>Rate limits</strong>: sliding 60-second window, per-caller (90/min for n8n, 30/min for scripts and sub-agents, 120/min for legacy).</li>
+    <li><strong>Banned-word scan</strong>: same regex as the Stop hook runs on the assistant's reply. Catches agents that bypassed the hooks (n8n workflows, raw scripts).</li>
+    <li><strong>Streaming</strong>: SSE chunks pipe to client immediately. Server-side accumulates for the post-stream scan.</li>
+    <li><strong>Cost capture</strong>: token usage extracted from each provider's response. Cost estimated against a hand-maintained <code>MODEL_RATES</code> table.</li>
+    <li><strong>Request ID</strong>: caller-supplied <code>X-Request-ID</code> honored, else server-generated UUID.</li>
+  </ul>
+
+  <h4>F. Watchdog (n8n)</h4>
+  <p><code>OPS-Lie-Watchdog</code> runs hourly on the NAS n8n. Scans for orphan or stuck items the per-session hooks could have missed:</p>
+  <ul>
+    <li>OPEN violations older than 24h that should have been closed</li>
+    <li>UNVERIFIED claims with no <code>cmd_verifications</code> row in 12h</li>
+    <li>Stale secrets (any <code>cmd_secrets</code> row whose <code>rotation_days</code> is overdue)</li>
+    <li>Auto-closes banned-word and todowrite-no-claim violations whose session later filed a PASS claim</li>
+  </ul>
+
+  <h4>G. Integrity (SHA-256 verifier hashing)</h4>
+  <p>Before <code>claim-verify.mjs</code> or <code>claim-resolve.mjs</code> will run, they SHA-256 every file in <code>PROTECTED_FILES</code> (13 files: the two CLIs, <code>lib/supabase.mjs</code>, <code>lib/integrity.mjs</code>, all 9 verifiers) and compare against the hashes stored in <code>cmd_summaries.verifier_integrity</code>. Any mismatch exits 7 with reseed instructions. This makes "edit the verifier to always return PASS" a detectable attack.</p>
+
+  <h4>H. Dashboards</h4>
+  <ul>
+    <li><code>GET /api/health</code>. Last-60-min stats: calls, p50/p95/p99 latency, error rates, by_caller breakdown, last_success_ts.</li>
+    <li><code>GET /api/costs?hours=N</code>. Same window aggregated by caller / provider / model / project, with token counts and estimated USD.</li>
+  </ul>
+</section>
+
+<!-- ──────────────────────── 3. LIVE NUMBERS ──────────────────────── -->
+<section id="s3">
+  <h2><span class="num">03</span>The governance the system actually performs (live numbers)</h2>
+
+  <p class="section-intro">These numbers are read directly from the Supabase tables right now (2026-05-02). Every figure is reproducible by SQL anyone with the anon key can run.</p>
+
+  <h3>Claims . the corpus of "this is done" assertions</h3>
+
+  <div class="metrics">
+    <div class="metric"><div class="v">265</div><div class="l">Total claims filed</div></div>
+    <div class="metric"><div class="v">227</div><div class="l">PASS (85.7%)</div></div>
+    <div class="metric"><div class="v">14</div><div class="l">FAIL (5.3%) . lies caught</div></div>
+    <div class="metric"><div class="v">0</div><div class="l">ESCALATED</div></div>
+  </div>
+
+  <p>14 FAIL rows means the system caught 14 specific moments where the agent tried to claim done and was wrong. Those would all have been silent lies before. 23 UNVERIFIED are the residual "filed but never reached PASS or FAIL," tracked forever and surfaced at session start so the next agent can resolve them.</p>
+
+  <p>Verifier mix on those 265 claims:</p>
+
+  <table>
+    <thead><tr><th>Verifier</th><th>Count</th><th>Share</th></tr></thead>
+    <tbody>
+      <tr><td><code>file_contains</code></td><td>111</td><td>42%</td></tr>
+      <tr><td><code>n8n_node_contains</code></td><td>75</td><td>28%</td></tr>
+      <tr><td><code>db_data</code></td><td>46</td><td>17%</td></tr>
+      <tr><td><code>api_route_returns</code></td><td>11</td><td>4%</td></tr>
+      <tr><td><code>git_commit_landed</code></td><td>10</td><td>4%</td></tr>
+      <tr><td><code>db_rls</code></td><td>7</td><td>3%</td></tr>
+      <tr><td><code>db_grants</code></td><td>2</td><td>&lt;1%</td></tr>
+      <tr><td><code>db_constraint</code></td><td>2</td><td>&lt;1%</td></tr>
+      <tr><td><code>vercel_deploy</code></td><td>1</td><td>&lt;1%</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Verifications . every verifier run, ever</h3>
+
+  <div class="metrics">
+    <div class="metric"><div class="v">281</div><div class="l">Total runs</div></div>
+    <div class="metric"><div class="v">228</div><div class="l">PASS (81.1%)</div></div>
+    <div class="metric"><div class="v">19</div><div class="l">FAIL (6.8%)</div></div>
+    <div class="metric"><div class="v">34</div><div class="l">ERROR (12.1%)</div></div>
+  </div>
+
+  <p>The ERROR rate (12%) is the honest signal. ERROR means the verifier itself couldn't read ground truth (Vercel auth fail, n8n NAS down, file path typo). The system distinguishes "the claim is wrong" (FAIL) from "I cannot tell whether the claim is right or wrong" (ERROR). Most governance products collapse this into one number. We don't, because they are not the same thing. A FAIL is a lie. An ERROR is a missing signal. The correct response is different.</p>
+
+  <h3>Violations . the catch rate</h3>
+
+  <div class="metrics">
+    <div class="metric"><div class="v">19</div><div class="l">Total violations</div></div>
+    <div class="metric"><div class="v">11</div><div class="l">CLOSED</div></div>
+    <div class="metric"><div class="v">8</div><div class="l">OPEN</div></div>
+    <div class="metric"><div class="v">0</div><div class="l">ESCALATED</div></div>
+  </div>
+
+  <p>Every one of those 19 was the agent saying "done" without proof. The system caught them, and 11 have already been resolved (the agent went back, did the real work, filed a real claim, the verifier ran, PASS landed, the violation auto-closed).</p>
+
+  <div class="callout verified">
+    <div class="label">Load-bearing number</div>
+    <p>ESCALATED count is 0. ESCALATED means the agent tried 3 times, kept failing, and a human had to step in. We're not hitting that threshold. The agent is correcting itself within 1-2 attempts.</p>
+  </div>
+
+  <h3>Proxy traffic (last 7 days)</h3>
+
+  <table>
+    <thead><tr><th>Metric</th><th>Value</th></tr></thead>
+    <tbody>
+      <tr><td>Calls audited</td><td>74</td></tr>
+      <tr><td>By provider</td><td>anthropic 67, openai 4, perplexity 3</td></tr>
+      <tr><td>By caller</td><td>scripts 52, n8n 15, sub-agent 1, legacy 1, unknown 5</td></tr>
+      <tr><td>Top 5 models</td><td>claude-haiku-4-5 (51), claude-sonnet-4-6 (14), gpt-4o-mini (4), sonar (3)</td></tr>
+      <tr><td>Upstream errors (4xx/5xx)</td><td>0</td></tr>
+      <tr><td>Streaming calls</td><td>3</td></tr>
+      <tr><td>Violations from proxy</td><td>3</td></tr>
+      <tr><td>Estimated cost (last 7d)</td><td>$0.0003</td></tr>
+    </tbody>
+  </table>
+
+  <h3>What's not yet measured</h3>
+  <ul>
+    <li>Pre-cost-instrumentation rows (the bulk of historical proxy calls) have null cost.</li>
+    <li>Multipart Anthropic file UPLOAD bypasses the proxy (binary body, deferred).</li>
+    <li>OpenAI streaming usage requires the caller to send <code>stream_options.include_usage: true</code>.</li>
+    <li>The <code>MODEL_RATES</code> table is hand-maintained. If Anthropic changes price, someone updates the proxy.</li>
+  </ul>
+  <p>These are knowable limits and they are documented. The system says when it doesn't know.</p>
+</section>
+
+<!-- ──────────────────────── 4. NECESSITY ──────────────────────── -->
+<section id="s4">
+  <h2><span class="num">04</span>Why this is necessary, on top of typical governance</h2>
+
+  <p class="section-intro">Most "AI governance" sold today is one of: output evaluation (LLM-as-judge), hallucination probability scoring, gateway guardrails (PII, content), or compliance documentation. None of those answer the question we care about.</p>
+
+  <div class="callout">
+    <div class="label">The question</div>
+    <p><strong>Did the agent actually do the thing it said it did?</strong></p>
+  </div>
+
+  <p>That question is not about the output's <em>quality</em>. It is about the output's <em>correspondence to the world</em>. An LLM judge cannot tell you whether the deployment landed. It can only tell you whether the agent's sentence <em>sounds like</em> a deployment landed. The two are unrelated.</p>
+
+  <p>The deterministic verifier eliminates that gap. The verifier is not asking the model anything. The verifier asks Vercel directly. Or Supabase directly. Or n8n directly. Or the file system directly. The model is not part of the adjudication loop. It has already finished talking by the time the verifier runs.</p>
+
+  <p>This is what "keep the LLM out of court" means operationally. We're not asking a smarter LLM to evaluate a dumber LLM. We're not asking <em>any</em> LLM. We're reading state. State doesn't lie. State just is.</p>
+
+  <h3>The benefit, in concrete terms</h3>
+
+  <ul>
+    <li><strong>No false negatives from a sycophantic judge.</strong> LLM-as-judge has a known failure mode where the judge agrees with confident assertions. Our verifier agrees with rows in tables.</li>
+    <li><strong>No probability theater.</strong> The judge gives you 0.87. What do you do with 0.87? Block it? Approve it? Page someone? PASS / FAIL is operational. A score is a deferred decision.</li>
+    <li><strong>Append-only forensic record.</strong> Every claim, every verification, every violation, with <code>claim_text</code>, <code>verifier_params</code>, <code>evidence</code>, timestamps, and the agent's session id. If something breaks downstream, you can replay exactly what was claimed and exactly what the verifier saw.</li>
+    <li><strong>Compounding trust.</strong> The session-start hook surfaces every UNVERIFIED claim and every OPEN violation from prior sessions. The next agent inherits the debt. It can't pretend the prior session was clean.</li>
+    <li><strong>Cost is incidental, not the value.</strong> $0.0003/wk is rounding error. The product isn't sold on cost. It's sold on "the agent is now incapable of shipping a wrong claim without us seeing it."</li>
+  </ul>
+</section>
+
+<!-- ──────────────────────── 5. MARKET POSITION ──────────────────────── -->
+<section id="s5">
+  <h2><span class="num">05</span>Where this sits in the market</h2>
+
+  <p class="section-intro">A scan of the AI governance landscape (Claude+WebSearch + Perplexity sonar-pro × 18 targeted queries + Perplexity sonar-deep-research) covered ~25 vendors across 5 categories. The headline finding: the field has converged on a three-layer probabilistic stack, every vendor knows this is a limit, none has shipped a productized alternative.</p>
+
+  <h3>What everyone else is doing</h3>
+
+  <table>
+    <thead><tr><th>Slice</th><th>Closest analogue</th><th>Mechanism</th></tr></thead>
+    <tbody>
+      <tr><td>Output quality scoring</td><td>LangSmith, Braintrust, Patronus, Galileo, Arize</td><td>LLM judges. Probabilistic.</td></tr>
+      <tr><td>Hallucination probability</td><td>Vectara HHEM, Patronus Lynx, Cleanlab TLM</td><td>Score on assertion-vs-source. Probabilistic.</td></tr>
+      <tr><td>Gateway guardrails</td><td>Helicone, Portkey, Cloudflare AI Gateway, Bedrock Guardrails</td><td>PII / content / rate. Some grounding score against handed source.</td></tr>
+      <tr><td>Agent observability</td><td>LangSmith traces, Langfuse, AgentOps</td><td>Show what the agent did. No claim verification.</td></tr>
+      <tr><td>Compliance docs</td><td>Credo AI, Holistic AI, Fiddler, watsonx.governance</td><td>Reports about models. Orthogonal.</td></tr>
+    </tbody>
+  </table>
+
+  <p><strong>Braintrust</strong> itself publishes the cleanest articulation of the limit: <em>"use LLM-as-a-judge for subjective dimensions, deterministic checks for everything that can be measured directly."</em> The field knows the gap. The field has not built the deterministic alternative.</p>
+
+  <h3>The closest direct analogues</h3>
+
+  <p>Six pre-product / academic / single-developer efforts describe almost exactly this pattern. <strong>None is a productized commercial offering.</strong></p>
+
+  <table>
+    <thead><tr><th>Source</th><th>What it is</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td><strong>GATE</strong> (deterministicagents.ai)</td><td>"Control-plane framework that runs conformance checks and increases autonomy only after must-pass checks succeed." Identical framing.</td><td>Pre-product. Site 403s on deep fetch.</td></tr>
+      <tr><td><strong>REGAL</strong> (arXiv 2603.03018)</td><td>"Registry-Driven Architecture for Deterministic Grounding." Declarative metrics registry as single source of truth.</td><td>Academic paper.</td></tr>
+      <tr><td><strong>agent-spec</strong> (GitHub, ZhangHanDong)</td><td>BDD-style mandatory verification gate requiring PASS/FAIL/SKIP/UNCERTAIN per step.</td><td>OSS, single author, small adoption.</td></tr>
+      <tr><td><strong>Claude Code RFC #45427</strong></td><td>Community RFC titled <em>"Deterministic tool gate . hooks are necessary but insufficient for governance enforcement."</em></td><td>Community feature request, unimplemented.</td></tr>
+      <tr><td><strong>Trust Topology</strong> (Michael Roth)</td><td>Argues reliability is a <em>pipeline topology problem</em>, not a model property. Generators, verifiers, context boundaries as primitives.</td><td>Single-author research.</td></tr>
+      <tr><td><strong>AgentGuard</strong> (arXiv 2509.23864)</td><td>Academic runtime verification framework for AI agents.</td><td>Academic paper.</td></tr>
+    </tbody>
+  </table>
+
+  <p>The thesis is in the air. The product is not.</p>
+
+  <h3>The empty quadrant</h3>
+
+  <pre class="diagram">                  PROBABILISTIC                       DETERMINISTIC
+                  (LLM-as-judge)                      (code reads truth)
+              ┌─────────────────────────────┬──────────────────────────────┐
+              │                             │                              │
+  POST-HOC    │ LangSmith, Langfuse,        │ (none commercial;            │
+  EVAL        │ Arize, Braintrust, Helicone,│  some test-runner libraries) │
+  (logged     │ Vellum, DeepEval, Patronus  │                              │
+   traces)    │ Lynx, Vectara HHEM,         │                              │
+              │ Cleanlab TLM, AgentOps      │                              │
+              ├─────────────────────────────┼──────────────────────────────┤
+              │                             │                              │
+  RUNTIME     │ Portkey, NeMo, Bedrock      │ ◄── ANTI-LIE GOVERNANCE      │
+  GATE        │ Guardrails, Cloudflare AI   │     (this product)           │
+  (blocks     │ Gateway, MLflow, Galileo    │                              │
+   before     │ Agent Control               │     Pre-product alternatives:│
+   response)  │                             │     GATE, REGAL, agent-spec, │
+              │                             │     Claude Code RFC #45427   │
+              └─────────────────────────────┴──────────────────────────────┘</pre>
+
+  <p>The lower-right quadrant is where Anti-Lie Governance sits. Nobody else is shipping there. Galileo Agent Control is the closest at one cell over (runtime gate but probabilistic). The deterministic-verifier camp is all in pre-product.</p>
+
+  <h3>Verdict . are we ahead?</h3>
+
+  <div class="callout thesis">
+    <div class="label">Yes. Substantively ahead.</div>
+    <p>The market has converged on probabilistic scoring. The market knows this is wrong. Braintrust, Anthropic alignment research on honesty elicitation, the Claude Code RFC, and Roth's "trust topology" paper all name the limit explicitly. The market hasn't built the alternative.</p>
+    <p>Anti-Lie Governance is the only system the scan turned up that is shipped and running in production (74 audited proxy calls last 7d, 265 claims filed lifetime, 14 lies caught, 0 escalations needed), end-to-end (hooks → claims → verifiers → violations → resolution loop), a runtime gate not a post-hoc score, with no LLM in the adjudication loop.</p>
+    <p>The closest commercial product (Galileo Agent Control) is being acquired by Cisco. Meaning the market is willing to pay real money for <em>something in this category</em>. Galileo just hasn't built the deterministic version.</p>
+  </div>
+</section>
+
+<!-- ──────────────────────── 6. PERFORMANCE ──────────────────────── -->
+<section id="s6">
+  <h2><span class="num">06</span>Performance verdict</h2>
+
+  <p class="section-intro">The system is performing where the design said it should.</p>
+
+  <ul>
+    <li><strong>227 of 265 claims (85.7%) reached PASS.</strong> Real claims, real verifiers, real evidence rows. Not synthetic test cases.</li>
+    <li><strong>14 FAIL claims surfaced. 14 lies caught.</strong> Each one was a moment the agent would have shipped a wrong assertion before this system existed.</li>
+    <li><strong>0 ESCALATED violations.</strong> The 3-attempts-then-human cap has not been hit. The agent is correcting itself.</li>
+    <li><strong>Hooks blocked the turn at the source on 11 banned-word violations.</strong> The agent literally could not end its message on a wrong claim.</li>
+    <li><strong>Proxy caught 3 violations from non-hook callers</strong> (n8n workflows, scripts) in the last 7 days.</li>
+    <li><strong>Watchdog auto-closed 2 stale violations from prior sessions</strong> in this build. No human intervention.</li>
+    <li><strong>Verifier integrity check runs on every claim CLI invocation.</strong> No detected tampering.</li>
+    <li><strong>Multi-provider, multi-endpoint, streaming all live with PASS claims</strong> (b82cf58b, 9847371c, 4750ccd4, 31e1fdb6, b26e2ed4, 4856d735).</li>
+  </ul>
+
+  <div class="callout verified">
+    <div class="label">Verdict</div>
+    <p>The system is doing its job. The agent has measurably less ability to lie than it had before the system existed.</p>
+  </div>
+</section>
+
+<!-- ──────────────────────── 7. PUSH HARDER ──────────────────────── -->
+<section id="s7">
+  <h2><span class="num">07</span>Push harder . the ahead-of-the-game playbook</h2>
+
+  <p class="section-intro">The market scan in §5 says we are in an empty quadrant. That is not a "finish polishing" position. That is a "press the lead before someone with more capital builds the same thing" position. Galileo is being acquired by Cisco specifically because someone with capital is <em>already</em> willing to pay for the adjacent (probabilistic) version. The deterministic version is wide open.</p>
+
+  <h3>Tier 1 . moves that lock the lead (next 30-60 days)</h3>
+
+  <ol>
+    <li><strong>Externalize the verifier registry as an open SDK.</strong> Today the 9 verifiers are coupled to this portfolio. Strip out the stack-specific bits and ship a public <code>@anti-lie/verifier-sdk</code> (Node) and <code>anti_lie</code> (Python). Reference verifiers shipped: <code>http_returns</code>, <code>file_contains</code>, <code>git_commit_landed</code>, <code>gh_pr_merged</code>. <em>This is the moat move.</em> Ship it OSS under MIT. The data plane (Supabase, audit, dashboards) is the paid surface.</li>
+    <li><strong>Verifier library . ship 20 first-party verifiers.</strong> Highest-value claims by stack: <code>vercel_deploy_succeeded</code>, <code>aws_lambda_deployed</code>, <code>s3_object_exists</code>, <code>dynamodb_item_present</code>, <code>stripe_charge_succeeded</code>, <code>gh_pr_merged</code>, <code>gh_workflow_run_succeeded</code>, <code>terraform_apply_landed</code>, <code>kubectl_rollout_complete</code>, <code>dbt_test_passed</code>, <code>airflow_dag_succeeded</code>, <code>snowflake_table_has_rows</code>, <code>bigquery_table_has_rows</code>, <code>salesforce_record_exists</code>, <code>slack_message_posted</code>, <code>notion_page_exists</code>, <code>linear_issue_state</code>, <code>pagerduty_incident_resolved</code>, <code>redis_key_exists</code>, <code>cloudwatch_metric_threshold</code>. Each &lt; 150 lines.</li>
+    <li><strong>OpenTelemetry export of claim spans.</strong> Emit every <code>cmd_claims</code> row as an OTel span. Datadog / Honeycomb / Grafana / New Relic / Splunk all consume OTel. Inheriting their alerting and dashboards multiplies our reach without us building any UI.</li>
+    <li><strong>Publish the thesis essay this week.</strong> Title: <em>"Keep the LLM Out of Court: Deterministic Verification for Agent Honesty."</em> One hour of writing. Establishes priority. Cite Roth's "trust topology", Braintrust's LLM-as-judge admission, the Claude Code RFC.</li>
+  </ol>
+
+  <h3>Tier 2 . moves that broaden the wedge (next 60-120 days)</h3>
+
+  <ol start="5">
+    <li><strong><code>@anti-lie/n8n-nodes</code> . first-class n8n integration.</strong> Custom n8n node that drops in like Anthropic's HTTP node but bakes in: the governance proxy URL, the X-Governance-Key header, request_id threading, claim-binding via a "claim_id" optional input, streaming passthrough.</li>
+    <li><strong>Slack/PagerDuty escalation hooks.</strong> Today ESCALATED writes a row. Wire it to Slack and PagerDuty. The difference between "internal tool" and "you can run your ops on this."</li>
+    <li><strong>Per-claim cost attribution.</strong> Bind cost to claim_id. The dashboard shifts from "this caller spent $X" to <em>"this PASS cost $0.04 to verify; this FAIL cost $7.20 in retry tokens before we caught it."</em> That second number is the sales pitch.</li>
+    <li><strong>Multi-tenant data plane.</strong> Add a <code>tenant_id</code> column, namespace the RLS, ship a Terraform module that provisions tenant Supabases.</li>
+  </ol>
+
+  <h3>Tier 3 . moves that productize the moat (next 120+ days)</h3>
+
+  <ol start="9">
+    <li><strong>VS Code / Cursor extension.</strong> Surface <code>cmd_claims</code> and <code>cmd_law_violations</code> for the current repo inline in the editor.</li>
+    <li><strong>Claude Skills / OpenAI GPT for verifier authoring.</strong> Ship a Claude Skill or OpenAI GPT trained on the verifier-SDK pattern that can author a new verifier from a natural-language description. <strong>Important:</strong> the LLM authors the verifier. The LLM does not adjudicate the claim. The verifier's runtime is still LLM-free.</li>
+    <li><strong>Compliance bridge.</strong> Most enterprise buyers need a compliance story (SOC 2, ISO 42001, EU AI Act). The append-only claim/verification/violation log is already the artifact compliance auditors want. Package the export as a "trust report" (PDF + CSV) and price it as a separate SKU.</li>
+    <li><strong>Adversarial test suite . the "AI-LieDar for Anti-Lie."</strong> Build a benchmark of 100 known agent failure modes. Run quarterly against our own system + Galileo + Patronus + Cleanlab + LangSmith eval. Publish catch-rate comparisons. <em>This is how Vectara's hallucination leaderboard became the reference.</em> If we publish the leaderboard for <em>agent honesty</em>, we own the term.</li>
+  </ol>
+
+  <h3>The single biggest lever</h3>
+
+  <div class="callout thesis">
+    <div class="label">If forced to pick one move only</div>
+    <p>Rank-order, the highest-leverage move is #1 (open-source the SDK) bundled with #4 (publish the thesis piece). Without the SDK, the registry pattern is invisible. Without the thesis piece, the SDK looks like one more eval library and gets miscategorized into the LangSmith bucket. With both, we have a positioning the field has explicitly asked for and nobody else has delivered.</p>
+    <p>If forced to pick one move only: <strong>publish the thesis essay this week.</strong> It is one hour of writing. It establishes priority. The SDK can ship two weeks later and inherit the framing.</p>
+  </div>
+</section>
+
+</div><!-- /.doc -->
+
+<!-- ──────────────────────── FOOTER ──────────────────────── -->
+<footer class="doc-footer">
+  <div class="end-mark">End of report</div>
+  <p>Performance figures verified against live Supabase tables 2026-05-02. Build 17.10 deployed to <a href="https://level9-governance.vercel.app">level9-governance.vercel.app</a> and verified by claim 4856d735 (PASS).</p>
+  <p>Companion documents: <a href="/governance/anti-lie-design.md">Original design memo</a>, <a href="/governance/anti-lie-market-research.md">Market research</a>, <a href="/governance/anti-lie-commandos-prompt.md">Commandos prompt</a>, <a href="/governance/backup-and-vault.html">Sibling chassis . LVL9-GOV-001</a>.</p>
+  <p>The Vault . Governance Chassis . Level9OS LLC . erichathaway@gmail.com</p>
+</footer>
+
+<script>
+// Sidenav active-section highlight on scroll
+(function() {
+  var navLinks = document.querySelectorAll('.sidenav a');
+  if (!navLinks.length) return;
+  var sections = Array.from(document.querySelectorAll('section[id]'));
+  function update() {
+    var pos = window.scrollY + 140;
+    var current = sections[0];
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i].offsetTop <= pos) current = sections[i];
+    }
+    navLinks.forEach(function(a) {
+      a.classList.toggle('active', a.getAttribute('href') === '#' + current.id);
+    });
+  }
+  window.addEventListener('scroll', update, { passive: true });
+  update();
+})();
+</script>
+</body>
+</html>

@@ -55,10 +55,10 @@ const PRIMARY_DOCS: DocCard[] = [
       "Keep the LLM out of court. Every \"done\" claim must register a deterministic verifier that reads canonical state — Vercel, GitHub, Supabase, the file system — and returns PASS, FAIL, or ERROR. No model. No probability.",
     description:
       "Eight-component product report. The 10 Laws, cmd_claims / cmd_verifications / cmd_law_violations data plane, the Stop hook chokepoint, the OPS-Lie-Watchdog n8n workflow, and the proxy layer for non-Claude-Code calls. Build 17.10. Sibling chassis to LVL9-GOV-001.",
-    primaryHref: "/governance/viewer.html?doc=anti-lie-report.md",
+    primaryHref: "/governance/anti-lie-report.html",
     primaryLabel: "View report",
-    secondaryHref: "/governance/viewer.html?doc=anti-lie-design.md",
-    secondaryLabel: "View original design",
+    secondaryHref: "/governance/anti-lie-report.md",
+    secondaryLabel: "Download .md",
     badges: [
       { label: "Build 17.10", tone: "vault" },
       { label: "Live", tone: "live" },
