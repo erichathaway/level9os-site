@@ -2414,7 +2414,7 @@ const CONTENT_POOL: PoolPrompt[] = [
   // Group A (continued): deep dives into new rich modules
   {
     id: "deep-products",
-    label: "Want the full product catalog — Core, Plugins, and Wrappers?",
+    label: "Want the full product catalog: Core, Plugins, and Wrappers?",
     group: "A",
     requiresModule: "products",
     opensModule: "products",
@@ -3039,7 +3039,7 @@ export default function ConversationHomepage() {
       if (freeTextCallCount.current >= MAX_FREE_TEXT_CALLS) {
         addMessage({ role: "user", content: trimmed });
         await agentSay(
-          "I'm hitting my limit on this thread. Want me to introduce you to someone? biz@erichathaway.com — Eric runs the product.",
+          "I'm hitting my limit on this thread. Want me to introduce you to someone? biz@erichathaway.com. Eric runs the product.",
           200
         );
         return;
@@ -4040,6 +4040,7 @@ const CSS = `
   }
   @media (max-width: 768px) {
     .hb-tab-close { opacity: 1; }
+    .hb-tab { min-height: 44px; }
   }
   .hb-empty-chips {
     display: flex;
@@ -4193,6 +4194,9 @@ const CSS = `
     text-align: left;
     transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
     font-family: inherit;
+  }
+  @media (max-width: 768px) {
+    .hb-reply { min-height: 44px; display: flex; align-items: center; }
   }
   .hb-reply:hover {
     background: rgba(139,92,246,0.09);
