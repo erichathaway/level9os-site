@@ -1941,7 +1941,7 @@ function CompareModule() {
 
 // ─── Walkthroughs module ──────────────────────────────────────────────────────
 
-// TODO: ElevenLabs voice render in operator's clone, pending approval.
+// Voice render: pending operator approval. Visual narrative is live.
 
 const WALKTHROUGH_SCENES = {
   "30s": [
@@ -2106,11 +2106,346 @@ const WALKTHROUGH_SCENES = {
 
 type WalkthroughId = "30s" | "1m30" | "5min";
 
+// ─── 30s scene visuals ────────────────────────────────────────────────────────
+
+function Wt30sScene0() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    const W = canvas.offsetWidth || 320;
+    const H = canvas.offsetHeight || 140;
+    canvas.width = W;
+    canvas.height = H;
+    let frame = 0;
+    let raf = 0;
+    const dots: { x: number; y: number; r: number; phase: number; isError: boolean }[] = Array.from({ length: 28 }, (_, i) => ({
+      x: 30 + (i % 7) * (W / 7) * 0.9,
+      y: 30 + Math.floor(i / 7) * 30,
+      r: 5,
+      phase: (i * 0.7) % (Math.PI * 2),
+      isError: i % 5 === 0,
+    }));
+    function draw() {
+      if (!ctx || !canvas) return;
+      ctx.clearRect(0, 0, W, H);
+      const t = frame / 60;
+      for (const d of dots) {
+        const pulse = 0.7 + 0.3 * Math.sin(t * 2.2 + d.phase);
+        ctx.beginPath();
+        ctx.arc(d.x, d.y, d.r * pulse, 0, Math.PI * 2);
+        if (d.isError) {
+          ctx.fillStyle = `rgba(239,68,68,${0.5 + 0.4 * pulse})`;
+        } else {
+          ctx.fillStyle = `rgba(100,116,139,${0.25 + 0.15 * pulse})`;
+        }
+        ctx.fill();
+      }
+      // label
+      ctx.font = "500 11px ui-monospace,monospace";
+      ctx.fillStyle = "rgba(239,68,68,0.7)";
+      ctx.fillText("~20% error rate  no governance layer", 10, H - 14);
+      frame++;
+      raf = requestAnimationFrame(draw);
+    }
+    raf = requestAnimationFrame(draw);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+  return <canvas ref={canvasRef} style={{ width: "100%", height: 140, display: "block" }} />;
+}
+
+function Wt30sScene1() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    const W = canvas.offsetWidth || 320;
+    const H = canvas.offsetHeight || 140;
+    canvas.width = W;
+    canvas.height = H;
+    let frame = 0;
+    let raf = 0;
+    let count = 0;
+    const target = 236;
+    function draw() {
+      if (!ctx || !canvas) return;
+      ctx.clearRect(0, 0, W, H);
+      // animate count up over ~90 frames
+      if (count < target && frame < 90) count = Math.round((frame / 90) * target);
+      else count = target;
+      // big stat
+      ctx.font = "800 54px system-ui,sans-serif";
+      ctx.fillStyle = "rgba(139,92,246,0.95)";
+      ctx.textAlign = "center";
+      ctx.fillText(String(count), W / 2, H / 2 + 14);
+      ctx.font = "500 11px ui-monospace,monospace";
+      ctx.fillStyle = "rgba(255,255,255,0.45)";
+      ctx.fillText("hours of operator time returned in 90 days", W / 2, H / 2 + 34);
+      // pulsing ring
+      const pulse = 0.5 + 0.5 * Math.sin(frame / 30);
+      ctx.beginPath();
+      ctx.arc(W / 2, H / 2, 52 + pulse * 4, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(139,92,246,${0.08 + pulse * 0.06})`;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.textAlign = "left";
+      frame++;
+      raf = requestAnimationFrame(draw);
+    }
+    raf = requestAnimationFrame(draw);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+  return <canvas ref={canvasRef} style={{ width: "100%", height: 140, display: "block" }} />;
+}
+
+function Wt30sScene2() {
+  // Show a compact 4-stat grid: the core product proof
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", padding: "8px 0" }}>
+      {[
+        { label: "Agents governed", val: "Any vendor", color: "#06b6d4" },
+        { label: "Control plane", val: "1 unified", color: "#8b5cf6" },
+        { label: "Deployment target", val: "10-50 people", color: "#10b981" },
+        { label: "Monthly cost", val: "$499/mo", color: "#f59e0b" },
+      ].map((s) => (
+        <div key={s.label} style={{ background: `${s.color}10`, border: `1px solid ${s.color}22`, borderRadius: 8, padding: "10px 12px" }}>
+          <div style={{ color: s.color, fontFamily: "ui-monospace,monospace", fontSize: "0.68rem", marginBottom: 2 }}>{s.label}</div>
+          <div style={{ color: "rgba(255,255,255,0.88)", fontSize: "0.95rem", fontWeight: 700 }}>{s.val}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function Wt30sScene3() {
+  return (
+    <div style={{ textAlign: "center", padding: "20px 0" }}>
+      <div style={{ fontSize: "2.2rem", fontWeight: 900, color: "#10b981", letterSpacing: "-0.03em", lineHeight: 1.1 }}>
+        level9os.com
+      </div>
+      <div style={{ marginTop: 12, fontSize: "0.78rem", color: "rgba(255,255,255,0.45)", fontFamily: "ui-monospace,monospace" }}>
+        Your first AI operating system. Or your last one.
+      </div>
+    </div>
+  );
+}
+
+// ─── 1:30 scene visuals ───────────────────────────────────────────────────────
+
+// All 1:30 scenes use the live ConsoleGraphicLite as the primary visual.
+// Each scene highlights a different aspect via the caption.
+function Wt1m30Visual() {
+  return (
+    <div style={{ pointerEvents: "none" }}>
+      <ConsoleGraphicLite />
+    </div>
+  );
+}
+
+// ─── 5min scene visuals ───────────────────────────────────────────────────────
+
+// Scenes 0-1: CompoundingRiskWalkthrough (scenes 0 and 1 from that component)
+// Scenes 2-5: DecisionTrace inline cycle
+// Scenes 6-7: StackFlow
+// Scene 8: ForgeCube (CTA)
+
+function Wt5minCompoundingMini({ forceScene }: { forceScene: number }) {
+  // Render CompoundingRiskWalkthrough but locked to a specific scene index
+  // We do this by rendering a limited version
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    const W = canvas.offsetWidth || 320;
+    const H = canvas.offsetHeight || 150;
+    canvas.width = W;
+    canvas.height = H;
+    let frame = 0;
+    let raf = 0;
+    const agentCount = forceScene === 0 ? 1 : 5;
+    const errorRate = forceScene === 0 ? 0.2 : 0.9;
+    const agents: { x: number; y: number; phase: number; errorPhase: number }[] = Array.from({ length: agentCount }, (_, i) => ({
+      x: W / 2 + Math.cos((i / agentCount) * Math.PI * 2) * (agentCount === 1 ? 0 : 70),
+      y: H / 2 + Math.sin((i / agentCount) * Math.PI * 2) * (agentCount === 1 ? 0 : 40),
+      phase: (i / agentCount) * Math.PI * 2,
+      errorPhase: Math.random() * Math.PI * 2,
+    }));
+    function draw() {
+      if (!ctx || !canvas) return;
+      ctx.clearRect(0, 0, W, H);
+      const t = frame / 60;
+      for (const a of agents) {
+        // agent body
+        ctx.beginPath();
+        ctx.arc(a.x, a.y, 16, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(100,116,139,0.35)";
+        ctx.fill();
+        ctx.strokeStyle = "rgba(100,116,139,0.6)";
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        // error dot orbiting
+        const isErrorActive = Math.sin(t * 1.8 + a.errorPhase) > (1 - errorRate * 2 - 1);
+        if (isErrorActive) {
+          const ex = a.x + Math.cos(t * 3 + a.phase) * 22;
+          const ey = a.y + Math.sin(t * 3 + a.phase) * 22;
+          ctx.beginPath();
+          ctx.arc(ex, ey, 4, 0, Math.PI * 2);
+          ctx.fillStyle = "rgba(239,68,68,0.85)";
+          ctx.fill();
+        }
+      }
+      // running error counter
+      const errCount = Math.round(errorRate * 100);
+      ctx.font = "700 28px system-ui,sans-serif";
+      ctx.fillStyle = `rgba(239,68,68,${0.75 + 0.2 * Math.sin(t * 2)})`;
+      ctx.textAlign = "right";
+      ctx.fillText(`${errCount}%`, W - 14, H - 14);
+      ctx.font = "500 10px ui-monospace,monospace";
+      ctx.fillStyle = "rgba(255,255,255,0.35)";
+      ctx.fillText("error rate", W - 14, H - 2);
+      ctx.textAlign = "left";
+      ctx.font = "500 10px ui-monospace,monospace";
+      ctx.fillStyle = "rgba(255,255,255,0.4)";
+      ctx.fillText(`${agentCount} agent${agentCount > 1 ? "s" : ""}  no governance`, 10, H - 14);
+      frame++;
+      raf = requestAnimationFrame(draw);
+    }
+    raf = requestAnimationFrame(draw);
+    return () => cancelAnimationFrame(raf);
+  }, [forceScene]);
+  return <canvas ref={canvasRef} style={{ width: "100%", height: 150, display: "block" }} />;
+}
+
+function Wt5minCompetitionGrid() {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 8, padding: "8px 0" }}>
+      {[
+        { name: "Microsoft Agent 365", cost: "~$1M/yr", color: "#64748b" },
+        { name: "Salesforce Agentforce", cost: "~$850K/yr", color: "#64748b" },
+        { name: "Workday ASOR", cost: "$500K/yr, HR only", color: "#64748b" },
+        { name: "Level9OS", cost: "$499/mo", color: "#10b981", highlight: true },
+      ].map((r) => (
+        <div key={r.name} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: r.highlight ? "#10b98112" : "#ffffff08", border: `1px solid ${r.highlight ? "#10b98130" : "#ffffff10"}`, borderRadius: 6, padding: "8px 12px" }}>
+          <span style={{ fontSize: "0.78rem", color: r.highlight ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.5)" }}>{r.name}</span>
+          <span style={{ fontSize: "0.78rem", fontWeight: 700, fontFamily: "ui-monospace,monospace", color: r.color }}>{r.cost}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function Wt5minNumbersGrid() {
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, padding: "8px 0" }}>
+      {[
+        { label: "Prevented rework (90 days)", val: "$52,686", color: "#06b6d4" },
+        { label: "Monthly prevented cost", val: "$17,562/mo", color: "#06b6d4" },
+        { label: "Operator time returned", val: "236 hrs", color: "#8b5cf6" },
+        { label: "Governance infra cost", val: "$5.07/mo", color: "#10b981" },
+      ].map((s) => (
+        <div key={s.label} style={{ background: `${s.color}10`, border: `1px solid ${s.color}22`, borderRadius: 8, padding: "10px 12px" }}>
+          <div style={{ color: s.color, fontFamily: "ui-monospace,monospace", fontSize: "0.62rem", marginBottom: 3 }}>{s.label}</div>
+          <div style={{ color: "rgba(255,255,255,0.9)", fontSize: "1.0rem", fontWeight: 800 }}>{s.val}</div>
+        </div>
+      ))}
+      <div style={{ gridColumn: "1 / -1", textAlign: "center", fontSize: "0.65rem", color: "rgba(255,255,255,0.28)", fontFamily: "ui-monospace,monospace" }}>
+        3,464x return ratio. Production data, 299 sessions, 90 days.
+      </div>
+    </div>
+  );
+}
+
+function Wt5minCtaVisual() {
+  return (
+    <div style={{ textAlign: "center", padding: "18px 0" }}>
+      <div style={{ fontSize: "2rem", fontWeight: 900, color: "#10b981", letterSpacing: "-0.03em", lineHeight: 1.1 }}>level9os.com</div>
+      <div style={{ marginTop: 8, fontSize: "0.75rem", color: "rgba(255,255,255,0.35)", fontFamily: "ui-monospace,monospace" }}>
+        We&apos;ll show you what&apos;s actually running.
+      </div>
+      <div style={{ marginTop: 16, display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
+        {["12 months", "18 months"].map((m) => (
+          <div key={m} style={{ background: "#f59e0b14", border: "1px solid #f59e0b28", borderRadius: 6, padding: "5px 12px", fontSize: "0.72rem", color: "#f59e0b", fontFamily: "ui-monospace,monospace" }}>{m}</div>
+        ))}
+        <div style={{ background: "#ef444414", border: "1px solid #ef444428", borderRadius: 6, padding: "5px 12px", fontSize: "0.72rem", color: "#ef4444", fontFamily: "ui-monospace,monospace" }}>window closing</div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Scene visual router ──────────────────────────────────────────────────────
+
+function WtSceneVisual({
+  walkthroughId,
+  sceneIdx,
+  dtActiveIdx,
+  dtPaused,
+  setDtActiveIdx,
+  setDtPaused,
+}: {
+  walkthroughId: WalkthroughId;
+  sceneIdx: number;
+  dtActiveIdx: number;
+  dtPaused: boolean;
+  setDtActiveIdx: (i: number) => void;
+  setDtPaused: (p: boolean) => void;
+}) {
+  if (walkthroughId === "30s") {
+    if (sceneIdx === 0) return <Wt30sScene0 />;
+    if (sceneIdx === 1) return <Wt30sScene1 />;
+    if (sceneIdx === 2) return <Wt30sScene2 />;
+    return <Wt30sScene3 />;
+  }
+
+  if (walkthroughId === "1m30") {
+    return <Wt1m30Visual />;
+  }
+
+  // 5min
+  if (sceneIdx <= 1) return <Wt5minCompoundingMini forceScene={sceneIdx} />;
+  if (sceneIdx === 2) return (
+    <DecisionTrace
+      activeIdx={dtActiveIdx}
+      setActiveIdx={setDtActiveIdx}
+      paused={dtPaused}
+      setPaused={setDtPaused}
+      inline
+    />
+  );
+  if (sceneIdx === 3) return <Wt5minCompetitionGrid />;
+  if (sceneIdx === 4) return <Wt5minNumbersGrid />;
+  if (sceneIdx === 5) return (
+    <DecisionTrace
+      activeIdx={dtActiveIdx}
+      setActiveIdx={setDtActiveIdx}
+      paused={dtPaused}
+      setPaused={setDtPaused}
+      inline
+    />
+  );
+  if (sceneIdx === 6) return (
+    <div style={{ pointerEvents: "none" }}>
+      <ConsoleGraphicLite />
+    </div>
+  );
+  if (sceneIdx === 7) return <Wt5minCompetitionGrid />;
+  return <Wt5minCtaVisual />;
+}
+
+// ─── WalkthroughPlayer ────────────────────────────────────────────────────────
+
 function WalkthroughPlayer({ id, onClose }: { id: WalkthroughId; onClose: () => void }) {
   const scenes = WALKTHROUGH_SCENES[id];
   const [scene, setScene] = useState(0);
   const [autoplay, setAutoplay] = useState(false);
-  const durations: Record<WalkthroughId, number> = { "30s": 7500, "1m30": 15000, "5min": 33000 };
+  const [dtActiveIdx, setDtActiveIdx] = useState(0);
+  const [dtPaused, setDtPaused] = useState(false);
+  const durations: Record<WalkthroughId, number> = { "30s": 7500, "1m30": 15000, "5min": 45000 };
   const sceneDuration = Math.round(durations[id] / scenes.length);
 
   useEffect(() => {
@@ -2128,37 +2463,30 @@ function WalkthroughPlayer({ id, onClose }: { id: WalkthroughId; onClose: () => 
       <div
         className="hb-wt-scene"
         key={scene}
-        style={{ background: `${current.bg}12`, borderColor: `${current.bg}30` }}
+        style={{ background: `${current.bg}0c`, borderColor: `${current.bg}22` }}
       >
         <div className="hb-wt-scene-label" style={{ color: current.bg }}>{current.label}</div>
-        <div className="hb-wt-headline" style={{ color: "rgba(255,255,255,0.92)" }}>{current.headline}</div>
-        <div className="hb-wt-body">{current.body}</div>
-        {/* Waveform placeholder */}
-        <div className="hb-wt-waveform-wrap">
-          <div className="hb-wt-waveform" style={{ borderColor: `${current.bg}25` }}>
-            {Array.from({ length: 20 }).map((_, i) => (
-              <div
-                key={i}
-                className="hb-wt-bar"
-                style={{
-                  height: `${10 + Math.abs(Math.sin(i * 0.9 + scene * 0.7)) * 22}px`,
-                  background: current.bg,
-                  animationDelay: `${i * 0.04}s`,
-                  animationPlayState: autoplay ? "running" : "paused",
-                }}
-              />
-            ))}
-          </div>
-          <div className="hb-wt-pending">Voice render pending operator approval</div>
+
+        {/* Motion visual: the story */}
+        <div className="hb-wt-visual">
+          <WtSceneVisual
+            walkthroughId={id}
+            sceneIdx={scene}
+            dtActiveIdx={dtActiveIdx}
+            dtPaused={dtPaused}
+            setDtActiveIdx={setDtActiveIdx}
+            setDtPaused={setDtPaused}
+          />
         </div>
-        {/* Caption */}
+
+        {/* Caption from voice pitch scripts */}
         <div className="hb-wt-caption">&ldquo;{current.caption}&rdquo;</div>
       </div>
 
       {/* Controls */}
       <div className="hb-wt-controls">
         <button className="hb-wt-nav" onClick={() => setScene((s) => Math.max(0, s - 1))} disabled={scene === 0}>
-          ←
+          &#8592;
         </button>
         <div className="hb-wt-dots">
           {scenes.map((_, i) => (
@@ -2171,21 +2499,21 @@ function WalkthroughPlayer({ id, onClose }: { id: WalkthroughId; onClose: () => 
           ))}
         </div>
         <button className="hb-wt-nav" onClick={() => setScene((s) => Math.min(scenes.length - 1, s + 1))} disabled={scene === scenes.length - 1}>
-          →
+          &#8594;
         </button>
         <button
           className="hb-wt-play"
           style={{ borderColor: `${current.bg}40`, color: current.bg }}
           onClick={() => setAutoplay(!autoplay)}
         >
-          {autoplay ? "■ Stop" : "▶ Auto-play"}
+          {autoplay ? "&#9646; Stop" : "&#9654; Auto-play"}
         </button>
       </div>
       <div className="hb-wt-progress">
         {scene + 1} / {scenes.length}
       </div>
 
-      <button className="hb-wt-close" onClick={onClose}>← Back to walkthroughs</button>
+      <button className="hb-wt-close" onClick={onClose}>&#8592; Back to walkthroughs</button>
     </div>
   );
 }
@@ -4503,40 +4831,12 @@ const CSS = `
     text-transform: uppercase;
     letter-spacing: 0.14em;
   }
-  .hb-wt-headline {
-    font-size: clamp(1.1rem, 2.8vw, 1.5rem);
-    font-weight: 900;
-    line-height: 1.2;
-    letter-spacing: -0.02em;
-  }
-  .hb-wt-body { font-size: 0.83rem; color: rgba(255,255,255,0.58); line-height: 1.6; }
-  .hb-wt-waveform-wrap {
-    display: flex;
-    flex-direction: column;
-    gap: 0.3rem;
+  .hb-wt-visual {
+    border-radius: 10px;
+    overflow: hidden;
+    background: rgba(0,0,0,0.18);
     margin: 0.25rem 0;
-  }
-  .hb-wt-waveform {
-    display: flex;
-    align-items: center;
-    gap: 2px;
-    height: 36px;
-    padding: 0.35rem 0.5rem;
-    border: 1px solid;
-    border-radius: 8px;
-    background: rgba(0,0,0,0.2);
-  }
-  .hb-wt-bar {
-    width: 3px;
-    border-radius: 2px;
-    opacity: 0.5;
-    animation: hbvoice-wave 0.8s ease-in-out infinite alternate;
-  }
-  .hb-wt-pending {
-    font-size: 0.58rem;
-    color: rgba(255,255,255,0.2);
-    font-style: italic;
-    font-family: ui-monospace,monospace;
+    min-height: 140px;
   }
   .hb-wt-caption {
     font-size: 0.76rem;
