@@ -882,6 +882,11 @@ export default function TheConversationHybrid() {
   const [lastGroupShown, setLastGroupShown] = useState<PoolGroup | undefined>(undefined);
   const lastVisitorActivity = useRef<number>(Date.now());
 
+  const [freeText, setFreeText] = useState("");
+  const [freeTextPending, setFreeTextPending] = useState(false);
+  const freeTextCallCount = useRef(0);
+  const MAX_FREE_TEXT_CALLS = 20;
+
   const feedRef = useRef<HTMLDivElement>(null);
   const hasInitialized = useRef(false);
   const threadId = useRef(makeId());
@@ -1101,6 +1106,140 @@ export default function TheConversationHybrid() {
     setPoolHistory((prev) => [...ids, ...prev].slice(0, 10));
     if (group) setLastGroupShown(group);
   }, []);
+
+  // ── Keyword router ────────────────────────────────────────────────────────────
+  const KEYWORD_MAP: Array<{ patterns: string[]; moduleId: ModuleId }> = [
+    { patterns: ["cost", "save", "saving", "pricing", "price"], moduleId: "calculator" },
+    { patterns: ["compare", "alternative", "versus", " vs ", "competitor"], moduleId: "comparison" },
+    { patterns: ["audit", "log", "trail", "events", "feed"], moduleId: "live-feed" },
+    { patterns: ["article", "read", "story", "case study"], moduleId: "article" },
+    { patterns: ["voice", "listen", "audio", "pitch"], moduleId: "voice-pitch" },
+    { patterns: ["number", "roi", "saving", "52686", "52,686"], moduleId: "counter" },
+    { patterns: ["wrapper", "outbound", "finance", "sales"], moduleId: "wrapper-story" },
+  ];
+
+  const keywordRoute = useCallback(
+    (input: string): ModuleId | null => {
+      const lower = input.toLowerCase();
+      for (const { patterns, moduleId } of KEYWORD_MAP) {
+        if (patterns.some((p) => lower.includes(p))) {
+          // Prefer unrevealed modules; if already open, still accept
+          return moduleId;
+        }
+      }
+      return null;
+    },
+    // KEYWORD_MAP is stable (module-level const)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  );
+
+  const handleFreeText = useCallback(
+    async (input: string) => {
+      const trimmed = input.trim();
+      if (!trimmed) return;
+      setFreeText("");
+      recordActivity();
+
+      // Check session limit
+      if (freeTextCallCount.current >= MAX_FREE_TEXT_CALLS) {
+        addMessage({ role: "user", content: trimmed });
+        await agentSay(
+          "I'm hitting my limit on this thread. Want me to introduce you to someone? biz@erichathaway.com — Eric runs the product.",
+          200
+        );
+        return;
+      }
+
+      // Check CTA intent
+      const ctaKeywords = ["talk to person", "human", "contact", "demo", "talk to a person"];
+      if (ctaKeywords.some((k) => trimmed.toLowerCase().includes(k))) {
+        addMessage({ role: "user", content: trimmed });
+        await agentSay(
+          "Contact Eric directly at biz@erichathaway.com. He runs the product. He is the customer. He can answer anything because he lived these numbers.",
+          200
+        );
+        return;
+      }
+
+      // Try keyword routing first
+      const routed = keywordRoute(trimmed);
+      if (routed) {
+        addMessage({ role: "user", content: trimmed });
+        if (closedTabs.includes(routed)) {
+          setClosedTabs((prev) => prev.filter((m) => m !== routed));
+        }
+        await agentSay(MODULE_META[routed].agentIntro, 200);
+        await revealModule(routed, visitorState);
+        return;
+      }
+
+      // Haiku fallback
+      addMessage({ role: "user", content: trimmed });
+      setFreeTextPending(true);
+      freeTextCallCount.current += 1;
+
+      try {
+        const res = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            message: trimmed,
+            thread_context: {
+              messages: messages.slice(-3).map((m) => ({ role: m.role, content: m.content })),
+              unlockedModules,
+            },
+          }),
+        });
+
+        setFreeTextPending(false);
+
+        if (!res.ok) {
+          await agentSay("I can't process free-text right now. Pick one of the suggested replies above.", 100);
+          return;
+        }
+
+        const data = await res.json();
+
+        if (data.error) {
+          await agentSay(data.error, 100);
+          return;
+        }
+
+        await agentSay(data.reply ?? "Good question. Let me think on that.", 100);
+
+        if (data.route_to_intake) {
+          await agentSay("Contact Eric at biz@erichathaway.com for a direct answer.", 300);
+          return;
+        }
+
+        if (data.suggested_module) {
+          // Map snake_case back to kebab-case ModuleId
+          const snakeToKebab: Record<string, ModuleId> = {
+            live_feed: "live-feed",
+            voice_pitch: "voice-pitch",
+            wrapper_story: "wrapper-story",
+            counter: "counter",
+            calculator: "calculator",
+            comparison: "comparison",
+            article: "article",
+          };
+          const targetId = snakeToKebab[data.suggested_module] ?? data.suggested_module as ModuleId;
+          if (MODULE_META[targetId]) {
+            if (closedTabs.includes(targetId)) {
+              setClosedTabs((prev) => prev.filter((m) => m !== targetId));
+            }
+            await revealModule(targetId, visitorState);
+          }
+        }
+      } catch {
+        setFreeTextPending(false);
+        await agentSay("I can't process free-text right now. Pick one of the suggested replies above.", 100);
+      }
+    },
+    [addMessage, agentSay, revealModule, messages, unlockedModules, visitorState,
+     closedTabs, keywordRoute, recordActivity]
+  );
 
   const handleReply = useCallback(
     async (replyId: string, replyLabel: string) => {
@@ -1337,16 +1476,37 @@ export default function TheConversationHybrid() {
               )}
             </div>
 
-            {!typing && suggestedReplies.length > 0 && (
-              <div className="hb-splash-replies">
-                <div className="hb-replies-label">Reply</div>
-                {suggestedReplies.map((r) => (
-                  <button key={r.id} className="hb-reply" onClick={() => handleReply(r.id, r.label)}>
-                    {r.label}
-                  </button>
-                ))}
+            <div className="hb-splash-replies">
+              {!typing && suggestedReplies.length > 0 && (
+                <>
+                  <div className="hb-replies-label">Reply</div>
+                  {suggestedReplies.map((r) => (
+                    <button key={r.id} className="hb-reply" onClick={() => handleReply(r.id, r.label)}>
+                      {r.label}
+                    </button>
+                  ))}
+                </>
+              )}
+              <div className="hb-freetext-row">
+                <input
+                  className="hb-freetext-input"
+                  type="text"
+                  placeholder="Type anything or pick above."
+                  value={freeText}
+                  onChange={(e) => setFreeText(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter" && !freeTextPending) handleFreeText(freeText); }}
+                  disabled={freeTextPending || typing}
+                />
+                <button
+                  className="hb-freetext-send"
+                  onClick={() => handleFreeText(freeText)}
+                  disabled={freeTextPending || typing || !freeText.trim()}
+                  aria-label="Send"
+                >
+                  {freeTextPending ? "..." : "↑"}
+                </button>
               </div>
-            )}
+            </div>
           </div>
           </FadeIn>
         </div>
@@ -1425,16 +1585,37 @@ export default function TheConversationHybrid() {
                 )}
               </div>
 
-              {!typing && suggestedReplies.length > 0 && (
-                <div className="hb-chat-replies">
-                  <div className="hb-replies-label">Reply</div>
-                  {suggestedReplies.map((r) => (
-                    <button key={r.id} className="hb-reply" onClick={() => handleReply(r.id, r.label)}>
-                      {r.label}
-                    </button>
-                  ))}
+              <div className="hb-chat-replies">
+                {!typing && suggestedReplies.length > 0 && (
+                  <>
+                    <div className="hb-replies-label">Reply</div>
+                    {suggestedReplies.map((r) => (
+                      <button key={r.id} className="hb-reply" onClick={() => handleReply(r.id, r.label)}>
+                        {r.label}
+                      </button>
+                    ))}
+                  </>
+                )}
+                <div className="hb-freetext-row">
+                  <input
+                    className="hb-freetext-input"
+                    type="text"
+                    placeholder="Type anything or pick above."
+                    value={freeText}
+                    onChange={(e) => setFreeText(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter" && !freeTextPending) handleFreeText(freeText); }}
+                    disabled={freeTextPending || typing}
+                  />
+                  <button
+                    className="hb-freetext-send"
+                    onClick={() => handleFreeText(freeText)}
+                    disabled={freeTextPending || typing || !freeText.trim()}
+                    aria-label="Send"
+                  >
+                    {freeTextPending ? "..." : "↑"}
+                  </button>
                 </div>
-              )}
+              </div>
 
               {isReturning && (
                 <div className="hb-returning-cta">
@@ -2331,6 +2512,47 @@ const CSS = `
     .hb-topbar { padding: 0.75rem 1rem; }
     .hb-panel-content { padding: 0.875rem; }
   }
+
+  /* ── Free-text input ── */
+  .hb-freetext-row {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 0.35rem;
+  }
+  .hb-freetext-input {
+    flex: 1;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 9px;
+    padding: 0.52rem 0.8rem;
+    color: rgba(255,255,255,0.82);
+    font-size: 0.76rem;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.15s ease;
+    box-sizing: border-box;
+  }
+  .hb-freetext-input::placeholder { color: rgba(255,255,255,0.22); }
+  .hb-freetext-input:focus { border-color: rgba(139,92,246,0.35); }
+  .hb-freetext-input:disabled { opacity: 0.45; }
+  .hb-freetext-send {
+    width: 30px; height: 30px;
+    border-radius: 8px;
+    background: rgba(139,92,246,0.14);
+    border: 1px solid rgba(139,92,246,0.28);
+    color: #8b5cf6;
+    font-size: 0.85rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.15s ease, opacity 0.15s ease;
+    font-family: inherit;
+  }
+  .hb-freetext-send:hover:not(:disabled) { background: rgba(139,92,246,0.26); }
+  .hb-freetext-send:disabled { opacity: 0.35; cursor: not-allowed; }
 
   /* ── Ambient orbs (splash background) ── */
   .hb-orb {
