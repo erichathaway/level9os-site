@@ -243,6 +243,8 @@ const SKIP_DEFAULT_TABS: ModuleId[] = ["counter", "calculator", "comparison", "a
 
 function CounterModule() {
   const [value, setValue] = useState(0);
+  const [burst, setBurst] = useState(false);
+  const [subVisible, setSubVisible] = useState(false);
   const TARGET = 52686;
 
   useEffect(() => {
@@ -254,46 +256,90 @@ function CounterModule() {
       const progress = Math.min(elapsed / duration, 1);
       const eased = 1 - Math.pow(1 - progress, 3);
       setValue(Math.round(eased * TARGET));
-      if (progress < 1) raf = requestAnimationFrame(tick);
+      if (progress >= 1) {
+        setBurst(true);
+        setTimeout(() => { setBurst(false); setSubVisible(true); }, 300);
+      } else {
+        raf = requestAnimationFrame(tick);
+      }
     }
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
   }, []);
 
   return (
-    <div className="hb-module-counter">
-      <div className="hbmc-number">${value.toLocaleString()}</div>
+    <div className="hb-module-counter" style={{ position: "relative", overflow: "visible" }}>
+      {/* Particle burst at peak */}
+      {burst && (
+        <div className="hbmc-burst" aria-hidden="true">
+          {Array.from({ length: 12 }).map((_, i) => (
+            <div
+              key={i}
+              className="hbmc-particle"
+              style={{ "--angle": `${i * 30}deg` } as React.CSSProperties}
+            />
+          ))}
+        </div>
+      )}
+      <div className="hbmc-number"
+        style={{ color: value >= TARGET ? "#ef4444" : "#8b5cf6", transition: "color 0.5s ease" }}
+      >
+        ${value.toLocaleString()}
+      </div>
       <div className="hbmc-label">Prevented in 90 days</div>
-      <div className="hbmc-stats">
-        <div className="hbmc-stat">
-          <span className="hbmc-sv">$5.07/mo</span>
-          <span className="hbmc-ss">infrastructure cost</span>
-        </div>
-        <div className="hbmc-divider" />
-        <div className="hbmc-stat">
-          <span className="hbmc-sv">3,464x</span>
-          <span className="hbmc-ss">ROI ratio</span>
-        </div>
-        <div className="hbmc-divider" />
-        <div className="hbmc-stat">
-          <span className="hbmc-sv">90 days</span>
-          <span className="hbmc-ss">real production data</span>
-        </div>
-      </div>
-      <div className="hbmc-breakdown">
-        {[
-          { cat: "Stop hook fires", n: "125 events", saved: "$10,834" },
-          { cat: "Mid-session reversals", n: "782 events", saved: "$26,361" },
-          { cat: "Flub events stopped", n: "46 events", saved: "$11,500" },
-          { cat: "Cost-router refusals", n: "44 events", saved: "$31" },
-        ].map((r) => (
-          <div key={r.cat} className="hbmc-bd-row">
-            <span className="hbmc-bd-cat">{r.cat}</span>
-            <span className="hbmc-bd-n">{r.n}</span>
-            <span className="hbmc-bd-saved">{r.saved}</span>
+      {subVisible && (
+        <div style={{ animation: "hb-fade-in 0.5s ease" }}>
+          <div className="hbmc-stats">
+            <div className="hbmc-stat">
+              <span className="hbmc-sv">$5.07/mo</span>
+              <span className="hbmc-ss">infrastructure cost</span>
+            </div>
+            <div className="hbmc-divider" />
+            <div className="hbmc-stat">
+              <span className="hbmc-sv">3,464x</span>
+              <span className="hbmc-ss">ROI ratio</span>
+            </div>
+            <div className="hbmc-divider" />
+            <div className="hbmc-stat">
+              <span className="hbmc-sv">90 days</span>
+              <span className="hbmc-ss">real production data</span>
+            </div>
           </div>
-        ))}
-      </div>
+          <div className="hbmc-breakdown">
+            {[
+              { cat: "Stop hook fires", n: "125 events", saved: "$10,834" },
+              { cat: "Mid-session reversals", n: "782 events", saved: "$26,361" },
+              { cat: "Flub events stopped", n: "46 events", saved: "$11,500" },
+              { cat: "Cost-router refusals", n: "44 events", saved: "$31" },
+            ].map((r, i) => (
+              <div key={r.cat} className="hbmc-bd-row"
+                style={{ animation: `hb-fade-in 0.4s ease ${i * 0.1}s both` }}>
+                <span className="hbmc-bd-cat">{r.cat}</span>
+                <span className="hbmc-bd-n">{r.n}</span>
+                <span className="hbmc-bd-saved">{r.saved}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      {!subVisible && (
+        <div className="hbmc-stats">
+          <div className="hbmc-stat">
+            <span className="hbmc-sv">$5.07/mo</span>
+            <span className="hbmc-ss">infrastructure cost</span>
+          </div>
+          <div className="hbmc-divider" />
+          <div className="hbmc-stat">
+            <span className="hbmc-sv">3,464x</span>
+            <span className="hbmc-ss">ROI ratio</span>
+          </div>
+          <div className="hbmc-divider" />
+          <div className="hbmc-stat">
+            <span className="hbmc-sv">90 days</span>
+            <span className="hbmc-ss">real production data</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -338,7 +384,31 @@ function CalculatorModule({
       <button onClick={calculate} className="hbcalc-btn">Calculate</button>
       {result && (
         <div className="hbcalc-result">
-          <div className="hbcalc-r-row">
+          {/* Animated bar visualization */}
+          <div className="hbcalc-bars">
+            {[
+              { label: "Prevented / mo", value: result.prevented, max: Math.max(result.prevented, 10000), color: "#ef4444", prefix: "$", suffix: "" },
+              { label: "Hours returned / mo", value: result.hoursMonthly, max: Math.max(result.hoursMonthly, 10), color: "#06b6d4", prefix: "", suffix: " hrs" },
+              { label: "ROI ratio", value: Math.min(result.roiRatio, 9999), max: Math.max(result.roiRatio, 1000), color: "#8b5cf6", prefix: "", suffix: "x" },
+            ].map((bar) => {
+              const pct = Math.min((bar.value / bar.max) * 100, 100);
+              return (
+                <div key={bar.label} className="hbcalc-bar-row">
+                  <div className="hbcalc-bar-label">{bar.label}</div>
+                  <div className="hbcalc-bar-track">
+                    <div
+                      className="hbcalc-bar-fill"
+                      style={{ width: `${pct}%`, background: bar.color, boxShadow: `0 0 8px ${bar.color}60` }}
+                    />
+                  </div>
+                  <div className="hbcalc-bar-val" style={{ color: bar.color }}>
+                    {bar.prefix}{typeof bar.value === "number" && bar.value > 999 ? bar.value.toLocaleString() : bar.value}{bar.suffix}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <div className="hbcalc-r-row" style={{ marginTop: "0.75rem" }}>
             <span className="hbcalc-r-label">Projected monthly savings</span>
             <span className="hbcalc-r-val">${result.prevented.toLocaleString()}</span>
           </div>
@@ -419,28 +489,42 @@ const VERDICT_COLORS: Record<string, { color: string; bg: string }> = {
 function LiveFeedModule() {
   const [visible, setVisible] = useState(3);
   const [total, setTotal] = useState(1284.29);
+  const [animating, setAnimating] = useState<number | null>(null);
 
   useEffect(() => {
     if (visible >= FEED_EVENTS.length) return;
     const t = setTimeout(() => {
+      setAnimating(visible);
       setVisible((v) => v + 1);
       setTotal((t) => t + (FEED_EVENTS[visible]?.saved ?? 0));
+      setTimeout(() => setAnimating(null), 300);
     }, 1100);
     return () => clearTimeout(t);
   }, [visible]);
+
+  // Timestamp simulation
+  const now = Date.now();
 
   return (
     <div className="hb-module-feed">
       <div className="hbfeed-header">
         <span className="hbfeed-label">Live audit trail</span>
-        <span className="hbfeed-total">${total.toFixed(2)} saved this session</span>
+        <span className="hbfeed-total" style={{ animation: "hbfeed-tick 0.3s ease" }}>${total.toFixed(2)} saved this session</span>
       </div>
       <div className="hbfeed-list">
         {FEED_EVENTS.slice(0, visible).map((ev, i) => {
           const vc = VERDICT_COLORS[ev.verdict] ?? VERDICT_COLORS.ALLOWED;
+          const isNew = i === visible - 1 && animating === i;
+          const tsOffset = (visible - 1 - i) * 47 * 1000;
+          const ts = new Date(now - tsOffset);
+          const tsStr = `${ts.getHours().toString().padStart(2, "0")}:${ts.getMinutes().toString().padStart(2, "0")}:${ts.getSeconds().toString().padStart(2, "0")}`;
           return (
-            <div key={i} className="hbfeed-event">
-              <span className="hbfeed-verdict" style={{ color: vc.color, background: vc.bg }}>
+            <div key={i} className="hbfeed-event" style={{ animation: isNew ? "hbfeed-enter 0.3s cubic-bezier(0.16,1,0.3,1)" : undefined }}>
+              <span className="hbfeed-ts">{tsStr}</span>
+              <span
+                className={`hbfeed-verdict ${ev.verdict === "BLOCKED" ? "hbfeed-verdict-blocked" : ev.verdict === "REROUTED" ? "hbfeed-verdict-rerouted" : ""}`}
+                style={{ color: vc.color, background: vc.bg, animation: isNew && ev.verdict === "BLOCKED" ? "hbfeed-stamp 0.15s cubic-bezier(0.16,1,0.3,1)" : undefined }}
+              >
                 {ev.verdict}
               </span>
               <span className="hbfeed-action">{ev.action}</span>
@@ -769,6 +853,138 @@ function ProductsModule() {
   );
 }
 
+// ─── Vault orbital component ──────────────────────────────────────────────────
+
+const ORBIT_GROUPS = [
+  {
+    label: "Truth Enforcement",
+    color: "#ef4444",
+    radius: 70,
+    speed: 18,
+    icons: ["⚑", "✓", "⊘", "∞"],
+  },
+  {
+    label: "Budget + Cost Control",
+    color: "#f59e0b",
+    radius: 110,
+    speed: 28,
+    icons: ["$", "≤", "⊕", "◎"],
+  },
+  {
+    label: "Identity + Access",
+    color: "#8b5cf6",
+    radius: 152,
+    speed: 40,
+    icons: ["⌗", "🔒", "⊞", "●", "◈"],
+  },
+];
+
+function VaultOrbit() {
+  const [hovered, setHovered] = useState(false);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const rafRef = useRef<number>(0);
+  const startRef = useRef<number>(Date.now());
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const SIZE = 320;
+    canvas.width = SIZE;
+    canvas.height = SIZE;
+    const cx = SIZE / 2;
+    const cy = SIZE / 2;
+
+    const draw = () => {
+      ctx.clearRect(0, 0, SIZE, SIZE);
+      const elapsed = (Date.now() - startRef.current) / 1000;
+      const slowFactor = hovered ? 0.15 : 1;
+
+      // Vault core
+      const pulse = 0.85 + Math.sin(elapsed * 2) * 0.07;
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(cx, cy, 28 * pulse, 0, Math.PI * 2);
+      const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, 28 * pulse);
+      grad.addColorStop(0, "rgba(239,68,68,0.35)");
+      grad.addColorStop(1, "rgba(239,68,68,0.06)");
+      ctx.fillStyle = grad;
+      ctx.fill();
+      // Vault icon
+      ctx.fillStyle = "rgba(239,68,68,0.9)";
+      ctx.font = "bold 13px ui-monospace,monospace";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("⊙", cx, cy);
+      ctx.restore();
+
+      // Orbits
+      ORBIT_GROUPS.forEach((group) => {
+        const angle0 = (elapsed * (Math.PI * 2)) / (group.speed * slowFactor);
+
+        // Orbit ring
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(cx, cy, group.radius, 0, Math.PI * 2);
+        ctx.strokeStyle = `${group.color}20`;
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        ctx.restore();
+
+        // Icons
+        group.icons.forEach((icon, j) => {
+          const a = angle0 + (j * Math.PI * 2) / group.icons.length;
+          const x = cx + Math.cos(a) * group.radius;
+          const y = cy + Math.sin(a) * group.radius;
+
+          // Glow
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(x, y, 11, 0, Math.PI * 2);
+          const g = ctx.createRadialGradient(x, y, 0, x, y, 11);
+          g.addColorStop(0, `${group.color}30`);
+          g.addColorStop(1, "transparent");
+          ctx.fillStyle = g;
+          ctx.fill();
+
+          // Icon
+          ctx.fillStyle = group.color;
+          ctx.font = "10px ui-monospace,monospace";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(icon, x, y);
+          ctx.restore();
+        });
+      });
+
+      rafRef.current = requestAnimationFrame(draw);
+    };
+
+    rafRef.current = requestAnimationFrame(draw);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [hovered]);
+
+  return (
+    <div
+      className="hb-vault-orbit"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <canvas ref={canvasRef} style={{ width: "100%", maxWidth: 320, height: "auto", cursor: "pointer" }} />
+      <div className="hb-vault-label">The Vault</div>
+      <div className="hb-vault-sublabel">
+        {ORBIT_GROUPS.map((g) => (
+          <span key={g.label} style={{ color: g.color }}>
+            {g.label}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ─── Governance module ─────────────────────────────────────────────────────────
 
 const VAULT_RED = "#ef4444";
@@ -822,6 +1038,8 @@ function GovernanceModule() {
       <div className="hb-rich-eyebrow" style={{ color: VAULT_RED }}>The Vault · Governance Chassis</div>
       <h2 className="hb-rich-headline">You see the AI agent.<br />You don&apos;t see what it&apos;s doing.</h2>
       <p className="hb-rich-sub" style={{ color: `${VAULT_RED}cc` }}>Level9OS makes the invisible visible.</p>
+      {/* Vault orbital diagram */}
+      <VaultOrbit />
       <ul style={{ listStyle: "none", padding: 0, margin: "0 0 1.25rem", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
         {[
           "Every action logged. Not summarized. Logged.",
@@ -3467,6 +3685,116 @@ const CSS = `
     background: rgba(139,92,246,0.09);
     border-color: rgba(139,92,246,0.28);
     color: rgba(255,255,255,0.88);
+  }
+
+  /* ── Vault orbit ── */
+  .hb-vault-orbit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0.25rem 0 0.5rem;
+  }
+  .hb-vault-label {
+    font-size: 0.62rem;
+    font-family: ui-monospace,monospace;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(239,68,68,0.6);
+  }
+  .hb-vault-sublabel {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+    font-size: 0.58rem;
+    font-family: ui-monospace,monospace;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.6;
+  }
+  .hb-vault-sublabel span { display: flex; align-items: center; gap: 0.25rem; }
+  .hb-vault-sublabel span::before { content: "●"; font-size: 0.5rem; }
+
+  /* ── Calculator bars ── */
+  .hbcalc-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+    margin-bottom: 0.25rem;
+  }
+  .hbcalc-bar-row { display: flex; align-items: center; gap: 0.5rem; }
+  .hbcalc-bar-label { font-size: 0.65rem; color: rgba(255,255,255,0.38); min-width: 120px; flex-shrink: 0; }
+  .hbcalc-bar-track {
+    flex: 1;
+    height: 6px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .hbcalc-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.6s cubic-bezier(0.16,1,0.3,1);
+  }
+  .hbcalc-bar-val {
+    font-size: 0.7rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    min-width: 60px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  /* ── Live Feed timestamps + stamp animations ── */
+  .hbfeed-ts {
+    font-family: ui-monospace,monospace;
+    font-size: 0.58rem;
+    color: rgba(255,255,255,0.22);
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+  @keyframes hbfeed-enter {
+    from { opacity: 0; transform: translateX(-6px); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes hbfeed-stamp {
+    0% { transform: scale(1.25); }
+    100% { transform: scale(1); }
+  }
+  @keyframes hbfeed-tick {
+    0% { transform: scale(1.08); }
+    100% { transform: scale(1); }
+  }
+
+  /* ── Counter particle burst ── */
+  .hbmc-burst {
+    position: absolute;
+    top: 1.5rem; left: 2rem;
+    pointer-events: none;
+    z-index: 10;
+  }
+  .hbmc-particle {
+    position: absolute;
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: #ef4444;
+    animation: hbmc-particle-fly 0.45s cubic-bezier(0.16,1,0.3,1) forwards;
+    transform-origin: 0 0;
+    rotate: var(--angle);
+  }
+  @keyframes hbmc-particle-fly {
+    from { opacity: 1; transform: translateY(0) scale(1); }
+    to { opacity: 0; transform: translateY(-60px) scale(0.3); }
+  }
+
+  /* ── Reduced motion overrides ── */
+  @media (prefers-reduced-motion: reduce) {
+    .hb-orb, .hbvoice-bar, .hbmc-particle, .hb-module-reveal,
+    .hbfeed-enter, .hbfeed-stamp, .hb-module-icons-row .hb-module-icon-chip {
+      animation: none !important;
+    }
+    .hbcalc-bar-fill { transition: none !important; }
   }
 
   /* ── Counter module ── */
