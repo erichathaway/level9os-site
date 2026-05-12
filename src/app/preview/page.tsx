@@ -10,13 +10,24 @@ import { FadeIn } from "@level9/brand/components/motion";
 
 const CONVERSATION_VARIANTS = [
   {
+    id: "the-conversation-hybrid",
+    name: "Hybrid",
+    tagline: "Starts as a centered chat splash. Transitions to dashboard when content demands it. Three visitor states.",
+    pitch: "Fresh visit: centered splash, transitions on first rich module request. Return visit: lands directly in dashboard. Skipped: pre-surfaced tabs, chat collapsed.",
+    href: "/preview/the-conversation-hybrid",
+    color: "#8b5cf6",
+    rgb: "139,92,246",
+    badge: "NEW",
+    isNew: true,
+  },
+  {
     id: "the-conversation-pure",
     name: "Chat-Only",
     tagline: "Modules render inline inside the chat thread. Scroll up to revisit any past module.",
     pitch: "Single-column chat takes the entire viewport. The chat history IS the navigation. No tabs, no right panel.",
     href: "/preview/the-conversation-pure",
-    color: "#8b5cf6",
-    rgb: "139,92,246",
+    color: "#6366f1",
+    rgb: "99,102,241",
     badge: "Chat-Only",
   },
   {
@@ -25,8 +36,8 @@ const CONVERSATION_VARIANTS = [
     tagline: "Chat on the left, active module on the right. Tabs let you revisit any unlocked module.",
     pitch: "Two-column layout. Chat drives unlocking. Right panel shows the active module. Tab strip at top for navigation.",
     href: "/preview/the-conversation-tabs",
-    color: "#6366f1",
-    rgb: "99,102,241",
+    color: "#a78bfa",
+    rgb: "167,139,250",
     badge: "Chat + Panel",
   },
 ];
@@ -478,11 +489,29 @@ export default function PreviewIndex() {
         }
         .pi-test-grid {
           display: grid;
-          grid-template-columns: repeat(2, minmax(0, 1fr));
+          grid-template-columns: repeat(3, minmax(0, 1fr));
           gap: 0.875rem;
+        }
+        @media (max-width: 860px) {
+          .pi-test-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         }
         @media (max-width: 600px) {
           .pi-test-grid { grid-template-columns: minmax(0, 1fr); }
+        }
+        .pi-test-card-new {
+          display: inline-flex;
+          align-items: center;
+          font-family: ui-monospace, SFMono-Regular, monospace;
+          font-size: 0.58rem;
+          letter-spacing: 0.16em;
+          text-transform: uppercase;
+          color: #fff;
+          background: rgba(139,92,246,0.85);
+          border-radius: 4px;
+          padding: 0.18rem 0.5rem;
+          font-weight: 700;
+          margin-left: 0.4rem;
+          vertical-align: middle;
         }
         .pi-test-card {
           background: rgba(255,255,255,0.03);
@@ -569,10 +598,10 @@ export default function PreviewIndex() {
         <div className="pi-test-banner">
           <div className="pi-test-banner-label">
             <span className="pi-test-star">&#x2605;</span>
-            <span className="pi-test-heading">Currently testing: pick the navigation pattern</span>
+            <span className="pi-test-heading">Currently testing: three Conversation variants</span>
           </div>
           <p className="pi-test-sub">
-            Same content. Same modules. Same agent voice. Only the shell pattern differs. Which one works better?
+            Same content. Same modules. Same agent voice. Three variants: splash-to-dashboard transition (new), chat-only inline, and split-panel tabs. Which pattern converts?
           </p>
           <div className="pi-test-grid">
             {CONVERSATION_VARIANTS.map((v) => (
@@ -581,7 +610,12 @@ export default function PreviewIndex() {
                 className="pi-test-card"
                 style={{ "--tc-color": v.color, "--tc-rgb": v.rgb } as React.CSSProperties}
               >
-                <span className="pi-test-card-badge">{v.badge}</span>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
+                  <span className="pi-test-card-badge">{v.badge}</span>
+                  {(v as typeof v & { isNew?: boolean }).isNew && (
+                    <span className="pi-test-card-new">&#x2605; NEW</span>
+                  )}
+                </div>
                 <div className="pi-test-card-name">{v.name}</div>
                 <div className="pi-test-card-tagline">{v.tagline}</div>
                 <a href={v.href} className="pi-test-card-cta">
