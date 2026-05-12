@@ -2328,6 +2328,13 @@ export default function ConversationHomepage() {
             calculator: "calculator",
             comparison: "comparison",
             article: "article",
+            products: "products",
+            governance: "governance",
+            paths: "paths",
+            wrappers: "wrappers",
+            about: "about",
+            architecture: "architecture",
+            compare: "compare",
           };
           const targetId = snakeToKebab[data.suggested_module] ?? data.suggested_module as ModuleId;
           if (MODULE_META[targetId]) {
