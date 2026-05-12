@@ -18,6 +18,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { CursorGradient, FadeIn } from "@level9/brand/components/motion";
 import { SearchPalette, type PaletteItem } from "@/components/SearchPalette";
 import ConsoleGraphicLite from "@/app/_components/ConsoleGraphicLite";
+import { ForgeCube, type ForgeProduct } from "@level9/brand/components/architecture";
 import { products } from "@level9/brand/content/products";
 import { pressurePoints, chassis, installManual } from "@level9/brand/content/pressurePoints";
 import { stack } from "@level9/brand/content/stack";
@@ -801,6 +802,16 @@ function ProductsModule() {
       <h2 className="hb-rich-headline">The full product catalog.</h2>
       <p className="hb-rich-sub">Level9OS Core is the platform. Plugins extend it. Department Wrappers put it to work inside a business function.</p>
 
+      {/* ForgeCube hero — 6 faces: full product roster */}
+      <div style={{ width: "100%", maxWidth: 480, margin: "0 auto 1.25rem", aspectRatio: "1", minHeight: 260 }}>
+        <ForgeCube
+          products={PRODUCTS_CUBE_PRODUCTS}
+          skipDust={false}
+          showPopup={true}
+          className="products-cube"
+        />
+      </div>
+
       {/* Tier 1: Core */}
       <div className="hb-rich-section-label" style={{ color: "#8b5cf6" }}>Tier 1: Level9OS Core</div>
       <div className="hb-rich-stack">
@@ -1261,6 +1272,160 @@ function PathsModule() {
   );
 }
 
+// ─── ForgeCube product data ────────────────────────────────────────────────────
+
+// 6 faces for the Wrappers module — OutboundOS + 5 planned department wrappers
+const WRAPPERS_CUBE_PRODUCTS: ForgeProduct[] = [
+  {
+    id: "outboundos",
+    name: "OutboundOS",
+    short: "Live. 30 workflows.",
+    color: "#f59e0b",
+    rgb: [245, 158, 11],
+    icon: "O",
+    specs: ["LinkupOS + ABM Engine + AutoCS", "30 n8n workflows", "Fully autonomous"],
+    stack: ["n8n NAS", "Postgres", "Apollo API"],
+    role: "Outbound execution pod",
+    side: "right",
+  },
+  {
+    id: "abm-engine",
+    name: "ABM Engine",
+    short: "Live. Multi-channel.",
+    color: "#fb923c",
+    rgb: [251, 146, 60],
+    icon: "A",
+    specs: ["Company in, campaign out", "ICP fit scoring", "Voice-calibrated"],
+    stack: ["Apollo", "LinkedIn API", "Claude Sonnet"],
+    role: "Account-based outbound",
+    side: "left",
+  },
+  {
+    id: "autocs",
+    name: "AutoCS",
+    short: "Alpha.",
+    color: "#f97316",
+    rgb: [249, 115, 22],
+    icon: "Q",
+    specs: ["Ticket triage", "Escalation routing", "Churn signal detection"],
+    stack: ["Postgres triggers", "CommandOS", "Slack"],
+    role: "Customer service automation",
+    side: "right",
+  },
+  {
+    id: "financeos",
+    name: "FinanceOS",
+    short: "Coming.",
+    color: "#06b6d4",
+    rgb: [6, 182, 212],
+    icon: "F",
+    specs: ["AP/AR automation", "Budget monitoring", "Period-close orchestration"],
+    stack: ["Plaid", "QuickBooks API", "Postgres"],
+    role: "Finance department wrapper",
+    side: "left",
+  },
+  {
+    id: "salesos",
+    name: "SalesOS",
+    short: "Coming.",
+    color: "#8b5cf6",
+    rgb: [139, 92, 246],
+    icon: "S",
+    specs: ["Pipeline hygiene", "Deal scoring", "CRM auto-update"],
+    stack: ["HubSpot API", "Salesforce", "Claude"],
+    role: "Sales department wrapper",
+    side: "right",
+  },
+  {
+    id: "executionos",
+    name: "ExecutionOS",
+    short: "Coming.",
+    color: "#10b981",
+    rgb: [16, 185, 129],
+    icon: "E",
+    specs: ["Sprint coordination", "Dependency tracking", "Team throughput"],
+    stack: ["Linear", "Jira API", "Postgres"],
+    role: "Execution department wrapper",
+    side: "left",
+  },
+];
+
+// 6 faces for the Products module — canonical product roster
+const PRODUCTS_CUBE_PRODUCTS: ForgeProduct[] = [
+  {
+    id: "stratos",
+    name: "StratOS",
+    short: "AI decision rooms.",
+    color: "#8b5cf6",
+    rgb: [139, 92, 246],
+    icon: "S",
+    specs: ["10 AI executives", "3-round debate", "$5.89/run"],
+    stack: ["Claude Sonnet", "GPT-4o", "n8n"],
+    role: "Executive decision orchestration",
+    side: "right",
+  },
+  {
+    id: "commandos",
+    name: "CommandOS",
+    short: "Fleet orchestration.",
+    color: "#10b981",
+    rgb: [16, 185, 129],
+    icon: "C",
+    specs: ["48 domain officers", "3 gates", "22 workflows"],
+    stack: ["n8n NAS", "Supabase", "Claude"],
+    role: "AI middle management",
+    side: "left",
+  },
+  {
+    id: "outboundos-p",
+    name: "OutboundOS",
+    short: "Autonomous outbound.",
+    color: "#f59e0b",
+    rgb: [245, 158, 11],
+    icon: "O",
+    specs: ["30 workflows live", "3 sub-pods", "Zero human ops"],
+    stack: ["n8n NAS", "Apollo", "ElevenLabs"],
+    role: "Outbound department wrapper",
+    side: "right",
+  },
+  {
+    id: "lucidorg",
+    name: "LucidORG",
+    short: "ECI measurement.",
+    color: "#06b6d4",
+    rgb: [6, 182, 212],
+    icon: "L",
+    specs: ["4 pillars, 11 metrics", "0-1000 ECI score", "37 levers"],
+    stack: ["Postgres", "Next.js", "Supabase"],
+    role: "Measurement platform",
+    side: "left",
+  },
+  {
+    id: "playbook",
+    name: "COO Playbook",
+    short: "30/90/180 install.",
+    color: "#64748b",
+    rgb: [100, 116, 139],
+    icon: "P",
+    specs: ["8 operating domains", "Alignment cycle", "Field-tested"],
+    stack: ["thenewcoo.com", "PDF + Notion"],
+    role: "Operating methodology",
+    side: "right",
+  },
+  {
+    id: "max",
+    name: "MAX",
+    short: "Voice interface.",
+    color: "#ec4899",
+    rgb: [236, 72, 153],
+    icon: "M",
+    specs: ["Real-time voice ops", "ElevenLabs voices", "Haiku routing"],
+    stack: ["ElevenLabs", "Claude Haiku", "WebRTC"],
+    role: "AI voice operator",
+    side: "left",
+  },
+];
+
 // ─── Wrappers module ───────────────────────────────────────────────────────────
 
 const OUTBOUND_PODS_DATA = [
@@ -1289,6 +1454,17 @@ function WrappersModule() {
       <div className="hb-rich-eyebrow" style={{ color: "#f59e0b" }}>Department Wrappers</div>
       <h2 className="hb-rich-headline">Department-level AI. Already running.</h2>
       <p className="hb-rich-sub">OutboundOS proved the pattern. Every department runs the same way: autonomous pods, shared governance, one human manager, zero daily intervention.</p>
+
+      {/* ForgeCube hero — 6 faces: OutboundOS + 5 department wrappers */}
+      <div style={{ width: "100%", maxWidth: 480, margin: "0 auto 1.25rem", aspectRatio: "1", minHeight: 260 }}>
+        <ForgeCube
+          products={WRAPPERS_CUBE_PRODUCTS}
+          skipDust={true}
+          showPopup={true}
+          className="wrappers-cube"
+        />
+      </div>
+
       <ul style={{ listStyle: "none", padding: 0, margin: "0 0 1.25rem", display: "flex", flexDirection: "column", gap: "0.35rem" }}>
         {PATTERN_POINTS_DATA.map((point) => (
           <li key={point} style={{ display: "flex", alignItems: "flex-start", gap: "0.5rem", fontSize: "0.8rem", color: "rgba(255,255,255,0.65)" }}>
