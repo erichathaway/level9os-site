@@ -8,11 +8,20 @@
  *   State 2 — Return visit (< 30 days): lands directly in dashboard, thread
  *             restored
  *   State 3 — Skipped splash: lands in dashboard with pre-surfaced tabs
+ *
+ * Phase A: Rich modules added (Products, Governance, Paths, Wrappers, About,
+ *          Architecture, Compare) holding full content from former routed pages.
+ * Phase B: URL deep-linking via ?surface= param.
  */
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { CursorGradient, FadeIn } from "@level9/brand/components/motion";
 import { SearchPalette, type PaletteItem } from "@/components/SearchPalette";
+import { products } from "@level9/brand/content/products";
+import { pressurePoints, chassis, installManual } from "@level9/brand/content/pressurePoints";
+import { stack } from "@level9/brand/content/stack";
+import { domainByTitle } from "@level9/brand/content/playbookDomains";
+import { partners, learningCapabilities } from "@/data/partners";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -23,7 +32,14 @@ type ModuleId =
   | "live-feed"
   | "comparison"
   | "voice-pitch"
-  | "wrapper-story";
+  | "wrapper-story"
+  | "products"
+  | "governance"
+  | "paths"
+  | "wrappers"
+  | "about"
+  | "architecture"
+  | "compare";
 
 type PoolGroup = "A" | "B" | "C" | "D" | "E";
 
@@ -136,6 +152,48 @@ const MODULE_META: Record<
     suggestedReply: "What is OutboundOS?",
     agentIntro: "OutboundOS is the first wrapper on this governance layer. Here is the roadmap.",
   },
+  products: {
+    label: "Products",
+    icon: "P",
+    suggestedReply: "Show me the products",
+    agentIntro: "Full product catalog. Three tiers: Core, Plugins, Department Wrappers.",
+  },
+  governance: {
+    label: "Governance",
+    icon: "G",
+    suggestedReply: "Tell me about governance",
+    agentIntro: "Opening The Vault. Every action logged. Every dollar tracked. No agent self-approves.",
+  },
+  paths: {
+    label: "Work With Us",
+    icon: "W",
+    suggestedReply: "How do I get started?",
+    agentIntro: "Three entry points. Startup, Growth, Enterprise. Same governance chassis, different starting point.",
+  },
+  wrappers: {
+    label: "Wrappers",
+    icon: "Wr",
+    suggestedReply: "Tell me about department wrappers",
+    agentIntro: "OutboundOS proved the pattern. Here is the full wrapper architecture.",
+  },
+  about: {
+    label: "About",
+    icon: "Ab",
+    suggestedReply: "Who built this?",
+    agentIntro: "20+ years of executive operating leadership. 6 continents. Here is the full story.",
+  },
+  architecture: {
+    label: "Architecture",
+    icon: "Ar",
+    suggestedReply: "What is your architecture?",
+    agentIntro: "Four pressure points, eight operating layers, eight playbook domains. Full taxonomy.",
+  },
+  compare: {
+    label: "Compare",
+    icon: "Cm",
+    suggestedReply: "Compare to alternatives",
+    agentIntro: "Mapped 70+ vendors across 8 capability layers. Seven real competitors. Honest read on each.",
+  },
 };
 
 const MODULE_ORDER: ModuleId[] = [
@@ -146,6 +204,13 @@ const MODULE_ORDER: ModuleId[] = [
   "comparison",
   "voice-pitch",
   "wrapper-story",
+  "products",
+  "governance",
+  "paths",
+  "wrappers",
+  "about",
+  "architecture",
+  "compare",
 ];
 
 // Per-module accent colors from brand palette
@@ -157,6 +222,13 @@ const MODULE_COLOR: Record<ModuleId, string> = {
   "comparison":    "#8b5cf6", // Decide / StratOS
   "voice-pitch":   "#ec4899", // MAX
   "wrapper-story": "#f59e0b", // Execute / OutboundOS
+  "products":      "#8b5cf6", // Decide / violet
+  "governance":    "#ef4444", // Chassis / Vault
+  "paths":         "#8b5cf6", // violet
+  "wrappers":      "#f59e0b", // Execute / amber
+  "about":         "#10b981", // Coordinate / emerald
+  "architecture":  "#06b6d4", // Measure / cyan
+  "compare":       "#8b5cf6", // Decide / violet
 };
 
 // Pre-surfaced tabs for State 3 (skipped)
@@ -485,6 +557,886 @@ function WrapperStoryModule() {
   );
 }
 
+// ─── Status badge shared by Products module ───────────────────────────────────
+
+const STATUS_COLORS: Record<string, { bg: string; border: string; text: string; dot: string }> = {
+  LIVE:            { bg: "rgba(16,185,129,0.08)",   border: "rgba(16,185,129,0.3)",   text: "#10b981", dot: "#10b981" },
+  BETA:            { bg: "rgba(139,92,246,0.08)",   border: "rgba(139,92,246,0.3)",   text: "#8b5cf6", dot: "#8b5cf6" },
+  ALPHA:           { bg: "rgba(245,158,11,0.08)",   border: "rgba(245,158,11,0.3)",   text: "#f59e0b", dot: "#f59e0b" },
+  "IN PRODUCTION": { bg: "rgba(236,72,153,0.08)",   border: "rgba(236,72,153,0.3)",   text: "#ec4899", dot: "#ec4899" },
+  "IN BUILD":      { bg: "rgba(100,116,139,0.08)",  border: "rgba(100,116,139,0.3)",  text: "#64748b", dot: "#64748b" },
+  "COMING SOON":   { bg: "rgba(255,255,255,0.02)",  border: "rgba(255,255,255,0.08)", text: "rgba(255,255,255,0.3)", dot: "rgba(255,255,255,0.2)" },
+};
+
+function StatusBadge({ status }: { status: string }) {
+  const s = STATUS_COLORS[status] ?? STATUS_COLORS["COMING SOON"];
+  return (
+    <span
+      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-mono tracking-[0.15em] uppercase"
+      style={{ background: s.bg, border: `1px solid ${s.border}`, color: s.text }}
+    >
+      <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: s.dot }} />
+      {status}
+    </span>
+  );
+}
+
+// ─── Products module ───────────────────────────────────────────────────────────
+
+const GOV_GROUPS = [
+  {
+    name: "Truth Enforcement",
+    color: "#ef4444",
+    services: [
+      { name: "Lie detector", desc: "Flags outputs that contradict established facts before they ship" },
+      { name: "Claim/verify", desc: "Every assertion checked against the canonical rules engine" },
+      { name: "Anti-lie stop hook", desc: "Hard stop on outputs that fail the claim check" },
+      { name: "Canonical rules engine", desc: "The source of truth every agent writes against" },
+      { name: "Done-claim verifier", desc: "No agent claims completion without a deterministic verifier" },
+    ],
+  },
+  {
+    name: "Budget + Cost Control",
+    color: "#06b6d4",
+    services: [
+      { name: "Cost router", desc: "Routes each task to its best-fit model at the lowest cost" },
+      { name: "Costs dashboard", desc: "Real-time spend per agent, per task, per system" },
+      { name: "Model selector", desc: "Picks the right model for the task, not the most expensive" },
+      { name: "Per-agent budget caps", desc: "No agent runs without a ceiling" },
+      { name: "Conductor", desc: "75% warn / 90% pause enforcement across all sessions" },
+    ],
+  },
+  {
+    name: "Identity + Access",
+    color: "#8b5cf6",
+    services: [
+      { name: "Protected resources", desc: "No agent touches a resource without an explicit grant" },
+      { name: "Capability grants", desc: "Scoped per agent, per task, per environment" },
+      { name: "Secrets vault", desc: "RLS-locked, rotated, never exposed in logs" },
+      { name: "Dossier system", desc: "Persistent identity context per operator and per agent" },
+      { name: "Intent guardrail", desc: "Agent actions checked against declared intent before execution" },
+      { name: "Protected-file hook", desc: "Bash-level block on writes to load-bearing paths" },
+      { name: "Session history", desc: "Append-only audit trail, cmd_routing_log" },
+      { name: "Governance officer panel", desc: "G1 plan / G2 mid / G3 ship, three review gates" },
+    ],
+  },
+];
+
+function ProductsModule() {
+  const [govExpanded, setGovExpanded] = useState<string | null>(null);
+  const productByID = Object.fromEntries(products.map((p) => [p.id, p]));
+  const commandos = productByID["commandos"];
+  const lucidorg = productByID["lucidorg"];
+  const max = productByID["max"];
+  const stratos = productByID["stratos"];
+  const outboundos = productByID["outboundos"];
+  const playbook = productByID["playbook"];
+
+  return (
+    <div className="hb-rich-module">
+      {/* Eyebrow */}
+      <div className="hb-rich-eyebrow" style={{ color: "#8b5cf6" }}>Core / Plugins / Wrappers</div>
+      <h2 className="hb-rich-headline">The full product catalog.</h2>
+      <p className="hb-rich-sub">Level9OS Core is the platform. Plugins extend it. Department Wrappers put it to work inside a business function.</p>
+
+      {/* Tier 1: Core */}
+      <div className="hb-rich-section-label" style={{ color: "#8b5cf6" }}>Tier 1: Level9OS Core</div>
+      <div className="hb-rich-stack">
+        {[commandos, lucidorg, max].filter(Boolean).map((p) => (
+          <div key={p.id} className="hb-rich-card" style={{ borderColor: `${p.color}25` }}>
+            <div className="hb-rich-card-bar" style={{ background: `linear-gradient(90deg, ${p.color}, ${p.color}30, transparent)` }} />
+            <div className="hb-rich-card-head">
+              <span className="hb-rich-tag" style={{ color: `${p.color}aa` }}>{p.tag}</span>
+              <StatusBadge status={p.status === "IN PRODUCTION" ? "IN PRODUCTION" : p.status} />
+            </div>
+            <h3 className="hb-rich-name" style={{ color: p.color }}>{p.name}</h3>
+            <p className="hb-rich-layer">{p.layer}</p>
+            <div className="hb-rich-problem">
+              <div className="hb-rich-dt">The problem</div>
+              <p className="hb-rich-dd">{p.problem}</p>
+            </div>
+            <div className="hb-rich-answer" style={{ borderColor: p.color }}>
+              <div className="hb-rich-dt" style={{ color: `${p.color}aa` }}>The answer</div>
+              <p className="hb-rich-dd" style={{ color: "rgba(255,255,255,0.85)", fontWeight: 500 }}>{p.answer}</p>
+            </div>
+            <div className="hb-rich-features">
+              {p.features.map((f) => (
+                <div key={f} className="hb-rich-feat">
+                  <div className="hb-rich-dot" style={{ background: p.color }} />
+                  <span>{f}</span>
+                </div>
+              ))}
+            </div>
+            {p.domain && (
+              <a href={`https://${p.domain}`} target="_blank" rel="noopener noreferrer" className="hb-rich-link" style={{ color: `${p.color}cc` }}>
+                {p.domain} →
+              </a>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Governance chassis */}
+      <div className="hb-rich-card" style={{ borderColor: "rgba(239,68,68,0.25)" }}>
+        <div className="hb-rich-card-bar" style={{ background: "linear-gradient(90deg, #ef4444, #ef444430, transparent)" }} />
+        <div className="hb-rich-card-head">
+          <span className="hb-rich-tag" style={{ color: "rgba(239,68,68,0.7)" }}>Governance Chassis</span>
+          <StatusBadge status="LIVE" />
+        </div>
+        <h3 className="hb-rich-name" style={{ color: "rgba(255,255,255,0.9)" }}>The Vault</h3>
+        <p className="hb-rich-layer">Runs under every product</p>
+        <p style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.55)", lineHeight: 1.6, marginBottom: "0.75rem" }}>
+          18 governance services organized into three capability groups. Not bolted on after deployment. Running from the first agent action.
+        </p>
+        <div className="hb-rich-gov-groups">
+          {GOV_GROUPS.map((group) => (
+            <div key={group.name} className="hb-rich-gov-group">
+              <button
+                style={{ background: "none", border: "none", cursor: "pointer", textAlign: "left", width: "100%", padding: 0 }}
+                onClick={() => setGovExpanded(govExpanded === group.name ? null : group.name)}
+              >
+                <div className="hb-rich-gov-head" style={{ borderColor: `${group.color}25` }}>
+                  <span style={{ fontSize: "0.78rem", fontWeight: 700, color: group.color }}>{group.name}</span>
+                  <span style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.3)", fontFamily: "ui-monospace,monospace" }}>
+                    {group.services.length} {govExpanded === group.name ? "↑" : "↓"}
+                  </span>
+                </div>
+              </button>
+              <div className="hb-rich-gov-services">
+                {(govExpanded === group.name ? group.services : group.services.slice(0, 3)).map((svc) => (
+                  <div key={svc.name} className="hb-rich-feat">
+                    <div className="hb-rich-dot" style={{ background: group.color }} />
+                    <div>
+                      <span style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.65)", fontWeight: 600 }}>{svc.name}</span>
+                      {govExpanded === group.name && (
+                        <div style={{ fontSize: "0.68rem", color: "rgba(255,255,255,0.35)", lineHeight: 1.4, marginTop: "0.15rem" }}>{svc.desc}</div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Tier 2: Plugins */}
+      <div className="hb-rich-section-label" style={{ color: "rgba(255,255,255,0.4)" }}>Tier 2: Plugins</div>
+      <div className="hb-rich-grid-3">
+        {[stratos, outboundos, playbook].filter(Boolean).map((p) => (
+          <div key={p.id} className="hb-rich-card" style={{ borderColor: `${p.color}20` }}>
+            <div className="hb-rich-card-bar" style={{ background: `linear-gradient(90deg, ${p.color}, transparent)` }} />
+            <div className="hb-rich-card-head">
+              <span className="hb-rich-tag" style={{ color: `${p.color}90` }}>{p.tag}</span>
+              <StatusBadge status={p.status} />
+            </div>
+            <h3 className="hb-rich-name" style={{ color: p.color }}>{p.name}</h3>
+            <p style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.55)", lineHeight: 1.55, marginBottom: "0.5rem" }}>{p.answer}</p>
+            {p.domain && (
+              <a href={`https://${p.domain}`} target="_blank" rel="noopener noreferrer" className="hb-rich-link" style={{ color: `${p.color}cc` }}>
+                {p.domain} →
+              </a>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Tier 3: Wrappers ghost cards */}
+      <div className="hb-rich-section-label" style={{ color: "#f59e0b" }}>Tier 3: Department Wrappers</div>
+      <div className="hb-rich-grid-4">
+        {[
+          { name: "OutboundOS", desc: "Live. ABM outbound, 30 workflows.", color: "#f59e0b", live: true },
+          { name: "FinanceOS", desc: "AP/AR, spend governance, vendor intelligence.", color: "#06b6d4", live: false },
+          { name: "SalesOS", desc: "Pipeline hygiene, deal scoring, CRM auto-update.", color: "#10b981", live: false },
+          { name: "ExecutionOS", desc: "Project ops, cross-functional coordination.", color: "#8b5cf6", live: false },
+        ].map((w) => (
+          <div key={w.name} className="hb-rich-ghost-card" style={{ borderColor: `${w.color}18`, opacity: w.live ? 1 : 0.45 }}>
+            <div className="hb-rich-ghost-bar" style={{ background: w.color }} />
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.3rem" }}>
+              <span style={{ fontSize: "0.85rem", fontWeight: 700, color: w.live ? w.color : `${w.color}88` }}>{w.name}</span>
+              {w.live ? <StatusBadge status="LIVE" /> : <span style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.2)", fontFamily: "ui-monospace,monospace" }}>Coming</span>}
+            </div>
+            <p style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.38)", lineHeight: 1.45 }}>{w.desc}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── Governance module ─────────────────────────────────────────────────────────
+
+const VAULT_RED = "#ef4444";
+
+const GOV_CHAPTERS = [
+  {
+    id: "foundations",
+    num: "01",
+    title: "Foundations",
+    question: "Can we recover everything? And how do we know the AI is honest?",
+    docs: [
+      { title: "Backup, Detection & Access Control", id: "lvl9-gov-001", oneLine: "Three-layer backup. Write-once-read-many immutability. 5-minute tripwire detection.", href: "/governance/backup-and-vault.html" },
+      { title: "Anti-Lie Governance", id: "anti-lie", oneLine: "Keep the LLM out of court. Every done-claim must register a deterministic verifier.", href: "/governance/anti-lie-report.html" },
+    ],
+  },
+  {
+    id: "operations",
+    num: "02",
+    title: "Operations",
+    question: "What keeps the lights on? And what happens when something breaks?",
+    docs: [
+      { title: "Infrastructure & Reliability", id: "lvl9-gov-002", oneLine: "Compute, edge, hosting, secrets, cost, identity. Documented restart and recovery.", href: "/governance/viewer.html?doc=infrastructure-and-reliability.md" },
+      { title: "Incident Response Runbook", id: "lvl9-gov-005", oneLine: "Six-phase response. Four severity tiers. Six tabletop drill scenarios.", href: "/governance/viewer.html?doc=incident-response.md" },
+    ],
+  },
+  {
+    id: "ai-governance",
+    num: "03",
+    title: "AI Governance",
+    question: "How is the AI fleet itself governed?",
+    docs: [
+      { title: "Agent Oversight & Product Gates", id: "lvl9-gov-003", oneLine: "24 active officers. Three gates. StratOS 5 rooms with 50 personas.", href: "/governance/viewer.html?doc=product-and-agent-governance.md" },
+      { title: "Prompt Architecture & Voice Integrity", id: "lvl9-gov-004", oneLine: "Three-layer architecture. 65 officer prompts. Canonical voiceRules.ts.", href: "/governance/viewer.html?doc=prompt-architecture-governance.md" },
+      { title: "Responsible AI Policy", id: "lvl9-gov-006", oneLine: "Seven principles. Hard prohibitions. Refusal posture. LLC separation.", href: "/governance/viewer.html?doc=responsible-ai-policy.md" },
+    ],
+  },
+  {
+    id: "customer-trust",
+    num: "04",
+    title: "Customer Trust",
+    question: "What happens to customer data?",
+    docs: [
+      { title: "Data Governance & Customer Rights", id: "lvl9-gov-007", oneLine: "Four-class data taxonomy. 21-vendor sub-processor inventory. Customer rights.", href: "/governance/viewer.html?doc=data-governance.md" },
+    ],
+  },
+];
+
+function GovernanceModule() {
+  return (
+    <div className="hb-rich-module">
+      <div className="hb-rich-eyebrow" style={{ color: VAULT_RED }}>The Vault · Governance Chassis</div>
+      <h2 className="hb-rich-headline">You see the AI agent.<br />You don&apos;t see what it&apos;s doing.</h2>
+      <p className="hb-rich-sub" style={{ color: `${VAULT_RED}cc` }}>Level9OS makes the invisible visible.</p>
+      <ul style={{ listStyle: "none", padding: 0, margin: "0 0 1.25rem", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+        {[
+          "Every action logged. Not summarized. Logged.",
+          "Every dollar tracked. Budget hard stops enforced before they are breached.",
+          "Every output gated before it reaches production. No agent self-approves.",
+        ].map((item) => (
+          <li key={item} style={{ display: "flex", alignItems: "flex-start", gap: "0.5rem", fontSize: "0.82rem", color: "rgba(255,255,255,0.7)" }}>
+            <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: VAULT_RED, flexShrink: 0, marginTop: "0.35rem" }} />
+            {item}
+          </li>
+        ))}
+      </ul>
+
+      {/* ROI strip */}
+      <div className="hb-rich-card" style={{ borderColor: "rgba(239,68,68,0.18)", background: "rgba(239,68,68,0.04)", marginBottom: "1rem" }}>
+        <div className="hb-rich-card-head" style={{ marginBottom: "0.75rem" }}>
+          <span className="hb-rich-tag" style={{ color: VAULT_RED }}>Governance ROI · Production numbers</span>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "0.75rem" }}>
+          {[
+            { value: "$52,686", label: "Prevented in cost overruns" },
+            { value: "236 hrs", label: "Saved in manual verification" },
+            { value: "$5.07/mo", label: "Total governance cost" },
+            { value: "3,464x", label: "Gross ROI" },
+          ].map((stat) => (
+            <div key={stat.label}>
+              <div style={{ fontSize: "1.25rem", fontWeight: 900, color: VAULT_RED, letterSpacing: "-0.02em" }}>{stat.value}</div>
+              <div style={{ fontSize: "0.68rem", color: "rgba(255,255,255,0.5)", lineHeight: 1.3 }}>{stat.label}</div>
+            </div>
+          ))}
+        </div>
+        <p style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.25)", fontFamily: "ui-monospace,monospace", marginTop: "0.5rem" }}>Numbers pulled from production logs. Not projections.</p>
+      </div>
+
+      {/* Chapter links */}
+      <div className="hb-rich-section-label" style={{ color: VAULT_RED }}>Four chapters</div>
+      <div className="hb-rich-stack">
+        {GOV_CHAPTERS.map((ch) => (
+          <div key={ch.id} className="hb-rich-card" style={{ borderColor: "rgba(239,68,68,0.12)" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.35rem" }}>
+              <span style={{ fontSize: "0.65rem", color: VAULT_RED, fontFamily: "ui-monospace,monospace", letterSpacing: "0.12em", textTransform: "uppercase" }}>{ch.num} · Chapter</span>
+            </div>
+            <h3 style={{ fontSize: "1rem", fontWeight: 800, color: "rgba(255,255,255,0.9)", marginBottom: "0.15rem" }}>{ch.title}</h3>
+            <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.5)", fontStyle: "italic", marginBottom: "0.75rem" }}>{ch.question}</p>
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+              {ch.docs.map((doc) => (
+                <a key={doc.id} href={doc.href} target="_blank" rel="noopener noreferrer"
+                  style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.65)", textDecoration: "none", display: "flex", flexDirection: "column", gap: "0.1rem", padding: "0.4rem 0.6rem", borderRadius: "6px", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)" }}
+                >
+                  <span style={{ fontWeight: 600, color: "rgba(255,255,255,0.82)" }}>{doc.title}</span>
+                  <span style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.4)" }}>{doc.oneLine}</span>
+                </a>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── Paths module ──────────────────────────────────────────────────────────────
+
+const PATHS_DATA = [
+  {
+    id: "startup",
+    label: "Startup",
+    accent: "#8b5cf6",
+    tag: "Full packaging. Ready to drive tomorrow.",
+    headline: "You don't have a stack yet.",
+    body: "We build it with you. One agent pod live inside 24 hours. Governance on from day one. No retrofitting later.",
+    deliverables: [
+      "Intake agent: reads your current ops and surfaces what it found",
+      "Initial ops read: the agent returns with a plain-English report",
+      "First pod deployed: one autonomous pod running before the first week ends",
+      "Governance chassis: running from day one, not retrofitted in month three",
+    ],
+    href: "/contact?path=startup",
+  },
+  {
+    id: "growth",
+    label: "Growth",
+    accent: "#10b981",
+    tag: "Point us to your docs. Intro an agent. Done.",
+    headline: "You have an operation. Something isn't working.",
+    body: "You know roughly where. Point us to your docs. Introduce an agent. The agent reads your current state and returns with a report.",
+    deliverables: [
+      "Agent reads your existing documentation and ops artifacts",
+      "Returns a plain-English report: what it found, what it flagged, what it would fix",
+      "You read the report. We talk about what's real.",
+      "No discovery engagement before the discovery engagement.",
+    ],
+    href: "/contact?path=growth",
+  },
+  {
+    id: "enterprise",
+    label: "Enterprise",
+    accent: "#f59e0b",
+    tag: "Try a department. See what happens to production.",
+    headline: "Try OutboundOS in one department.",
+    body: "30-day proof of production lift. Governance running, audit trail live, pods operating. At the end of 30 days, you have a real read on department-level AI in your environment.",
+    deliverables: [
+      "OutboundOS deployed into one department: pods running, governance on",
+      "30-day audit trail showing what ran, what cost what, what produced what",
+      "ECI baseline so you have a measurement to compare against",
+      "No transformation language. No multi-year contract as the entry point.",
+    ],
+    href: "/contact?path=enterprise",
+  },
+];
+
+const PHASES_DATA = [
+  { phase: 30, title: "Assess + Quick Wins", items: ["ECI baseline diagnostic", "Friction map of current operations", "30-day quick-win deployment", "Team orientation, first pod live"] },
+  { phase: 90, title: "Structural Install", items: ["Second pod deployed (often OutboundOS sub-pods)", "StratOS room calibrated for your decisions", "Cross-pod event bus wired", "Mid-point ECI re-score"] },
+  { phase: 180, title: "Optimization + Scale", items: ["All pods measured by LucidORG", "Friction patterns identified and addressed", "Innovation pipeline running", "Handoff to internal team or ongoing partnership"] },
+];
+
+function PathsModule() {
+  return (
+    <div className="hb-rich-module">
+      <div className="hb-rich-eyebrow" style={{ color: "#8b5cf6" }}>Work With Us</div>
+      <h2 className="hb-rich-headline">Pick your starting point.</h2>
+      <p className="hb-rich-sub">Same governance chassis. Different entry. Introduce an agent. Give it access. Give it a day.</p>
+
+      <div className="hb-rich-stack">
+        {PATHS_DATA.map((path) => (
+          <div key={path.id} className="hb-rich-card" style={{ borderColor: `${path.accent}22` }}>
+            <div className="hb-rich-card-bar" style={{ background: path.accent }} />
+            <div style={{ display: "inline-flex", alignItems: "center", padding: "0.2rem 0.6rem", borderRadius: "99px", fontSize: "0.65rem", fontFamily: "ui-monospace,monospace", letterSpacing: "0.18em", textTransform: "uppercase", background: `${path.accent}12`, border: `1px solid ${path.accent}35`, color: path.accent, marginBottom: "0.5rem" }}>
+              {path.label}
+            </div>
+            <p style={{ fontSize: "0.72rem", fontFamily: "ui-monospace,monospace", color: `${path.accent}cc`, marginBottom: "0.4rem" }}>&ldquo;{path.tag}&rdquo;</p>
+            <h3 style={{ fontSize: "0.95rem", fontWeight: 700, color: "rgba(255,255,255,0.9)", marginBottom: "0.35rem" }}>{path.headline}</h3>
+            <p style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.6)", lineHeight: 1.6, marginBottom: "0.75rem" }}>{path.body}</p>
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.35rem", marginBottom: "0.75rem" }}>
+              {path.deliverables.map((item) => (
+                <div key={item} style={{ display: "flex", alignItems: "flex-start", gap: "0.4rem" }}>
+                  <span style={{ width: "5px", height: "5px", borderRadius: "50%", background: path.accent, flexShrink: 0, marginTop: "0.45rem" }} />
+                  <span style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.5)", lineHeight: 1.5 }}>{item}</span>
+                </div>
+              ))}
+            </div>
+            <a href={path.href} style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem", padding: "0.5rem 1rem", borderRadius: "99px", background: path.accent, color: "white", fontSize: "0.78rem", fontWeight: 600, textDecoration: "none" }}>
+              Start here →
+            </a>
+          </div>
+        ))}
+      </div>
+
+      {/* 30/90/180 methodology */}
+      <div className="hb-rich-section-label" style={{ color: "rgba(139,92,246,0.6)" }}>The Install Methodology</div>
+      <div className="hb-rich-grid-3">
+        {PHASES_DATA.map((ph) => (
+          <div key={ph.phase} className="hb-rich-card" style={{ borderColor: "rgba(255,255,255,0.07)" }}>
+            <div style={{ fontSize: "2.5rem", fontWeight: 900, color: "rgba(139,92,246,0.8)", marginBottom: "0.25rem", fontVariantNumeric: "tabular-nums" }}>{ph.phase}</div>
+            <div style={{ fontSize: "0.6rem", color: "rgba(255,255,255,0.3)", fontFamily: "ui-monospace,monospace", textTransform: "uppercase", marginBottom: "0.5rem" }}>days</div>
+            <h4 style={{ fontSize: "0.85rem", fontWeight: 800, color: "rgba(255,255,255,0.85)", marginBottom: "0.5rem" }}>{ph.title}</h4>
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.3rem" }}>
+              {ph.items.map((item) => (
+                <div key={item} style={{ display: "flex", alignItems: "flex-start", gap: "0.35rem" }}>
+                  <div style={{ width: "4px", height: "4px", borderRadius: "50%", background: "rgba(139,92,246,0.6)", flexShrink: 0, marginTop: "0.45rem" }} />
+                  <span style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.5)", lineHeight: 1.5 }}>{item}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── Wrappers module ───────────────────────────────────────────────────────────
+
+const OUTBOUND_PODS_DATA = [
+  { id: "linkupos", name: "LinkupOS", color: "#f59e0b", status: "LIVE", url: "linkupos.com", desc: "LinkedIn signal pod. Daily content, ICP prospecting, follow-up sequencing, reply monitoring. Voice-calibrated, fully autonomous." },
+  { id: "abm-engine", name: "ABM Engine", color: "#fb923c", status: "LIVE", url: null, desc: "Multi-channel outbound. Company name in, full campaign out. Enrichment, ICP fit scoring, message variants per persona." },
+  { id: "autocs", name: "AutoCS", color: "#f97316", status: "ALPHA", url: null, desc: "Customer service automation: ticket triage, escalation routing, sentiment monitoring, churn-signal detection." },
+];
+
+const GHOST_WRAPPERS_DATA = [
+  { name: "FinanceOS", color: "#06b6d4", desc: "AP/AR automation, budget monitoring, variance alerts, period-close orchestration." },
+  { name: "SalesOS", color: "#8b5cf6", desc: "Pipeline management, deal progression, forecast accuracy, rep coaching signals." },
+  { name: "ExecutionOS", color: "#10b981", desc: "Sprint coordination, delivery tracking, dependency management, team-level throughput." },
+  { name: "ProductOS", color: "#ec4899", desc: "Roadmap prioritization, feedback triage, release coordination, adoption measurement." },
+];
+
+const PATTERN_POINTS_DATA = [
+  "One human manager. Zero daily intervention required.",
+  "Autonomous pods run the work. Governance runs under all of them.",
+  "One voice-profile RAG across every pod. One output register.",
+  "One audit trail: every action, every cost, every output.",
+];
+
+function WrappersModule() {
+  return (
+    <div className="hb-rich-module">
+      <div className="hb-rich-eyebrow" style={{ color: "#f59e0b" }}>Department Wrappers</div>
+      <h2 className="hb-rich-headline">Department-level AI. Already running.</h2>
+      <p className="hb-rich-sub">OutboundOS proved the pattern. Every department runs the same way: autonomous pods, shared governance, one human manager, zero daily intervention.</p>
+      <ul style={{ listStyle: "none", padding: 0, margin: "0 0 1.25rem", display: "flex", flexDirection: "column", gap: "0.35rem" }}>
+        {PATTERN_POINTS_DATA.map((point) => (
+          <li key={point} style={{ display: "flex", alignItems: "flex-start", gap: "0.5rem", fontSize: "0.8rem", color: "rgba(255,255,255,0.65)" }}>
+            <span style={{ width: "5px", height: "5px", borderRadius: "50%", background: "#f59e0b", flexShrink: 0, marginTop: "0.45rem" }} />
+            {point}
+          </li>
+        ))}
+      </ul>
+
+      <div className="hb-rich-section-label" style={{ color: "#10b981" }}>OutboundOS · Live in Production</div>
+      <div className="hb-rich-stack">
+        {OUTBOUND_PODS_DATA.map((pod) => (
+          <div key={pod.id} className="hb-rich-card" style={{ borderColor: `${pod.color}22` }}>
+            <div className="hb-rich-card-bar" style={{ background: pod.color }} />
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.35rem" }}>
+              <h3 style={{ fontSize: "0.9rem", fontWeight: 700, color: pod.color }}>{pod.name}</h3>
+              <StatusBadge status={pod.status} />
+            </div>
+            <p style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.6)", lineHeight: 1.55, marginBottom: "0.35rem" }}>{pod.desc}</p>
+            {pod.url && (
+              <a href={`https://${pod.url}`} target="_blank" rel="noopener noreferrer" className="hb-rich-link" style={{ color: `${pod.color}aa` }}>{pod.url} →</a>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Governance callout */}
+      <div className="hb-rich-card" style={{ borderColor: "rgba(239,68,68,0.14)", background: "rgba(239,68,68,0.04)", margin: "0.5rem 0" }}>
+        <div className="hb-rich-tag" style={{ color: "#ef4444", marginBottom: "0.4rem" }}>What runs under all of it</div>
+        <p style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.6)", lineHeight: 1.6 }}>One governance trail across every pod. Every action logged. Every dollar tracked. Every output gated before it reaches production.</p>
+      </div>
+
+      <div className="hb-rich-section-label" style={{ color: "rgba(255,255,255,0.3)" }}>On the runway</div>
+      <div className="hb-rich-grid-4">
+        {GHOST_WRAPPERS_DATA.map((w) => (
+          <div key={w.name} className="hb-rich-ghost-card" style={{ borderColor: "rgba(255,255,255,0.06)", opacity: 0.45 }}>
+            <div className="hb-rich-ghost-bar" style={{ background: w.color }} />
+            <h4 style={{ fontSize: "0.82rem", fontWeight: 700, color: `${w.color}88`, marginBottom: "0.25rem" }}>{w.name}</h4>
+            <span style={{ fontSize: "0.62rem", color: "rgba(255,255,255,0.2)", fontFamily: "ui-monospace,monospace" }}>Coming</span>
+            <p style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.3)", lineHeight: 1.4, marginTop: "0.25rem" }}>{w.desc}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── About module ──────────────────────────────────────────────────────────────
+
+const CHARTER_VALUES_DATA = [
+  { label: "Augment, never replace.", desc: "AI that makes the operator more capable. Never a substitute for human judgment at the points that matter.", color: "#10b981" },
+  { label: "Honesty before fluency.", desc: "An agent that hedges is better than an agent that sounds confident and is wrong. Claim-verify is not optional.", color: "#8b5cf6" },
+  { label: "Transparency over plausibility.", desc: "The audit trail is not a feature. It is the product. If you can't see what the agent did, you can't govern it.", color: "#06b6d4" },
+  { label: "Source discipline.", desc: "Every quantitative claim traceable to a primary source. Unknown information is flagged, not invented.", color: "#f59e0b" },
+  { label: "Privacy by default.", desc: "Four-class data taxonomy. C-3 Customer Confidential never leaves the operating context without an explicit grant.", color: "#ef4444" },
+  { label: "No theater.", desc: "Governance that doesn't enforce is window dressing. Every control is mechanical or it doesn't count.", color: "#ec4899" },
+  { label: "LLC separation.", desc: "Each operating LLC is governed separately. Obligations under one entity don't cross to another without explicit authorization.", color: "#64748b" },
+];
+
+const LLC_ENTITIES_DATA = [
+  { name: "Level9OS LLC", role: "Umbrella brand and consulting entity.", desc: "Level9OS.com describes the product family. Consulting engagements and brand-level relationships run through this entity.", accent: "#8b5cf6" },
+  { name: "LucidORG LLC", role: "Commercial product operations.", desc: "Operates LinkupOS, LucidORG.com, COO Playbook, and StratOS. Customer data and commercial product obligations are under this entity.", accent: "#06b6d4" },
+  { name: "NextGen Interns LLC", role: "Education platform.", desc: "Operates the NextGen Interns platform. COPPA-sensitive. Student and intern audience. Kept fully separate from commercial product operations.", accent: "#10b981" },
+];
+
+const PROOF_STATS_DATA = [
+  { num: "20+", label: "Years Experience", color: "#f59e0b" },
+  { num: "6", label: "Continents", color: "#10b981" },
+  { num: "60+", label: "Countries", color: "#06b6d4" },
+  { num: "138", label: "Workflows Live", color: "#8b5cf6" },
+];
+
+function AboutModule() {
+  return (
+    <div className="hb-rich-module">
+      <div className="hb-rich-eyebrow" style={{ color: "#10b981" }}>Level9OS · The Company</div>
+      <h2 className="hb-rich-headline">Operations is where the leverage lives.</h2>
+      <p className="hb-rich-sub">A product company, not a consulting practice. We build production-grade AI systems for the operational layer.</p>
+
+      {/* Proof stats */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "0.5rem", marginBottom: "1.25rem" }}>
+        {PROOF_STATS_DATA.map((s) => (
+          <div key={s.label} style={{ textAlign: "center", padding: "0.75rem", borderRadius: "10px", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
+            <div style={{ fontSize: "1.5rem", fontWeight: 900, color: s.color, letterSpacing: "-0.02em" }}>{s.num}</div>
+            <div style={{ fontSize: "0.62rem", color: "rgba(255,255,255,0.3)", textTransform: "uppercase", letterSpacing: "0.12em", fontFamily: "ui-monospace,monospace" }}>{s.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Origin */}
+      <div className="hb-rich-section-label" style={{ color: "rgba(16,185,129,0.5)" }}>The Origin</div>
+      <div className="hb-rich-card" style={{ borderColor: "rgba(255,255,255,0.07)" }}>
+        <p style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.55)", lineHeight: 1.75, marginBottom: "0.75rem" }}>
+          Eric Hathaway built Level9OS from 20+ years of executive operating leadership across Microsoft, Credit Suisse, T-Mobile, and S&amp;P Global. Six continents. Sixty countries. Deployments at scale across every kind of operating complexity.
+        </p>
+        <p style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.55)", lineHeight: 1.75, marginBottom: "0.75rem" }}>
+          One pattern kept repeating. Strategy failures are almost never about strategy. They&apos;re about the layer beneath it: how decisions get made, how work gets coordinated, how alignment gets measured.
+        </p>
+        <p style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.7)", lineHeight: 1.75 }}>
+          Level9OS exists because the operational layer finally deserves the same AI investment every other function already has.
+        </p>
+      </div>
+
+      {/* Charter values */}
+      <div className="hb-rich-section-label" style={{ color: "rgba(255,255,255,0.35)" }}>Operating Charter</div>
+      <div className="hb-rich-grid-3" style={{ marginBottom: "1rem" }}>
+        {CHARTER_VALUES_DATA.map((val) => (
+          <div key={val.label} className="hb-rich-ghost-card" style={{ borderColor: `${val.color}18`, opacity: 1 }}>
+            <div className="hb-rich-ghost-bar" style={{ background: val.color }} />
+            <h4 style={{ fontSize: "0.78rem", fontWeight: 700, color: val.color, marginBottom: "0.25rem", lineHeight: 1.3 }}>{val.label}</h4>
+            <p style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.45)", lineHeight: 1.5 }}>{val.desc}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* LLC clarity */}
+      <div className="hb-rich-section-label" style={{ color: "rgba(255,255,255,0.35)" }}>Legal Structure</div>
+      <div className="hb-rich-stack">
+        {LLC_ENTITIES_DATA.map((llc) => (
+          <div key={llc.name} className="hb-rich-card" style={{ borderColor: `${llc.accent}20` }}>
+            <div className="hb-rich-card-bar" style={{ background: llc.accent }} />
+            <h4 style={{ fontSize: "0.9rem", fontWeight: 700, color: llc.accent, marginBottom: "0.15rem" }}>{llc.name}</h4>
+            <p style={{ fontSize: "0.65rem", fontFamily: "ui-monospace,monospace", textTransform: "uppercase", color: `${llc.accent}80`, marginBottom: "0.4rem" }}>{llc.role}</p>
+            <p style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.55)", lineHeight: 1.55 }}>{llc.desc}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Learning capabilities */}
+      <div className="hb-rich-section-label" style={{ color: "rgba(255,255,255,0.35)" }}>Learning Capabilities</div>
+      <div className="hb-rich-grid-4">
+        {learningCapabilities.map((cap) => (
+          <a key={cap.title} href={cap.href} target={cap.external ? "_blank" : undefined} rel={cap.external ? "noopener noreferrer" : undefined}
+            style={{ textDecoration: "none", display: "block" }}>
+            <div className="hb-rich-value-card" style={{ borderColor: `${cap.color}18` }}>
+              <span style={{ fontSize: "0.58rem", fontFamily: "ui-monospace,monospace", textTransform: "uppercase", letterSpacing: "0.1em", color: `${cap.color}80` }}>{cap.audience}</span>
+              <span style={{ fontSize: "0.82rem", fontWeight: 700, color: cap.color }}>{cap.title}</span>
+              <span style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.4)", lineHeight: 1.5 }}>{cap.desc}</span>
+            </div>
+          </a>
+        ))}
+      </div>
+
+      {/* Partner network */}
+      <div className="hb-rich-section-label" style={{ color: "rgba(255,255,255,0.35)" }}>Partner Network</div>
+      <div className="hb-rich-stack">
+        {partners.slice(0, 3).map((p) => (
+          <a key={p.id} href={p.external ? p.href : undefined} target={p.external ? "_blank" : undefined} rel={p.external ? "noopener noreferrer" : undefined}
+            style={{ display: "block", textDecoration: "none" }}>
+            <div className="hb-rich-card" style={{ borderColor: `${p.color}18` }}>
+              <div className="hb-rich-card-bar" style={{ background: p.color }} />
+              <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "0.3rem" }}>
+                <div>
+                  <span style={{ fontSize: "0.62rem", fontFamily: "ui-monospace,monospace", textTransform: "uppercase", color: `${p.color}88`, letterSpacing: "0.12em" }}>{p.type}</span>
+                  <h4 style={{ fontSize: "0.88rem", fontWeight: 700, color: p.color, marginTop: "0.1rem" }}>{p.name}</h4>
+                </div>
+                {p.featured && <span style={{ fontSize: "0.6rem", fontFamily: "ui-monospace,monospace", textTransform: "uppercase", padding: "0.15rem 0.4rem", borderRadius: "4px", background: `${p.color}14`, color: p.color, border: `1px solid ${p.color}30` }}>Featured</span>}
+              </div>
+              <p style={{ fontSize: "0.72rem", fontWeight: 500, color: `${p.color}cc`, marginBottom: "0.2rem" }}>{p.tagline}</p>
+              <p style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.4)", lineHeight: 1.5 }}>{p.description}</p>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── Architecture module ───────────────────────────────────────────────────────
+
+function ArchitectureModule() {
+  const layerById = (id: string) => stack.find((l) => l.id === id);
+
+  return (
+    <div className="hb-rich-module">
+      <div className="hb-rich-eyebrow" style={{ color: "#8b5cf6" }}>The Architecture · 4 → 8 → 8</div>
+      <h2 className="hb-rich-headline">Four pressure points on the surface.<br /><span style={{ color: "#06b6d4" }}>Eight operating layers underneath.</span></h2>
+      <p className="hb-rich-sub">The buyer sees four pressure points. Inside the stack, each one maps down to the operating-system layers we build, and up to the COO Playbook domains operators already know.</p>
+
+      {/* Badge row */}
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem", marginBottom: "1.25rem" }}>
+        {[
+          { count: 4, label: "PRESSURE POINTS", color: "#8b5cf6" },
+          { count: 8, label: "OPERATING LAYERS", color: "#06b6d4" },
+          { count: 8, label: "PLAYBOOK DOMAINS", color: "#ec4899" },
+          { count: 1, label: "GOVERNANCE CHASSIS", color: "#ef4444" },
+        ].map((badge) => (
+          <div key={badge.label} style={{ display: "flex", alignItems: "center", gap: "0.35rem", padding: "0.25rem 0.6rem", borderRadius: "99px", border: `1px solid ${badge.color}30`, background: `${badge.color}08` }}>
+            <div style={{ width: "5px", height: "5px", borderRadius: "50%", background: badge.color, animation: "hb-bounce 2s infinite" }} />
+            <span style={{ fontSize: "0.62rem", fontFamily: "ui-monospace,monospace", letterSpacing: "0.1em", color: "rgba(255,255,255,0.6)" }}>{badge.count} {badge.label}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Pressure points */}
+      <div className="hb-rich-stack">
+        {pressurePoints.map((pp) => (
+          <div key={pp.id} className="hb-rich-card" style={{ borderColor: `${pp.color}25` }}>
+            <div className="hb-rich-card-bar" style={{ background: `linear-gradient(90deg, ${pp.color}, ${pp.color}30, transparent)` }} />
+            <div style={{ marginBottom: "0.25rem" }}>
+              <span style={{ fontSize: "0.62rem", fontFamily: "ui-monospace,monospace", letterSpacing: "0.2em", color: `${pp.color}aa`, textTransform: "uppercase" }}>
+                PRESSURE POINT {pp.number} · BREAKS {pp.breaks.toUpperCase()}
+              </span>
+            </div>
+            <h3 style={{ fontSize: "1.25rem", fontWeight: 900, color: pp.color, marginBottom: "0.25rem" }}>{pp.verb}</h3>
+            <p style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.65)", lineHeight: 1.6, marginBottom: "0.75rem" }}>{pp.answer}</p>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
+              <div>
+                <div style={{ fontSize: "0.62rem", fontFamily: "ui-monospace,monospace", textTransform: "uppercase", color: "rgba(255,255,255,0.25)", letterSpacing: "0.2em", marginBottom: "0.25rem" }}>Maps Down To</div>
+                <div style={{ fontSize: "0.7rem", fontWeight: 700, color: `${pp.color}cc`, marginBottom: "0.4rem" }}>Operating layers</div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
+                  {pp.layers.map((layerId) => {
+                    const layer = layerById(layerId);
+                    if (!layer) return null;
+                    return (
+                      <div key={layerId} style={{ display: "flex", alignItems: "center", gap: "0.35rem", padding: "0.25rem 0.4rem", borderRadius: "5px", border: `1px solid ${layer.color}20`, background: `${layer.color}05` }}>
+                        <span style={{ fontSize: "0.6rem", fontFamily: "ui-monospace,monospace", padding: "0.1rem 0.3rem", borderRadius: "3px", background: `${layer.color}15`, color: layer.color }}>L{layer.number}</span>
+                        <span style={{ fontSize: "0.7rem", color: layer.color, fontWeight: 600 }}>{layer.title}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+              <div>
+                <div style={{ fontSize: "0.62rem", fontFamily: "ui-monospace,monospace", textTransform: "uppercase", color: "rgba(255,255,255,0.25)", letterSpacing: "0.2em", marginBottom: "0.25rem" }}>Maps Up To</div>
+                <div style={{ fontSize: "0.7rem", fontWeight: 700, color: `${pp.color}cc`, marginBottom: "0.4rem" }}>Playbook domains</div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
+                  {pp.playbookDomains.map((domainTitle) => {
+                    const d = domainByTitle(domainTitle);
+                    if (!d) return null;
+                    return (
+                      <div key={domainTitle} style={{ display: "flex", alignItems: "center", gap: "0.35rem", padding: "0.25rem 0.4rem", borderRadius: "5px", border: `1px solid ${d.color}20`, background: `${d.color}05` }}>
+                        <span style={{ fontSize: "0.6rem", fontFamily: "ui-monospace,monospace", padding: "0.1rem 0.3rem", borderRadius: "3px", background: `${d.color}15`, color: d.color }}>D{d.n}</span>
+                        <span style={{ fontSize: "0.7rem", color: d.color, fontWeight: 600 }}>{d.title}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            {/* Capabilities footer */}
+            <div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: `1px solid ${pp.color}10` }}>
+              <div style={{ fontSize: "0.62rem", fontFamily: "ui-monospace,monospace", textTransform: "uppercase", color: "rgba(255,255,255,0.25)", letterSpacing: "0.2em", marginBottom: "0.4rem" }}>What ships</div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.25rem" }}>
+                {pp.capabilities.map((cap) => (
+                  <div key={cap} style={{ display: "flex", alignItems: "flex-start", gap: "0.3rem", fontSize: "0.72rem", color: "rgba(255,255,255,0.6)" }}>
+                    <div style={{ width: "4px", height: "4px", borderRadius: "50%", background: pp.color, flexShrink: 0, marginTop: "0.45rem" }} />
+                    {cap}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Governance chassis */}
+      <div className="hb-rich-card" style={{ borderColor: `${chassis.color}30` }}>
+        <div className="hb-rich-card-bar" style={{ background: `linear-gradient(90deg, ${chassis.color}, ${chassis.color}30, transparent)` }} />
+        <div style={{ fontSize: "0.62rem", textTransform: "uppercase", letterSpacing: "0.25em", color: `${chassis.color}80`, fontFamily: "ui-monospace,monospace", marginBottom: "0.25rem" }}>{chassis.tag}</div>
+        <h3 style={{ fontSize: "1rem", fontWeight: 800, color: "rgba(255,255,255,0.9)", marginBottom: "0.35rem" }}>{chassis.name}. <span style={{ color: "rgba(255,255,255,0.4)", fontWeight: 400 }}>Not a feature. The foundation.</span></h3>
+        <p style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.6)", lineHeight: 1.6 }}>{chassis.description}</p>
+      </div>
+
+      {/* Install manual */}
+      <div className="hb-rich-card" style={{ borderColor: `${installManual.color}30` }}>
+        <div style={{ fontSize: "0.62rem", textTransform: "uppercase", letterSpacing: "0.25em", color: `${installManual.color}aa`, fontFamily: "ui-monospace,monospace", marginBottom: "0.25rem" }}>{installManual.tag}</div>
+        <h3 style={{ fontSize: "0.9rem", fontWeight: 800, color: "rgba(255,255,255,0.9)", marginBottom: "0.35rem" }}>
+          {installManual.name}. <span style={{ color: "rgba(255,255,255,0.4)", fontWeight: 400 }}>The 30 / 90 / 180 install protocol.</span>
+        </h3>
+        <p style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.55)", lineHeight: 1.6, marginBottom: "0.5rem" }}>{installManual.description}</p>
+        <a href={installManual.href} target="_blank" rel="noopener noreferrer" className="hb-rich-link" style={{ color: `${installManual.color}dd` }}>
+          Visit {installManual.domain} →
+        </a>
+      </div>
+    </div>
+  );
+}
+
+// ─── Compare module ────────────────────────────────────────────────────────────
+
+type ThreatLevel = "HIGH" | "HIGH WILDCARD" | "MEDIUM-HIGH" | "MEDIUM";
+
+const THREAT_COLORS_MAP: Record<ThreatLevel, string> = {
+  HIGH: "#ef4444",
+  "HIGH WILDCARD": "#f97316",
+  "MEDIUM-HIGH": "#f59e0b",
+  MEDIUM: "#64748b",
+};
+
+const COMPETITORS_DATA = [
+  { id: "microsoft", name: "Microsoft", tagline: "Agent 365 + Entra + Purview", threat: "HIGH" as ThreatLevel, strongest: "Distribution. Agent 365 is an explicit control plane for any agents an organization uses. Entra handles identity. Purview handles governance.", gap: "Scope and speed. Setup complexity is enterprise-grade. An SMB operator doesn't spin up Purview in a day.", pricing: "~$1M+ per year all-in for an enterprise deployment." },
+  { id: "salesforce", name: "Salesforce", tagline: "Agentforce", threat: "MEDIUM" as ThreatLevel, strongest: "CRM integration. If your company runs on Salesforce, agents have access to every account and contact record without integration work.", gap: "Lock-in and scope. Agentforce agents live inside Salesforce. No cross-vendor model orchestration.", pricing: "~$850K+ per year all-in for an enterprise deployment." },
+  { id: "workday", name: "Workday", tagline: "ASOR: Agent System of Record", threat: "HIGH" as ThreatLevel, strongest: "Positioning language. Agents managed as part of the organizational structure alongside employees. Closest verbatim match to what Level9OS is building.", gap: "ASOR is HR and Finance system governance. No voice interface, no executive coaching, no multi-vendor knowledge management.", pricing: "~$500K+ per year all-in for a mid-market deployment." },
+  { id: "anthropic", name: "Anthropic", tagline: "Claude Managed Agents", threat: "MEDIUM-HIGH" as ThreatLevel, strongest: "Model quality. Native orchestration layer if you're already deploying Claude.", gap: "Walled garden. Claude Managed Agents governs Claude agents only. Multi-vendor deployments are outside the governance boundary.", pricing: "API-usage-based. $500 to $5,000 per month depending on volume." },
+  { id: "glean", name: "Glean", tagline: "Enterprise knowledge platform", threat: "MEDIUM" as ThreatLevel, strongest: "$200M in ARR. Solved the indexing and permissioning problem well. Permission-aware search and Skills framework.", gap: "Category. Glean is a knowledge platform that added agents. No voice interface, no department wrappers.", pricing: "Mid-to-high five-figure annual contracts for SMB, six-figure for enterprise." },
+  { id: "humans", name: "Humans&", tagline: "Stealth · $480M Seed Round", threat: "HIGH WILDCARD" as ThreatLevel, strongest: "$480M seed at $4.48B valuation. The thesis directly overlaps with the Level9OS workforce framing.", gap: "Nothing is public. The right read: this is a clock, not a competitor profile.", pricing: "Unknown. Pre-launch." },
+];
+
+const COMPARE_TABLE_ROWS = [
+  { label: "Annual cost", ms: "~$1M+", sf: "~$850K+", wd: "~$500K+", an: "Usage-based", l9: "SMB-first pricing" },
+  { label: "Sales cycle", ms: "6-18 months", sf: "6-12 months", wd: "6-18 months", an: "Self-serve", l9: "24 hours to first agent live" },
+  { label: "Lock-in", ms: "High", sf: "High", wd: "High", an: "Medium", l9: "Low (multi-vendor)" },
+  { label: "Multi-vendor AI", ms: "Partial", sf: "No", wd: "No", an: "No (Claude-only)", l9: "Yes (core design principle)" },
+  { label: "Built for SMB", ms: "No", sf: "No", wd: "No", an: "Partially", l9: "Yes" },
+  { label: "Human+AI governance", ms: "No", sf: "No", wd: "Partial (HR only)", an: "No", l9: "Yes" },
+];
+
+function CompareModule() {
+  const [openComp, setOpenComp] = useState<string | null>(null);
+
+  return (
+    <div className="hb-rich-module">
+      <div className="hb-rich-eyebrow" style={{ color: "#8b5cf6" }}>Market Analysis</div>
+      <h2 className="hb-rich-headline">Who else is in this space. And where we actually stand.</h2>
+      <p className="hb-rich-sub">Mapped 70+ vendors across 8 capability layers. Seven real competitors. Honest read on each.</p>
+
+      {/* Three pillars */}
+      <div className="hb-rich-section-label" style={{ color: "rgba(255,255,255,0.35)" }}>Three things that separate a production-grade AI operation from a demo</div>
+      <div className="hb-rich-stack" style={{ marginBottom: "1rem" }}>
+        {[
+          { num: "01", title: "Multi-Step Orchestration", color: "#8b5cf6", def: "Connect Claude, GPT, Gemini, Copilot, or custom agents into a single workflow. One control plane, one audit trail, one cost dashboard running across all of them." },
+          { num: "02", title: "Cross-Agent Governance", color: "#ef4444", def: "An audit trail, cost controls, identity management, and quality gates that run under every agent regardless of which vendor built it." },
+          { num: "03", title: "Department-Level Wrappers", color: "#f59e0b", def: "A complete operating structure for a business function. One human manager. Shared governance. Autonomous agent pods running the work." },
+        ].map((p) => (
+          <div key={p.num} className="hb-rich-card" style={{ borderColor: `${p.color}20` }}>
+            <div className="hb-rich-card-bar" style={{ background: p.color }} />
+            <div style={{ fontSize: "0.65rem", fontFamily: "ui-monospace,monospace", textTransform: "uppercase", color: `${p.color}80`, marginBottom: "0.25rem" }}>Pillar {p.num}</div>
+            <h4 style={{ fontSize: "0.9rem", fontWeight: 700, color: "rgba(255,255,255,0.9)", marginBottom: "0.35rem" }}>{p.title}</h4>
+            <p style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.55)", lineHeight: 1.6 }}>{p.def}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Competitor accordions */}
+      <div className="hb-rich-section-label" style={{ color: "rgba(255,255,255,0.35)" }}>Seven real competitors. Honest read on each.</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem", marginBottom: "1rem" }}>
+        {COMPETITORS_DATA.map((comp) => {
+          const isOpen = openComp === comp.id;
+          const threatColor = THREAT_COLORS_MAP[comp.threat];
+          return (
+            <div key={comp.id} style={{ borderRadius: "10px", overflow: "hidden", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
+              <button
+                style={{ width: "100%", textAlign: "left", padding: "0.7rem 0.875rem", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.5rem", background: "none", border: "none", cursor: "pointer", color: "inherit", fontFamily: "inherit" }}
+                onClick={() => setOpenComp(isOpen ? null : comp.id)}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flex: 1, minWidth: 0 }}>
+                  <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "rgba(255,255,255,0.85)" }}>{comp.name}</span>
+                  <span style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.35)" }}>{comp.tagline}</span>
+                  <span style={{ flexShrink: 0, fontSize: "0.6rem", fontFamily: "ui-monospace,monospace", padding: "0.15rem 0.4rem", borderRadius: "4px", background: `${threatColor}12`, border: `1px solid ${threatColor}35`, color: threatColor }}>
+                    {comp.threat}
+                  </span>
+                </div>
+                <span style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.8rem", transition: "transform 0.15s", transform: isOpen ? "rotate(90deg)" : "none" }}>→</span>
+              </button>
+              {isOpen && (
+                <div style={{ padding: "0 0.875rem 0.875rem", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem", paddingTop: "0.75rem" }}>
+                    <div>
+                      <div style={{ fontSize: "0.62rem", fontFamily: "ui-monospace,monospace", textTransform: "uppercase", color: "#10b981", marginBottom: "0.25rem" }}>Their strongest claim</div>
+                      <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.6)", lineHeight: 1.6 }}>{comp.strongest}</p>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: "0.62rem", fontFamily: "ui-monospace,monospace", textTransform: "uppercase", color: "#ef4444", marginBottom: "0.25rem" }}>The gap</div>
+                      <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.6)", lineHeight: 1.6 }}>{comp.gap}</p>
+                    </div>
+                  </div>
+                  <div style={{ marginTop: "0.5rem", paddingTop: "0.5rem", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+                    <div style={{ fontSize: "0.62rem", fontFamily: "ui-monospace,monospace", textTransform: "uppercase", color: "rgba(255,255,255,0.3)", marginBottom: "0.2rem" }}>Pricing posture</div>
+                    <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.45)" }}>{comp.pricing}</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Comparison table */}
+      <div className="hb-rich-section-label" style={{ color: "rgba(255,255,255,0.35)" }}>The honest comparison table</div>
+      <div style={{ overflowX: "auto", marginBottom: "0.5rem" }}>
+        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.72rem", minWidth: "480px" }}>
+          <thead>
+            <tr style={{ borderBottom: "2px solid rgba(139,92,246,0.35)" }}>
+              <th style={{ textAlign: "left", padding: "0.4rem 0.5rem", color: "rgba(255,255,255,0.3)", fontWeight: 600, fontSize: "0.65rem" }}>Capability</th>
+              {["Microsoft", "Salesforce", "Workday", "Anthropic", "Level9OS"].map((col) => (
+                <th key={col} style={{ textAlign: "left", padding: "0.4rem 0.5rem", color: col === "Level9OS" ? "#8b5cf6" : "rgba(255,255,255,0.3)", fontWeight: 600, fontSize: "0.65rem" }}>{col}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {COMPARE_TABLE_ROWS.map((row, ri) => (
+              <tr key={row.label} style={{ borderBottom: ri < COMPARE_TABLE_ROWS.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none" }}>
+                <td style={{ padding: "0.45rem 0.5rem", color: "rgba(255,255,255,0.55)", fontWeight: 500 }}>{row.label}</td>
+                {[row.ms, row.sf, row.wd, row.an, row.l9].map((val, i) => (
+                  <td key={i} style={{ padding: "0.45rem 0.5rem", color: i === 4 ? "#8b5cf6" : "rgba(255,255,255,0.45)", fontWeight: i === 4 ? 600 : 400 }}>{val}</td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.2)", fontFamily: "ui-monospace,monospace" }}>Pricing figures are indicative ranges from market research. Not contractual.</p>
+
+      {/* Market timing */}
+      <div className="hb-rich-section-label" style={{ color: "rgba(255,255,255,0.35)", marginTop: "0.75rem" }}>Market Timing</div>
+      <div className="hb-rich-card" style={{ borderColor: "rgba(255,255,255,0.07)" }}>
+        <p style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.6)", lineHeight: 1.7, marginBottom: "0.5rem" }}>
+          The research puts likely consolidation at Q4 2027 at the earliest. The window before a well-funded stealth player ships is months, not years.
+        </p>
+        <p style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.8)", lineHeight: 1.7 }}>
+          This window is open. Level9OS is building the architecture. We&apos;re not waiting for a distribution deal to close.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 function ModuleShimmer() {
   return (
     <div className="hb-module-shimmer">
@@ -541,6 +1493,13 @@ function ModuleRenderer({
       case "comparison": return <ComparisonModule />;
       case "voice-pitch": return <VoicePitchModule />;
       case "wrapper-story": return <WrapperStoryModule />;
+      case "products": return <ProductsModule />;
+      case "governance": return <GovernanceModule />;
+      case "paths": return <PathsModule />;
+      case "wrappers": return <WrappersModule />;
+      case "about": return <AboutModule />;
+      case "architecture": return <ArchitectureModule />;
+      case "compare": return <CompareModule />;
       default: {
         setErrored(true);
         return null;
@@ -711,6 +1670,88 @@ const CONTENT_POOL: PoolPrompt[] = [
     label: "Want the receipt? It is a single page that pretty much tells our story.",
     group: "D",
     opensModule: "counter",
+  },
+
+  // Group A (continued): deep dives into new rich modules
+  {
+    id: "deep-products",
+    label: "Want the full product catalog — Core, Plugins, and Wrappers?",
+    group: "A",
+    requiresModule: "products",
+    opensModule: "products",
+  },
+  {
+    id: "deep-governance",
+    label: "Want to see the 18-service governance chassis that runs under everything?",
+    group: "A",
+    requiresModule: "governance",
+    opensModule: "governance",
+  },
+  {
+    id: "deep-paths",
+    label: "Want to see the 30/90/180-day methodology behind each engagement path?",
+    group: "A",
+    requiresModule: "paths",
+    opensModule: "paths",
+  },
+  {
+    id: "deep-architecture",
+    label: "Want the full 8-layer architecture breakdown and how each layer maps to a pressure point?",
+    group: "A",
+    requiresModule: "architecture",
+    opensModule: "architecture",
+  },
+
+  // Group B (continued): specific angles for new modules
+  {
+    id: "angle-products-catalog",
+    label: "Want to see what each product actually does? Full catalog with the problem and answer for each.",
+    group: "B",
+    opensModule: "products",
+  },
+  {
+    id: "angle-governance-vault",
+    label: "What does The Vault look like in practice? It is the chassis that runs under every product.",
+    group: "B",
+    opensModule: "governance",
+  },
+  {
+    id: "angle-compare-market",
+    label: "How does Level9OS actually sit relative to other AI platforms? We mapped it out.",
+    group: "B",
+    opensModule: "compare",
+  },
+  {
+    id: "angle-about-company",
+    label: "Who is behind Level9OS? The origin story is short and the reason we built it is specific.",
+    group: "B",
+    opensModule: "about",
+  },
+  {
+    id: "angle-paths-entry",
+    label: "There are three ways into Level9OS. Want to see which one fits where you are right now?",
+    group: "B",
+    opensModule: "paths",
+  },
+  {
+    id: "angle-wrappers-pods",
+    label: "The OutboundOS pods hit different parts of the revenue motion. Want to see how they split?",
+    group: "B",
+    opensModule: "wrappers",
+  },
+
+  // Group D (continued): reveal prompts for new modules
+  {
+    id: "reveal-architecture-layers",
+    label: "Did you know there are 8 operating layers between a pressure point and a deployed product? Want to see the stack?",
+    group: "D",
+    opensModule: "architecture",
+  },
+  {
+    id: "reveal-compare-ai-wrapper",
+    label: "Most AI platforms are wrappers. Level9OS is different. Want to see exactly how we positioned that?",
+    group: "D",
+    opensModule: "compare",
   },
 
   // Group E: conversion gates (appear after 4+ modules unlocked)
@@ -1128,12 +2169,17 @@ export default function ConversationHomepage() {
   // ── Keyword router ────────────────────────────────────────────────────────────
   const KEYWORD_MAP: Array<{ patterns: string[]; moduleId: ModuleId }> = [
     { patterns: ["cost", "save", "saving", "pricing", "price"], moduleId: "calculator" },
-    { patterns: ["compare", "alternative", "versus", " vs ", "competitor"], moduleId: "comparison" },
+    { patterns: ["compare", "alternative", "versus", " vs ", "competitor"], moduleId: "compare" },
     { patterns: ["audit", "log", "trail", "events", "feed"], moduleId: "live-feed" },
     { patterns: ["article", "read", "story", "case study"], moduleId: "article" },
     { patterns: ["voice", "listen", "audio", "pitch"], moduleId: "voice-pitch" },
     { patterns: ["number", "roi", "saving", "52686", "52,686"], moduleId: "counter" },
-    { patterns: ["wrapper", "outbound", "finance", "sales"], moduleId: "wrapper-story" },
+    { patterns: ["wrapper", "outbound", "finance", "sales"], moduleId: "wrappers" },
+    { patterns: ["product", "catalog", "what do you build", "what you build"], moduleId: "products" },
+    { patterns: ["governance", "vault", "compliance", "soc2", "security", "policy"], moduleId: "governance" },
+    { patterns: ["path", "start", "how to start", "onboard", "get started", "first step"], moduleId: "paths" },
+    { patterns: ["about", "who are you", "company", "team", "history", "founded"], moduleId: "about" },
+    { patterns: ["architecture", "how it works", "layers", "stack", "pressure point", "design"], moduleId: "architecture" },
   ];
 
   const keywordRoute = useCallback(
@@ -2780,5 +3826,541 @@ const CSS = `
     font-size: 0.6rem;
     color: rgba(255,255,255,0.28);
     white-space: nowrap;
+  }
+
+  /* ── Rich modules ── */
+  .hb-rich-module {
+    padding: 1.5rem 1.5rem 2.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    max-width: 720px;
+  }
+  .hb-rich-eyebrow {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-family: ui-monospace, monospace;
+  }
+  .hb-rich-headline {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.92);
+    line-height: 1.3;
+    margin: 0;
+  }
+  .hb-rich-sub {
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.6;
+    margin: 0;
+  }
+  .hb-rich-section-label {
+    font-size: 0.64rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-family: ui-monospace, monospace;
+    padding-top: 0.25rem;
+  }
+  .hb-rich-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+  }
+  .hb-rich-card {
+    background: rgba(255,255,255,0.025);
+    border: 1px solid;
+    border-radius: 12px;
+    padding: 1.125rem 1.25rem 1.25rem;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+  }
+  .hb-rich-card-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+  }
+  .hb-rich-card-head {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    justify-content: space-between;
+  }
+  .hb-rich-tag {
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-family: ui-monospace, monospace;
+  }
+  .hb-rich-name {
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0;
+  }
+  .hb-rich-layer {
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.38);
+    margin: 0;
+    font-style: italic;
+  }
+  .hb-rich-problem {
+    background: rgba(0,0,0,0.25);
+    border-radius: 8px;
+    padding: 0.625rem 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  .hb-rich-answer {
+    border-left: 2px solid;
+    padding-left: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+  .hb-rich-dt {
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-family: ui-monospace, monospace;
+    color: rgba(255,255,255,0.32);
+  }
+  .hb-rich-dd {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.65);
+    margin: 0;
+    line-height: 1.5;
+  }
+  .hb-rich-features {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+  .hb-rich-feat {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.6);
+    line-height: 1.45;
+  }
+  .hb-rich-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 0.42em;
+  }
+  .hb-rich-link {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin-top: 0.25rem;
+    transition: opacity 0.15s ease;
+  }
+  .hb-rich-link:hover { opacity: 0.75; }
+  .hb-rich-gov-groups {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 0.25rem;
+  }
+  .hb-rich-gov-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+  }
+  .hb-rich-gov-head {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding-bottom: 0.375rem;
+    border-bottom: 1px solid;
+  }
+  .hb-rich-gov-services {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding-left: 0.5rem;
+  }
+  .hb-rich-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.75rem;
+  }
+  .hb-rich-grid-4 {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 0.625rem;
+  }
+  .hb-rich-ghost-card {
+    background: rgba(255,255,255,0.015);
+    border: 1px dashed rgba(255,255,255,0.1);
+    border-radius: 10px;
+    padding: 1rem 1.125rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .hb-rich-ghost-bar {
+    width: 40%;
+    height: 3px;
+    border-radius: 2px;
+    background: rgba(255,255,255,0.06);
+    margin-bottom: 0.25rem;
+  }
+
+  /* ── Rich module accordion ── */
+  .hb-rich-accordion {
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .hb-rich-accordion summary {
+    list-style: none;
+    padding: 0.875rem 1rem;
+    cursor: pointer;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.78);
+    background: rgba(255,255,255,0.02);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    transition: background 0.15s ease;
+  }
+  .hb-rich-accordion summary:hover { background: rgba(255,255,255,0.04); }
+  .hb-rich-accordion[open] summary { background: rgba(255,255,255,0.03); }
+  .hb-rich-accordion-body {
+    padding: 0.875rem 1rem;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.55);
+    line-height: 1.6;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  /* ── Rich module table ── */
+  .hb-rich-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.78rem;
+  }
+  .hb-rich-table th {
+    text-align: left;
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+    font-family: ui-monospace, monospace;
+    padding: 0.5rem 0.625rem;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+  .hb-rich-table td {
+    padding: 0.5rem 0.625rem;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    color: rgba(255,255,255,0.65);
+    vertical-align: top;
+    line-height: 1.45;
+  }
+  .hb-rich-table tr:last-child td { border-bottom: none; }
+
+  /* ── Rich stat strip ── */
+  .hb-rich-stat-strip {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .hb-rich-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    flex: 1;
+    min-width: 100px;
+  }
+  .hb-rich-stat-value {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: rgba(255,255,255,0.9);
+    font-variant-numeric: tabular-nums;
+  }
+  .hb-rich-stat-label {
+    font-size: 0.65rem;
+    color: rgba(255,255,255,0.35);
+    line-height: 1.4;
+  }
+
+  /* ── Rich path cards ── */
+  .hb-rich-paths-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+  }
+  .hb-rich-path-card {
+    border-radius: 12px;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid;
+  }
+  .hb-rich-path-badge {
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-family: ui-monospace, monospace;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    display: inline-block;
+  }
+  .hb-rich-path-title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0;
+  }
+  .hb-rich-path-desc {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.55);
+    line-height: 1.55;
+    margin: 0;
+  }
+  .hb-rich-path-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.125rem;
+  }
+  .hb-rich-path-chip {
+    font-size: 0.68rem;
+    color: rgba(255,255,255,0.45);
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 5px;
+    padding: 0.2rem 0.5rem;
+  }
+
+  /* ── Rich phase timeline ── */
+  .hb-rich-phases {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .hb-rich-phase {
+    display: flex;
+    gap: 1rem;
+    padding-bottom: 1rem;
+    position: relative;
+  }
+  .hb-rich-phase-line {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+    width: 28px;
+  }
+  .hb-rich-phase-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid;
+    flex-shrink: 0;
+    z-index: 1;
+    background: #070710;
+  }
+  .hb-rich-phase-connector {
+    width: 1px;
+    flex: 1;
+    background: rgba(255,255,255,0.08);
+    margin-top: 2px;
+    min-height: 24px;
+  }
+  .hb-rich-phase:last-child .hb-rich-phase-connector { display: none; }
+  .hb-rich-phase-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    padding-bottom: 0.25rem;
+  }
+  .hb-rich-phase-label {
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-family: ui-monospace, monospace;
+  }
+  .hb-rich-phase-name {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.82);
+  }
+  .hb-rich-phase-desc {
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.48);
+    line-height: 1.5;
+  }
+  .hb-rich-phase-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: 0.125rem;
+  }
+  .hb-rich-phase-item {
+    font-size: 0.66rem;
+    color: rgba(255,255,255,0.4);
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 4px;
+    padding: 0.175rem 0.45rem;
+  }
+
+  /* ── Rich charter values ── */
+  .hb-rich-values-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.625rem;
+  }
+  .hb-rich-value-card {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px;
+    padding: 0.875rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+  .hb-rich-value-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.78);
+  }
+  .hb-rich-value-desc {
+    font-size: 0.73rem;
+    color: rgba(255,255,255,0.4);
+    line-height: 1.5;
+  }
+
+  /* ── Rich pressure point cards ── */
+  .hb-rich-pp-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .hb-rich-pp-card {
+    border-radius: 12px;
+    border: 1px solid;
+    padding: 1.125rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .hb-rich-pp-head {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .hb-rich-pp-num {
+    font-size: 0.6rem;
+    font-weight: 800;
+    font-family: ui-monospace, monospace;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .hb-rich-pp-title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0;
+  }
+  .hb-rich-pp-verb {
+    margin-left: auto;
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-family: ui-monospace, monospace;
+    opacity: 0.5;
+  }
+  .hb-rich-pp-desc {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.55;
+    margin: 0;
+  }
+  .hb-rich-pp-layers {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+  .hb-rich-pp-layer-chip {
+    font-size: 0.65rem;
+    color: rgba(255,255,255,0.45);
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 5px;
+    padding: 0.2rem 0.5rem;
+  }
+
+  /* ── Rich competitor accordion ── */
+  .hb-rich-competitor-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  /* ── Rich pillar cards ── */
+  .hb-rich-pillars {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 0.75rem;
+  }
+  .hb-rich-pillar {
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.07);
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+  }
+  .hb-rich-pillar-icon {
+    font-size: 1.25rem;
+    margin-bottom: 0.125rem;
+  }
+  .hb-rich-pillar-title {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.82);
+  }
+  .hb-rich-pillar-desc {
+    font-size: 0.74rem;
+    color: rgba(255,255,255,0.42);
+    line-height: 1.5;
   }
 `;
