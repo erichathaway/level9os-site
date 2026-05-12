@@ -8,7 +8,7 @@
  * Below hero: three problem stat cards with mesh gradient + stagger reveal.
  */
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { FadeIn } from "@level9/brand/components/motion";
 import { MagneticCard } from "@level9/brand/components/motion";
@@ -45,10 +45,10 @@ export default function OperatingRoomPage() {
   const [showSkip, setShowSkip] = useState(false);
 
   // Show skip button at 4s
-  useState(() => {
+  useEffect(() => {
     const t = setTimeout(() => setShowSkip(true), 4000);
     return () => clearTimeout(t);
-  });
+  }, []);
 
   const handleComplete = useCallback(() => {
     setSplashDone(true);
