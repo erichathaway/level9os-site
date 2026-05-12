@@ -108,8 +108,8 @@ export default function ContactPage() {
                 },
                 {
                   label: "For Engagements",
-                  desc: "How we work",
-                  href: "/how-we-work",
+                  desc: "Work With Us",
+                  href: "/paths",
                   color: "#06b6d4",
                 },
                 {
