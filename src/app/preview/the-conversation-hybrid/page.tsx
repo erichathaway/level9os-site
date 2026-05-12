@@ -23,6 +23,20 @@ type ModuleId =
   | "voice-pitch"
   | "wrapper-story";
 
+type PoolGroup = "A" | "B" | "C" | "D" | "E";
+
+interface PoolPrompt {
+  id: string;
+  label: string;
+  group: PoolGroup;
+  /** If set, only show after this module has been revealed */
+  requiresModule?: ModuleId;
+  /** If set, triggers this module reveal when clicked */
+  opensModule?: ModuleId;
+  /** Handler key for special behaviors */
+  action?: "cta-person" | "cta-voice" | "reopen-module";
+}
+
 type VisitorState = "splash" | "dashboard" | "transitioning";
 
 interface ConversationState {
@@ -33,6 +47,10 @@ interface ConversationState {
   userAnswers: Record<string, unknown>;
   lastVisit: string;
   skippedSplash?: boolean;
+  // new fields
+  closedTabs: ModuleId[];
+  poolHistory: string[];
+  lastVisitorActivity: number;
 }
 
 interface ChatMessage {
@@ -492,10 +510,21 @@ function loadState(): ConversationState | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
-    const s = JSON.parse(raw) as ConversationState;
+    const s = JSON.parse(raw) as Partial<ConversationState> & Pick<ConversationState, "threadId" | "messages" | "unlockedModules" | "lastVisit">;
     const age = Date.now() - new Date(s.lastVisit).getTime();
     if (age > 30 * 24 * 60 * 60 * 1000) return null;
-    return s;
+    return {
+      threadId: s.threadId,
+      messages: s.messages,
+      unlockedModules: s.unlockedModules,
+      activeModule: s.activeModule,
+      userAnswers: s.userAnswers ?? {},
+      lastVisit: s.lastVisit,
+      skippedSplash: s.skippedSplash,
+      closedTabs: s.closedTabs ?? [],
+      poolHistory: s.poolHistory ?? [],
+      lastVisitorActivity: s.lastVisitorActivity ?? Date.now(),
+    };
   } catch {
     return null;
   }
@@ -515,9 +544,243 @@ function clearState() {
   localStorage.removeItem(STORAGE_KEY);
 }
 
-// ─── Suggested reply logic ─────────────────────────────────────────────────────
+// ─── Content pool ─────────────────────────────────────────────────────────────
 
-function getSuggestedReplies(unlockedModules: ModuleId[], skippedMode: boolean): { id: string; label: string }[] {
+const CONTENT_POOL: PoolPrompt[] = [
+  // Group A: deep dives into seen modules
+  {
+    id: "deep-live-feed",
+    label: "Want to see the actual audit log behind a $4,284 day?",
+    group: "A",
+    requiresModule: "live-feed",
+    opensModule: "live-feed",
+  },
+  {
+    id: "deep-calculator",
+    label: "Want the full math on your calculator output?",
+    group: "A",
+    requiresModule: "calculator",
+    opensModule: "calculator",
+  },
+  {
+    id: "deep-article",
+    label: "Want the citations behind the article?",
+    group: "A",
+    requiresModule: "article",
+    opensModule: "article",
+  },
+  {
+    id: "deep-comparison",
+    label: "Want to see how that comparison was scored?",
+    group: "A",
+    requiresModule: "comparison",
+    opensModule: "comparison",
+  },
+  {
+    id: "deep-voice",
+    label: "Want to hear the 5-minute pitch over voice?",
+    group: "A",
+    requiresModule: "voice-pitch",
+    opensModule: "voice-pitch",
+  },
+
+  // Group B: specific angles
+  {
+    id: "angle-single-vendor",
+    label: "Curious how this changes if you are on Anthropic only versus multi-vendor?",
+    group: "B",
+  },
+  {
+    id: "angle-soc2",
+    label: "What about the SOC2 angle? We can show our 18-service governance grouping.",
+    group: "B",
+  },
+  {
+    id: "angle-founder-vs-operator",
+    label: "Want the founder vs operator framing? They land differently.",
+    group: "B",
+  },
+  {
+    id: "angle-wrapper",
+    label: "We have a wrapper for finance, sales, and product. Want to see which fits you?",
+    group: "B",
+    opensModule: "wrapper-story",
+  },
+  {
+    id: "angle-onboarding-room",
+    label: "How does the multi-party onboarding room work? It is the demo a lot of people ask about.",
+    group: "B",
+  },
+
+  // Group C: personalization questions
+  {
+    id: "qual-ai-tool",
+    label: "What is your biggest AI tool right now? I can show you how we plug into that.",
+    group: "C",
+  },
+  {
+    id: "qual-team-size",
+    label: "How big is your team? The path shifts a bit at 5, 20, and 50 people.",
+    group: "C",
+  },
+  {
+    id: "qual-refix-loop",
+    label: "What is the most painful refix loop you have hit lately?",
+    group: "C",
+  },
+  {
+    id: "qual-spend",
+    label: "What is your current monthly AI spend? Roughly?",
+    group: "C",
+  },
+  {
+    id: "qual-vendors",
+    label: "Are you running your AI through one vendor or several?",
+    group: "C",
+  },
+
+  // Group D: reveal / surprise factor
+  {
+    id: "reveal-lie-catch",
+    label: "Did you know we catch claim-without-evidence lies in chat threads? Want to see a real one?",
+    group: "D",
+    opensModule: "live-feed",
+  },
+  {
+    id: "reveal-block-demo",
+    label: "Have you seen what happens when an agent tries to send an unverified market claim? We block it. Want a demo?",
+    group: "D",
+    opensModule: "live-feed",
+  },
+  {
+    id: "reveal-receipt",
+    label: "Want the receipt? It is a single page that pretty much tells our story.",
+    group: "D",
+    opensModule: "counter",
+  },
+
+  // Group E: conversion gates (appear after 4+ modules unlocked)
+  {
+    id: "gate-60s-pitch",
+    label: "Have you got 60 seconds for the full pitch? Voice or text?",
+    group: "E",
+    opensModule: "voice-pitch",
+  },
+  {
+    id: "gate-talk-person",
+    label: "Want to talk to an actual person? Takes about 5 minutes to intake.",
+    group: "E",
+    action: "cta-person",
+  },
+];
+
+// ─── Pool engine ───────────────────────────────────────────────────────────────
+
+interface PoolEngineState {
+  unlockedModules: ModuleId[];
+  closedTabs: ModuleId[];
+  poolHistory: string[];
+  lastGroupShown?: PoolGroup;
+  userAnswers: Record<string, unknown>;
+}
+
+function getPoolSuggestions(
+  engineState: PoolEngineState,
+  count = 3
+): PoolPrompt[] {
+  const {
+    unlockedModules,
+    closedTabs,
+    poolHistory,
+    lastGroupShown,
+    userAnswers,
+  } = engineState;
+
+  const unlockCount = unlockedModules.length;
+  const allPrimariesUnlocked = MODULE_ORDER.every((m) =>
+    unlockedModules.includes(m)
+  );
+
+  // Filter the pool to candidates
+  const candidates = CONTENT_POOL.filter((p) => {
+    // Skip if shown recently
+    if (poolHistory.includes(p.id)) return false;
+    // Group A: only if required module is revealed
+    if (p.requiresModule && !unlockedModules.includes(p.requiresModule)) return false;
+    // Group E: only after 4+ modules unlocked
+    if (p.group === "E" && unlockCount < 4) return false;
+    // Group D: avoid showing twice in a row
+    if (p.group === "D" && lastGroupShown === "D") return false;
+    // Don't re-offer wrapper-story angle if it's unlocked
+    if (p.opensModule && unlockedModules.includes(p.opensModule) && !closedTabs.includes(p.opensModule)) {
+      // module already open + not closed, skip
+      if (!["deep-live-feed","deep-calculator","deep-article","deep-comparison","deep-voice"].includes(p.id)) {
+        return false;
+      }
+    }
+    return true;
+  });
+
+  // Priority ordering
+  const prioritized = [
+    // Group A first (after relevant module revealed)
+    ...candidates.filter((p) => p.group === "A"),
+    // Then re-opens of closed tabs
+    ...candidates.filter(
+      (p) =>
+        p.group === "B" &&
+        p.opensModule &&
+        closedTabs.includes(p.opensModule)
+    ),
+    // Then E if enough modules
+    ...candidates.filter((p) => p.group === "E"),
+    // Then B/C/D in rotation
+    ...candidates.filter(
+      (p) => p.group === "B" && !(p.opensModule && closedTabs.includes(p.opensModule))
+    ),
+    ...candidates.filter((p) => p.group === "C"),
+    ...candidates.filter((p) => p.group === "D"),
+  ];
+
+  // De-duplicate by id (prioritized may have dupes from multi-filter)
+  const seen = new Set<string>();
+  const deduped = prioritized.filter((p) => {
+    if (seen.has(p.id)) return false;
+    seen.add(p.id);
+    return true;
+  });
+
+  // If all primaries unlocked, include restart
+  const result = deduped.slice(0, count);
+
+  // Supplement with primary module chips if still below count
+  if (result.length < count && !allPrimariesUnlocked) {
+    const unrevealed = MODULE_ORDER.filter(
+      (m) => !unlockedModules.includes(m)
+    );
+    for (const m of unrevealed) {
+      if (result.length >= count) break;
+      if (!result.some((r) => r.id === m)) {
+        result.push({
+          id: m,
+          label: MODULE_META[m].suggestedReply,
+          group: "B",
+        });
+      }
+    }
+  }
+
+  // Ignore team-size preference if userAnswers has size context
+  // (no-op for now, reserved for future personalization)
+  void userAnswers;
+
+  return result;
+}
+
+function getInitialSuggestions(
+  unlockedModules: ModuleId[],
+  skippedMode: boolean
+): { id: string; label: string }[] {
   const unrevealed = MODULE_ORDER.filter((m) => !unlockedModules.includes(m));
   const count = unlockedModules.length;
   const replies: { id: string; label: string }[] = [];
@@ -560,6 +823,11 @@ export default function TheConversationHybrid() {
   const [isReturning, setIsReturning] = useState(false);
   const [isSkipped, setIsSkipped] = useState(false);
   const [transitionTrigger, setTransitionTrigger] = useState<ModuleId | null>(null);
+  // New state for Upgrade 1 + 2
+  const [closedTabs, setClosedTabs] = useState<ModuleId[]>([]);
+  const [poolHistory, setPoolHistory] = useState<string[]>([]);
+  const [lastGroupShown, setLastGroupShown] = useState<PoolGroup | undefined>(undefined);
+  const lastVisitorActivity = useRef<number>(Date.now());
 
   const feedRef = useRef<HTMLDivElement>(null);
   const hasInitialized = useRef(false);
@@ -644,6 +912,8 @@ export default function TheConversationHybrid() {
       const defaultModules = SKIP_DEFAULT_TABS;
       setUnlockedModules(defaultModules);
       setActiveModule("counter");
+      if (saved.closedTabs?.length) setClosedTabs(saved.closedTabs);
+      if (saved.poolHistory?.length) setPoolHistory(saved.poolHistory);
       if (saved.messages.length > 0) {
         setMessages(saved.messages);
       }
@@ -661,6 +931,8 @@ export default function TheConversationHybrid() {
       setMessages(saved.messages);
       setUnlockedModules(saved.unlockedModules);
       setUserAnswers(saved.userAnswers);
+      if (saved.closedTabs?.length) setClosedTabs(saved.closedTabs);
+      if (saved.poolHistory?.length) setPoolHistory(saved.poolHistory);
       setIsReturning(true);
       setVisitorState("dashboard");
 
@@ -701,8 +973,37 @@ export default function TheConversationHybrid() {
       userAnswers,
       lastVisit: new Date().toISOString(),
       skippedSplash: isSkipped,
+      closedTabs,
+      poolHistory,
+      lastVisitorActivity: lastVisitorActivity.current,
     });
-  }, [messages, unlockedModules, activeModule, userAnswers, isSkipped]);
+  }, [messages, unlockedModules, activeModule, userAnswers, isSkipped, closedTabs, poolHistory]);
+
+  // Close tab handler
+  const handleCloseTab = useCallback(
+    (moduleId: ModuleId, e: React.MouseEvent) => {
+      e.stopPropagation();
+      setClosedTabs((prev) => (prev.includes(moduleId) ? prev : [...prev, moduleId]));
+      setUnlockedModules((prev) => prev.filter((m) => m !== moduleId));
+      setActiveModule((prev) => {
+        if (prev !== moduleId) return prev;
+        // activate the previous tab
+        return undefined;
+      });
+      // After close, agent offers to bring it back (debounced via agentSay delay)
+      setTimeout(() => {
+        const label = MODULE_META[moduleId]?.label ?? moduleId;
+        const idleMs = Date.now() - lastVisitorActivity.current;
+        if (idleMs >= 5000) {
+          agentSay(
+            `You closed the ${label} tab. Want to bring it back? Just say the word.`,
+            400
+          );
+        }
+      }, 1200);
+    },
+    [agentSay]
+  );
 
   const handleSkip = useCallback(() => {
     setIsSkipped(true);
@@ -727,15 +1028,31 @@ export default function TheConversationHybrid() {
         userAnswers,
         lastVisit: new Date().toISOString(),
         skippedSplash: true,
+        closedTabs,
+        poolHistory,
+        lastVisitorActivity: lastVisitorActivity.current,
         ...(existing ?? {}),
       });
     } catch {
       // ignore
     }
-  }, [messages, userAnswers, agentSay]);
+  }, [messages, userAnswers, agentSay, closedTabs, poolHistory]);
+
+  // Track visitor activity to implement "shut up while engaging" rule
+  const recordActivity = useCallback(() => {
+    lastVisitorActivity.current = Date.now();
+  }, []);
+
+  // Add pool prompt to history (keep last 10)
+  const recordPoolShown = useCallback((ids: string[], group?: PoolGroup) => {
+    setPoolHistory((prev) => [...ids, ...prev].slice(0, 10));
+    if (group) setLastGroupShown(group);
+  }, []);
 
   const handleReply = useCallback(
     async (replyId: string, replyLabel: string) => {
+      recordActivity();
+
       if (replyId === "restart") {
         clearState();
         window.location.reload();
@@ -767,6 +1084,62 @@ export default function TheConversationHybrid() {
             400
           );
         }
+        // After surprise, surface 2 pool suggestions
+        const poolSuggestions = getPoolSuggestions({
+          unlockedModules: [...unlockedModules, pick],
+          closedTabs,
+          poolHistory,
+          lastGroupShown,
+          userAnswers,
+        }, 2);
+        recordPoolShown(poolSuggestions.map((p) => p.id), poolSuggestions[0]?.group);
+        return;
+      }
+
+      // Check if this is a pool prompt
+      const poolPrompt = CONTENT_POOL.find((p) => p.id === replyId);
+      if (poolPrompt) {
+        addMessage({ role: "user", content: replyLabel });
+        recordPoolShown([poolPrompt.id], poolPrompt.group);
+
+        if (poolPrompt.action === "cta-person") {
+          await agentSay(
+            "Contact Eric directly at biz@erichathaway.com. He runs the product. He is the customer. He can answer anything because he lived these numbers.",
+            200
+          );
+          return;
+        }
+
+        if (poolPrompt.opensModule) {
+          const target = poolPrompt.opensModule;
+          const meta = MODULE_META[target];
+          // Re-open closed tab if needed
+          if (closedTabs.includes(target)) {
+            setClosedTabs((prev) => prev.filter((m) => m !== target));
+          }
+          await agentSay(meta.agentIntro, 200);
+          await revealModule(target, visitorState);
+        } else {
+          // Conversational response for non-module pool prompts
+          const responses: Record<string, string> = {
+            "angle-single-vendor": "Single-vendor shops still benefit. The governance layer routes within that vendor. The real difference is audit fidelity. Multi-vendor adds routing intelligence on top of that.",
+            "angle-soc2": "The 18-service grouping maps each service to a control domain. Every governance hook generates an event log entry. That log is the audit trail. Want to see the coverage breakdown?",
+            "angle-founder-vs-operator": "Founders care about the moat. Operators care about the rework loop. Same product, different entry point. Which lens is yours?",
+            "angle-onboarding-room": "The room brings in multiple stakeholders, each with a different view. Legal sees contracts. Ops sees workflows. Finance sees spend. All in one session. That is the demo most teams ask for second.",
+            "qual-ai-tool": "Whatever tool you are running, we plug in at the governance layer, not the application layer. The tool does not change. What changes is what happens when the tool tries to do something risky.",
+            "qual-team-size": "At 5 people, one flub event can cost a week of rework. At 20, it is usually a department. At 50, it compounds across teams. The governance layer scales linearly. Your risk does not.",
+            "qual-refix-loop": "The most common one we see is the done-claim-without-verify loop. Agent says done. Nobody checks. Something breaks downstream. We block the done-claim at the source.",
+            "qual-spend": "If you are spending more than $500 a month on AI, the ROI math on governance starts working in your favor almost immediately. The $5.07 infrastructure cost is not a typo.",
+            "qual-vendors": "Multi-vendor setups get more value from the routing layer. We can show you the routing policy logic if you want.",
+            "reveal-lie-catch": "Opening the live feed. You can see real blocked events including claim-without-evidence intercepts.",
+            "reveal-block-demo": "Opening the live feed so you can see a blocked unverified claim in real time.",
+            "reveal-receipt": "Opening the counter. One number, full breakdown, three decimal places of receipts.",
+            "angle-wrapper": "Opening the wrapper story. OutboundOS is live. FinanceOS and SalesOS are next.",
+            "gate-60s-pitch": "Opening the pitch player. Three versions. Start with 30 seconds.",
+          };
+          const response = responses[poolPrompt.id] ?? "Good question. Let me pull that up.";
+          await agentSay(response, 200);
+        }
         return;
       }
 
@@ -774,6 +1147,11 @@ export default function TheConversationHybrid() {
       if (MODULE_META[moduleId]) {
         addMessage({ role: "user", content: replyLabel });
         const meta = MODULE_META[moduleId];
+
+        // Re-open a previously closed tab if needed
+        if (closedTabs.includes(moduleId)) {
+          setClosedTabs((prev) => prev.filter((m) => m !== moduleId));
+        }
 
         // If transitioning from splash, append a reference to the panel
         const intro = !DISPLAY_ONLY.includes(moduleId) && visitorState === "splash"
@@ -791,12 +1169,56 @@ export default function TheConversationHybrid() {
             500
           );
         }
+
+        // After module unlock, surface 1-2 follow-up suggestions from the pool
+        // (only if visitor is idle)
+        setTimeout(() => {
+          const idleMs = Date.now() - lastVisitorActivity.current;
+          if (idleMs < 5000) return; // shut-up rule
+          const followUps = getPoolSuggestions({
+            unlockedModules: [...unlockedModules, moduleId],
+            closedTabs,
+            poolHistory,
+            lastGroupShown,
+            userAnswers,
+          }, 2);
+          recordPoolShown(followUps.map((p) => p.id), followUps[0]?.group);
+        }, 5200); // fires after shut-up window clears
       }
     },
-    [addMessage, agentSay, revealModule, unlockedModules, maxSelf, visitorState]
+    [addMessage, agentSay, revealModule, unlockedModules, maxSelf, visitorState,
+     closedTabs, poolHistory, lastGroupShown, userAnswers, recordActivity, recordPoolShown]
   );
 
-  const suggestedReplies = typing ? [] : getSuggestedReplies(unlockedModules, isSkipped);
+  // Suggested replies: pool-aware
+  const suggestedReplies = typing ? [] : (() => {
+    const allPrimariesUnlocked = MODULE_ORDER.every((m) => unlockedModules.includes(m));
+    if (allPrimariesUnlocked) {
+      // Pure pool mode
+      const pool = getPoolSuggestions({
+        unlockedModules, closedTabs, poolHistory, lastGroupShown, userAnswers,
+      }, 3);
+      const replies: { id: string; label: string }[] = pool.map((p) => ({ id: p.id, label: p.label }));
+      replies.push({ id: "restart", label: "Start over" });
+      return replies.slice(0, 4);
+    }
+    // Mixed mode: primary modules + pool prompts
+    const primary = getInitialSuggestions(unlockedModules, isSkipped);
+    const poolExtras = getPoolSuggestions({
+      unlockedModules, closedTabs, poolHistory, lastGroupShown, userAnswers,
+    }, Math.max(0, 4 - primary.length));
+    const combined = [
+      ...primary,
+      ...poolExtras.map((p) => ({ id: p.id, label: p.label })),
+    ];
+    // De-dupe
+    const seen = new Set<string>();
+    return combined.filter((r) => {
+      if (seen.has(r.id)) return false;
+      seen.add(r.id);
+      return true;
+    }).slice(0, 4);
+  })();
   const isDashboard = visitorState === "dashboard" || visitorState === "transitioning";
   const agentLabel = maxSelf ? "MAX" : "Level9OS";
   const agentInitials = maxSelf ? "MX" : "L9";
@@ -980,6 +1402,14 @@ export default function TheConversationHybrid() {
                       >
                         <span className="hb-tab-icon">{meta.icon}</span>
                         {meta.label}
+                        <span
+                          className="hb-tab-close"
+                          role="button"
+                          aria-label={`Close ${meta.label}`}
+                          onClick={(e) => handleCloseTab(m, e)}
+                        >
+                          &times;
+                        </span>
                       </button>
                     );
                   })}
@@ -988,8 +1418,47 @@ export default function TheConversationHybrid() {
 
               {/* Panel content */}
               {activeModule ? (
-                <div className="hb-panel-content" key={activeModule}>
+                <div
+                  className="hb-panel-content"
+                  key={activeModule}
+                  onScroll={recordActivity}
+                  onMouseMove={recordActivity}
+                  onInput={recordActivity}
+                  onPointerDown={recordActivity}
+                >
                   <ModuleRenderer moduleId={activeModule} userAnswers={userAnswers} />
+                </div>
+              ) : unlockedModules.length === 0 ? (
+                // Empty tabs state
+                <div className="hb-panel-empty">
+                  <div className="hb-panel-empty-icon">&#9633;</div>
+                  <div className="hb-panel-empty-text">
+                    Pick a tab to revisit, or ask MAX for something new.
+                  </div>
+                  {/* Quick-launch chips from closed/unseen modules */}
+                  <div className="hb-empty-chips">
+                    {[
+                      ...closedTabs.slice(0, 2).map((m) => ({
+                        id: m,
+                        label: `Reopen: ${MODULE_META[m]?.label}`,
+                      })),
+                      ...MODULE_ORDER.filter(
+                        (m) => !unlockedModules.includes(m) && !closedTabs.includes(m)
+                      )
+                        .slice(0, 2)
+                        .map((m) => ({ id: m, label: MODULE_META[m].suggestedReply })),
+                    ]
+                      .slice(0, 4)
+                      .map((chip) => (
+                        <button
+                          key={chip.id}
+                          className="hb-reply hb-empty-chip"
+                          onClick={() => handleReply(chip.id, chip.label)}
+                        >
+                          {chip.label}
+                        </button>
+                      ))}
+                  </div>
                 </div>
               ) : (
                 <div className="hb-panel-empty">
@@ -1291,6 +1760,36 @@ const CSS = `
     border-radius: 3px;
     padding: 0.1rem 0.3rem;
     flex-shrink: 0;
+  }
+  .hb-tab-close {
+    margin-left: 0.25rem;
+    font-size: 0.72rem;
+    line-height: 1;
+    color: rgba(255,255,255,0.18);
+    flex-shrink: 0;
+    border-radius: 3px;
+    padding: 0.05rem 0.22rem;
+    opacity: 0;
+    transition: opacity 0.15s ease, color 0.15s ease, background 0.15s ease;
+  }
+  .hb-tab:hover .hb-tab-close { opacity: 1; }
+  .hb-tab-close:hover {
+    color: rgba(255,255,255,0.75);
+    background: rgba(255,255,255,0.07);
+  }
+  @media (max-width: 768px) {
+    .hb-tab-close { opacity: 1; }
+  }
+  .hb-empty-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+    margin-top: 0.75rem;
+  }
+  .hb-empty-chip {
+    font-size: 0.72rem;
+    padding: 0.45rem 0.7rem;
   }
 
   /* Empty panel */
