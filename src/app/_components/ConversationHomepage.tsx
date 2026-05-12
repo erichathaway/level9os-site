@@ -41,7 +41,10 @@ type ModuleId =
   | "architecture"
   | "compare";
 
-type PoolGroup = "A" | "B" | "C" | "D" | "E";
+type PoolGroup = "A" | "B" | "C" | "D" | "E" | "F";
+
+// Engagement ladder chip types
+type ChipType = "module" | "yes-no" | "guess";
 
 interface PoolPrompt {
   id: string;
@@ -69,6 +72,8 @@ interface ConversationState {
   closedTabs: ModuleId[];
   poolHistory: string[];
   lastVisitorActivity: number;
+  engagementLevel: number;
+  lastPlayfulLabel?: string;
 }
 
 interface ChatMessage {
@@ -113,55 +118,55 @@ const MODULE_META: Record<
   counter: {
     label: "The Number",
     icon: "$",
-    suggestedReply: "Show me a number",
-    agentIntro: "Here it is. $0 to $52,686. Ninety days. Three decimal places of receipts.",
+    suggestedReply: "Show me the money.",
+    agentIntro: "Here it is. $0 to $52,686. 90 days. Three decimal places of receipts.",
   },
   calculator: {
     label: "Calculator",
     icon: "~",
-    suggestedReply: "How would I save?",
-    agentIntro: "Pulled up the calculator for you.",
+    suggestedReply: "How much would I save?",
+    agentIntro: "Pulled up the calculator. Put in your team size, tools, and monthly spend.",
   },
   article: {
     label: "The Story",
     icon: "A",
-    suggestedReply: "Tell me a story",
+    suggestedReply: "I have the receipts.",
     agentIntro: "Opening the long version. How $5.07 a month prevented $52,686 in 90 days.",
   },
   "live-feed": {
     label: "Live Feed",
     icon: "//",
-    suggestedReply: "Show me it working",
+    suggestedReply: "Houston, we have a problem.",
     agentIntro: "Here is the system running. Every blocked action, every rerouted call. Live.",
   },
   comparison: {
     label: "Comparison",
     icon: "=",
-    suggestedReply: "Who else is doing this?",
+    suggestedReply: "Who are you up against?",
     agentIntro: "Pulling up the vendor comparison.",
   },
   "voice-pitch": {
     label: "The Pitch",
     icon: ">",
-    suggestedReply: "Have you got 90 seconds for the whole pitch?",
+    suggestedReply: "Roll the tape.",
     agentIntro: "Three versions. Pick how deep you want to go.",
   },
   "wrapper-story": {
     label: "Wrapper Story",
     icon: "[]",
-    suggestedReply: "What is OutboundOS?",
+    suggestedReply: "Open the pod bay doors.",
     agentIntro: "OutboundOS is the first wrapper on this governance layer. Here is the roadmap.",
   },
   products: {
     label: "Products",
     icon: "P",
-    suggestedReply: "Show me the products",
+    suggestedReply: "What is in the box?",
     agentIntro: "Full product catalog. Three tiers: Core, Plugins, Department Wrappers.",
   },
   governance: {
     label: "Governance",
     icon: "G",
-    suggestedReply: "Tell me about governance",
+    suggestedReply: "How does governance actually work?",
     agentIntro: "Opening The Vault. Every action logged. Every dollar tracked. No agent self-approves.",
   },
   paths: {
@@ -191,7 +196,7 @@ const MODULE_META: Record<
   compare: {
     label: "Compare",
     icon: "Cm",
-    suggestedReply: "Compare to alternatives",
+    suggestedReply: "Who are you up against?",
     agentIntro: "Mapped 70+ vendors across 8 capability layers. Seven real competitors. Honest read on each.",
   },
 };
@@ -1526,6 +1531,7 @@ function loadState(): ConversationState | null {
     const s = JSON.parse(raw) as Partial<ConversationState> & Pick<ConversationState, "threadId" | "messages" | "unlockedModules" | "lastVisit">;
     const age = Date.now() - new Date(s.lastVisit).getTime();
     if (age > 30 * 24 * 60 * 60 * 1000) return null;
+    const partial = s as Partial<ConversationState>;
     return {
       threadId: s.threadId,
       messages: s.messages,
@@ -1537,6 +1543,8 @@ function loadState(): ConversationState | null {
       closedTabs: s.closedTabs ?? [],
       poolHistory: s.poolHistory ?? [],
       lastVisitorActivity: s.lastVisitorActivity ?? Date.now(),
+      engagementLevel: partial.engagementLevel ?? 0,
+      lastPlayfulLabel: partial.lastPlayfulLabel,
     };
   } catch {
     return null;
@@ -1767,6 +1775,50 @@ const CONTENT_POOL: PoolPrompt[] = [
     group: "E",
     action: "cta-person",
   },
+
+  // Group F: playful pop culture openers — rotate in the 4th chip slot, never repeat back-to-back
+  {
+    id: "f-show-money",
+    label: "Show me the money.",
+    group: "F",
+    opensModule: "counter",
+  },
+  {
+    id: "f-receipts",
+    label: "I have the receipts.",
+    group: "F",
+    opensModule: "article",
+  },
+  {
+    id: "f-houston",
+    label: "Houston, we have a problem.",
+    group: "F",
+    opensModule: "live-feed",
+  },
+  {
+    id: "f-whats-in-box",
+    label: "What is in the box?",
+    group: "F",
+    opensModule: "governance",
+  },
+  {
+    id: "f-ill-be-back",
+    label: "I'll be back.",
+    group: "F",
+    action: "cta-person",
+  },
+  {
+    id: "f-pod-bay",
+    label: "Open the pod bay doors.",
+    group: "F",
+    opensModule: "wrappers",
+  },
+  {
+    id: "f-roll-tape",
+    label: "Roll the tape.",
+    group: "F",
+    opensModule: "voice-pitch",
+  },
 ];
 
 // ─── Pool engine ───────────────────────────────────────────────────────────────
@@ -1918,10 +1970,12 @@ export default function ConversationHomepage() {
   const [isReturning, setIsReturning] = useState(false);
   const [isSkipped, setIsSkipped] = useState(false);
   const [transitionTrigger, setTransitionTrigger] = useState<ModuleId | null>(null);
-  // New state for Upgrade 1 + 2
+  // Upgrade 1 + 2 + engagement ladder
   const [closedTabs, setClosedTabs] = useState<ModuleId[]>([]);
   const [poolHistory, setPoolHistory] = useState<string[]>([]);
   const [lastGroupShown, setLastGroupShown] = useState<PoolGroup | undefined>(undefined);
+  const [engagementLevel, setEngagementLevel] = useState(0);
+  const [lastPlayfulLabel, setLastPlayfulLabel] = useState<string | undefined>(undefined);
   const lastVisitorActivity = useRef<number>(Date.now());
 
   const [freeText, setFreeText] = useState("");
@@ -2076,6 +2130,8 @@ export default function ConversationHomepage() {
       setUserAnswers(saved.userAnswers);
       if (saved.closedTabs?.length) setClosedTabs(saved.closedTabs);
       if (saved.poolHistory?.length) setPoolHistory(saved.poolHistory);
+      if (saved.engagementLevel) setEngagementLevel(saved.engagementLevel);
+      if (saved.lastPlayfulLabel) setLastPlayfulLabel(saved.lastPlayfulLabel);
       setIsReturning(true);
       setVisitorState("dashboard");
 
@@ -2119,8 +2175,10 @@ export default function ConversationHomepage() {
       closedTabs,
       poolHistory,
       lastVisitorActivity: lastVisitorActivity.current,
+      engagementLevel,
+      lastPlayfulLabel,
     });
-  }, [messages, unlockedModules, activeModule, userAnswers, isSkipped, closedTabs, poolHistory]);
+  }, [messages, unlockedModules, activeModule, userAnswers, isSkipped, closedTabs, poolHistory, engagementLevel, lastPlayfulLabel]);
 
   // Cmd+K / Ctrl+K listener
   useEffect(() => {
@@ -2177,7 +2235,6 @@ export default function ConversationHomepage() {
     }, 500);
     // Persist skip flag
     try {
-      const existing = loadState();
       saveState({
         threadId: threadId.current,
         messages,
@@ -2189,12 +2246,13 @@ export default function ConversationHomepage() {
         closedTabs,
         poolHistory,
         lastVisitorActivity: lastVisitorActivity.current,
-        ...(existing ?? {}),
+        engagementLevel,
+        lastPlayfulLabel,
       });
     } catch {
       // ignore
     }
-  }, [messages, userAnswers, agentSay, closedTabs, poolHistory]);
+  }, [messages, userAnswers, agentSay, closedTabs, poolHistory, engagementLevel, lastPlayfulLabel]);
 
   // Track visitor activity to implement "shut up while engaging" rule
   const recordActivity = useCallback(() => {
@@ -2208,15 +2266,16 @@ export default function ConversationHomepage() {
   }, []);
 
   // ── Keyword router ────────────────────────────────────────────────────────────
-  const KEYWORD_MAP: Array<{ patterns: string[]; moduleId: ModuleId }> = [
+  const KEYWORD_MAP: Array<{ patterns: string[]; moduleId: ModuleId; anchor?: string }> = [
     { patterns: ["cost", "save", "saving", "pricing", "price"], moduleId: "calculator" },
     { patterns: ["compare", "alternative", "versus", " vs ", "competitor"], moduleId: "compare" },
     { patterns: ["audit", "log", "trail", "events", "feed"], moduleId: "live-feed" },
     { patterns: ["article", "read", "story", "case study"], moduleId: "article" },
-    { patterns: ["voice", "listen", "audio", "pitch"], moduleId: "voice-pitch" },
+    { patterns: ["voice", "listen", "audio", "pitch", "MAX", "talk to my operation"], moduleId: "voice-pitch" },
     { patterns: ["number", "roi", "saving", "52686", "52,686"], moduleId: "counter" },
     { patterns: ["wrapper", "outbound", "finance", "sales"], moduleId: "wrappers" },
     { patterns: ["product", "catalog", "what do you build", "what you build"], moduleId: "products" },
+    { patterns: ["lie detector", "lying", "fact check", "auto doc", "library", "documentation", "trust score", "promotion", "officer", "CoS", "COO", "management team"], moduleId: "governance" },
     { patterns: ["governance", "vault", "compliance", "soc2", "security", "policy"], moduleId: "governance" },
     { patterns: ["path", "start", "how to start", "onboard", "get started", "first step"], moduleId: "paths" },
     { patterns: ["about", "who are you", "company", "team", "history", "founded"], moduleId: "about" },
@@ -2227,8 +2286,7 @@ export default function ConversationHomepage() {
     (input: string): ModuleId | null => {
       const lower = input.toLowerCase();
       for (const { patterns, moduleId } of KEYWORD_MAP) {
-        if (patterns.some((p) => lower.includes(p))) {
-          // Prefer unrevealed modules; if already open, still accept
+        if (patterns.some((p) => lower.includes(p.toLowerCase()))) {
           return moduleId;
         }
       }
@@ -2356,6 +2414,8 @@ export default function ConversationHomepage() {
   const handleReply = useCallback(
     async (replyId: string, replyLabel: string) => {
       recordActivity();
+      // Increment engagement ladder on every chip click
+      setEngagementLevel((prev) => prev + 1);
 
       if (replyId === "restart") {
         clearState();
@@ -2369,6 +2429,20 @@ export default function ConversationHomepage() {
           "Contact Eric directly at biz@erichathaway.com. He runs the product. He is the customer. He can answer anything because he lived these numbers.",
           200
         );
+        return;
+      }
+
+      // Yes/no engagement ladder responses
+      if (replyId.startsWith("yn-") || replyId.startsWith("guess-")) {
+        addMessage({ role: "user", content: replyLabel });
+        const responses: Record<string, string> = {
+          "yn-multi-vendor": "Multi-vendor setups get more from the routing layer. The governance trail unifies them. Want to see how the routing policy works?",
+          "yn-existing-stack": "Most teams have audit logging. What they don't have is enforcement before the action. That is the gap we close.",
+          "yn-growth-stage": "Growth-stage is the sweet spot. One agent pod live in 24 hours. Governance on from day one, not bolted on later.",
+          "guess-growth-stage": "Growth-stage teams get the most leverage here. First pod deployed inside a week. Want to see the startup path?",
+        };
+        const fallback = "Good. That context changes the entry point. Want me to pull up the path that fits?";
+        await agentSay(responses[replyId] ?? fallback, 200);
         return;
       }
 
@@ -2405,6 +2479,10 @@ export default function ConversationHomepage() {
       if (poolPrompt) {
         addMessage({ role: "user", content: replyLabel });
         recordPoolShown([poolPrompt.id], poolPrompt.group);
+        // Track playful chip for rotation
+        if (poolPrompt.group === "F") {
+          setLastPlayfulLabel(replyLabel);
+        }
 
         if (poolPrompt.action === "cta-person") {
           await agentSay(
@@ -2440,6 +2518,7 @@ export default function ConversationHomepage() {
             "reveal-receipt": "Opening the counter. One number, full breakdown, three decimal places of receipts.",
             "angle-wrapper": "Opening the wrapper story. OutboundOS is live. FinanceOS and SalesOS are next.",
             "gate-60s-pitch": "Opening the pitch player. Three versions. Start with 30 seconds.",
+            "f-ill-be-back": "Eric runs the product. He is also the customer. Contact him at biz@erichathaway.com.",
           };
           const response = responses[poolPrompt.id] ?? "Good question. Let me pull that up.";
           await agentSay(response, 200);
@@ -2523,7 +2602,29 @@ export default function ConversationHomepage() {
     [handleReply]
   );
 
-  // Suggested replies: pool-aware
+  // ── Engagement-aware suggested replies ──────────────────────────────────────
+  // Level 0-2: initial 4 chips (positional spec from Phase 1)
+  // Level 3-5: slot 3 becomes a yes/no question from MAX
+  // Level 6+:  slot 3 becomes a MAX guess prompt
+  const INITIAL_4_CHIPS: { id: string; label: string }[] = [
+    { id: "governance", label: "How does governance actually work?" },
+    { id: "calculator", label: "How much would I save?" },
+    { id: "compare", label: "Who else does this?" },
+    { id: "f-show-money", label: "Show me the money." },
+  ];
+  const YES_NO_QUESTIONS: { id: string; label: string }[] = [
+    { id: "yn-multi-vendor", label: "Are you on multiple AI vendors right now?" },
+    { id: "yn-existing-stack", label: "Does your team already have an AI governance layer?" },
+    { id: "yn-growth-stage", label: "Are you a growth-stage team (10-50 people)?" },
+  ];
+  const PLAYFUL_F_IDS = ["f-show-money", "f-receipts", "f-houston", "f-whats-in-box", "f-ill-be-back", "f-pod-bay", "f-roll-tape"];
+
+  function pickPlayfulChip(exclude?: string): { id: string; label: string } {
+    const pool = CONTENT_POOL.filter((p) => PLAYFUL_F_IDS.includes(p.id) && p.label !== exclude);
+    const pick = pool[Math.floor(Date.now() / 1000) % pool.length] ?? pool[0];
+    return { id: pick.id, label: pick.label };
+  }
+
   const suggestedReplies = typing ? [] : (() => {
     const allPrimariesUnlocked = MODULE_ORDER.every((m) => unlockedModules.includes(m));
     if (allPrimariesUnlocked) {
@@ -2535,6 +2636,29 @@ export default function ConversationHomepage() {
       replies.push({ id: "restart", label: "Start over" });
       return replies.slice(0, 4);
     }
+
+    // Fresh state (no modules unlocked yet): use the positional 4 chips with engagement ladder
+    if (unlockedModules.length === 0 && !isSkipped) {
+      const chips: { id: string; label: string; chipType?: ChipType }[] = [
+        INITIAL_4_CHIPS[0],
+        INITIAL_4_CHIPS[1],
+        INITIAL_4_CHIPS[2],
+      ];
+      // Slot 4: engagement-aware
+      if (engagementLevel >= 6) {
+        // Level 6+: MAX guess
+        chips.push({ id: "guess-growth-stage", label: "Looks like a growth-stage team. Right?" });
+      } else if (engagementLevel >= 3) {
+        // Level 3-5: yes/no question
+        const q = YES_NO_QUESTIONS[engagementLevel % YES_NO_QUESTIONS.length];
+        chips.push(q);
+      } else {
+        // Level 0-2: playful chip
+        chips.push(pickPlayfulChip(lastPlayfulLabel));
+      }
+      return chips.slice(0, 4);
+    }
+
     // Mixed mode: primary modules + pool prompts
     const primary = getInitialSuggestions(unlockedModules, isSkipped);
     const poolExtras = getPoolSuggestions({
