@@ -12,6 +12,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { CursorGradient, FadeIn } from "@level9/brand/components/motion";
+import { SearchPalette, type PaletteItem } from "./_components/SearchPalette";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -887,6 +888,8 @@ export default function TheConversationHybrid() {
   const freeTextCallCount = useRef(0);
   const MAX_FREE_TEXT_CALLS = 20;
 
+  const [paletteOpen, setPaletteOpen] = useState(false);
+
   const feedRef = useRef<HTMLDivElement>(null);
   const hasInitialized = useRef(false);
   const threadId = useRef(makeId());
@@ -1036,6 +1039,21 @@ export default function TheConversationHybrid() {
       lastVisitorActivity: lastVisitorActivity.current,
     });
   }, [messages, unlockedModules, activeModule, userAnswers, isSkipped, closedTabs, poolHistory]);
+
+  // Cmd+K / Ctrl+K listener
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setPaletteOpen((open) => !open);
+      }
+      if (e.key === "Escape") {
+        setPaletteOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, []);
 
   // Close tab handler
   const handleCloseTab = useCallback(
@@ -1382,6 +1400,35 @@ export default function TheConversationHybrid() {
      closedTabs, poolHistory, lastGroupShown, userAnswers, recordActivity, recordPoolShown]
   );
 
+  // Build palette items from module metadata + content pool
+  const paletteItems: PaletteItem[] = [
+    ...MODULE_ORDER.map((m) => ({
+      id: `module:${m}`,
+      label: MODULE_META[m].label,
+      description: MODULE_META[m].agentIntro,
+      section: "modules" as const,
+    })),
+    ...CONTENT_POOL.map((p) => ({
+      id: `prompt:${p.id}`,
+      label: p.label,
+      section: "prompts" as const,
+    })),
+  ];
+
+  const handlePaletteSelect = useCallback(
+    (item: PaletteItem) => {
+      if (item.section === "modules") {
+        const moduleId = item.id.replace("module:", "") as ModuleId;
+        handleReply(moduleId, MODULE_META[moduleId].suggestedReply);
+      } else {
+        const promptId = item.id.replace("prompt:", "");
+        const prompt = CONTENT_POOL.find((p) => p.id === promptId);
+        if (prompt) handleReply(promptId, prompt.label);
+      }
+    },
+    [handleReply]
+  );
+
   // Suggested replies: pool-aware
   const suggestedReplies = typing ? [] : (() => {
     const allPrimariesUnlocked = MODULE_ORDER.every((m) => unlockedModules.includes(m));
@@ -1420,6 +1467,13 @@ export default function TheConversationHybrid() {
     <div className={`hb-root ${visitorState}`}>
       <style>{CSS}</style>
       <CursorGradient color="rgba(139,92,246,0.06)" size={520} />
+      {paletteOpen && (
+        <SearchPalette
+          items={paletteItems}
+          onSelect={handlePaletteSelect}
+          onClose={() => setPaletteOpen(false)}
+        />
+      )}
 
       {/* ── SPLASH STATE ── */}
       {visitorState === "splash" && (
@@ -1429,9 +1483,12 @@ export default function TheConversationHybrid() {
           <div className="hb-orb hb-orb-fuchsia" aria-hidden="true" />
           <div className="hb-orb hb-orb-cyan" aria-hidden="true" />
 
-          {/* Skip link top-right */}
+          {/* Skip link + Cmd+K hint */}
           <button className="hb-skip-btn" onClick={handleSkip}>
             skip to site &#8594;
+          </button>
+          <button className="hb-cmdK-hint" onClick={() => setPaletteOpen(true)} title="Open search palette">
+            <kbd>⌘K</kbd>
           </button>
 
           {/* Centered chat box with FadeIn entrance */}
@@ -1534,6 +1591,9 @@ export default function TheConversationHybrid() {
               <div className="hb-topbar-sub">AI Operating System</div>
             </div>
             <span className="hb-topbar-badge">Hybrid</span>
+            <button className="hb-cmdK-hint hb-cmdK-topbar" onClick={() => setPaletteOpen(true)} title="Search modules and prompts">
+              <kbd>⌘K</kbd>
+            </button>
             <button
               className="hb-restart-btn"
               onClick={() => {
@@ -2511,6 +2571,37 @@ const CSS = `
   @media (max-width: 480px) {
     .hb-topbar { padding: 0.75rem 1rem; }
     .hb-panel-content { padding: 0.875rem; }
+  }
+
+  /* ── Cmd+K hint button ── */
+  .hb-cmdK-hint {
+    position: fixed;
+    top: 1.25rem;
+    right: 6.5rem;
+    background: none;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 7px;
+    cursor: pointer;
+    padding: 0.35rem 0.55rem;
+    z-index: 10;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  .hb-cmdK-hint:hover {
+    background: rgba(139,92,246,0.08);
+    border-color: rgba(139,92,246,0.25);
+  }
+  .hb-cmdK-hint kbd {
+    font-family: ui-monospace, monospace;
+    font-size: 0.6rem;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 0.05em;
+    background: none;
+    border: none;
+    padding: 0;
+  }
+  .hb-cmdK-topbar {
+    position: static;
+    margin-left: auto;
   }
 
   /* ── Free-text input ── */
