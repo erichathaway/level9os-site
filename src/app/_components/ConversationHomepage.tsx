@@ -2237,11 +2237,27 @@ function Wt30sScene3() {
 // ─── 1:30 scene visuals ───────────────────────────────────────────────────────
 
 // All 1:30 scenes use the live ConsoleGraphicLite as the primary visual.
-// Each scene highlights a different aspect via the caption.
-function Wt1m30Visual() {
+// Each scene surfaces a different focus label so the visitor knows where to look.
+const WT_1M30_FOCUS = [
+  { label: "Agents at work", color: "#ef4444", note: "16 officers — 4 per bucket. Packets flow down to their bucket." },
+  { label: "Error propagation", color: "#f59e0b", note: "No governance layer means errors compound silently." },
+  { label: "Governance intercepts", color: "#8b5cf6", note: "Watch the Decide ring. Every decision gated before it ships." },
+  { label: "Cross-bucket coordination", color: "#06b6d4", note: "Coordinate ring: agents scheduling, prioritizing, handing off." },
+  { label: "Execute + measure", color: "#10b981", note: "OutboundOS executes. LucidORG measures every step." },
+  { label: "One control plane", color: "#ec4899", note: "All 4 rings. All vendors. One audit trail." },
+];
+
+function Wt1m30Visual({ sceneIdx }: { sceneIdx: number }) {
+  const focus = WT_1M30_FOCUS[sceneIdx] ?? WT_1M30_FOCUS[0];
   return (
-    <div style={{ pointerEvents: "none" }}>
-      <ConsoleGraphicLite />
+    <div>
+      <div style={{ padding: "6px 12px", background: `${focus.color}12`, borderBottom: `1px solid ${focus.color}20`, display: "flex", gap: 8, alignItems: "center" }}>
+        <span style={{ fontSize: "0.6rem", fontFamily: "ui-monospace,monospace", color: focus.color, textTransform: "uppercase", letterSpacing: "0.1em" }}>{focus.label}</span>
+        <span style={{ fontSize: "0.62rem", color: "rgba(255,255,255,0.35)" }}>{focus.note}</span>
+      </div>
+      <div style={{ pointerEvents: "none" }}>
+        <ConsoleGraphicLite />
+      </div>
     </div>
   );
 }
@@ -2403,7 +2419,7 @@ function WtSceneVisual({
   }
 
   if (walkthroughId === "1m30") {
-    return <Wt1m30Visual />;
+    return <Wt1m30Visual sceneIdx={sceneIdx} />;
   }
 
   // 5min
@@ -2493,7 +2509,7 @@ function WalkthroughPlayer({ id, onClose }: { id: WalkthroughId; onClose: () => 
             <button
               key={i}
               className={`hb-wt-dot ${i === scene ? "active" : ""}`}
-              style={i === scene ? { background: current.bg } : {}}
+              style={i === scene ? { "--wt-dot-color": current.bg } as React.CSSProperties : {}}
               onClick={() => { setScene(i); setAutoplay(false); }}
             />
           ))}
@@ -2506,7 +2522,7 @@ function WalkthroughPlayer({ id, onClose }: { id: WalkthroughId; onClose: () => 
           style={{ borderColor: `${current.bg}40`, color: current.bg }}
           onClick={() => setAutoplay(!autoplay)}
         >
-          {autoplay ? "&#9646; Stop" : "&#9654; Auto-play"}
+          {autoplay ? "◾ Stop" : "▶ Auto-play"}
         </button>
       </div>
       <div className="hb-wt-progress">
@@ -2535,7 +2551,7 @@ function WalkthroughsModule() {
     <div className="hb-rich-module">
       <div className="hb-rich-eyebrow" style={{ color: "#ec4899" }}>Walkthroughs</div>
       <h2 className="hb-rich-headline">Three depths. Pick how far you want to go.</h2>
-      <p className="hb-rich-sub">Each walkthrough is scroll-driven. Captions from the pitch scripts verbatim. Voice render pending operator approval.</p>
+      <p className="hb-rich-sub">Each walkthrough is motion-driven. The visual is the story. Captions are the pitch scripts verbatim.</p>
       <div className="hb-wt-picker">
         {options.map((opt) => (
           <button
@@ -4789,6 +4805,13 @@ const CSS = `
     margin-top: 0.5rem;
   }
   @media (max-width: 560px) { .hb-wt-picker { grid-template-columns: 1fr; } }
+  @media (max-width: 480px) {
+    .hb-wt-scene { padding: 1rem; }
+    .hb-wt-visual { min-height: 130px; }
+    .hb-wt-controls { gap: 0.375rem; }
+    .hb-wt-nav { width: 44px; height: 44px; }
+    .hb-wt-play { padding: 0.4rem 0.6rem; font-size: 0.68rem; }
+  }
   .hb-wt-card {
     background: rgba(255,255,255,0.02);
     border: 1px solid;
@@ -4836,7 +4859,7 @@ const CSS = `
     overflow: hidden;
     background: rgba(0,0,0,0.18);
     margin: 0.25rem 0;
-    min-height: 140px;
+    min-height: 150px;
   }
   .hb-wt-caption {
     font-size: 0.76rem;
@@ -4854,7 +4877,7 @@ const CSS = `
     flex-wrap: wrap;
   }
   .hb-wt-nav {
-    width: 32px; height: 32px;
+    width: 44px; height: 44px;
     background: rgba(255,255,255,0.04);
     border: 1px solid rgba(255,255,255,0.1);
     border-radius: 8px;
@@ -4869,16 +4892,29 @@ const CSS = `
   }
   .hb-wt-nav:disabled { opacity: 0.25; cursor: not-allowed; }
   .hb-wt-nav:not(:disabled):hover { background: rgba(255,255,255,0.08); }
-  .hb-wt-dots { display: flex; gap: 0.3rem; align-items: center; flex: 1; flex-wrap: wrap; }
+  .hb-wt-dots { display: flex; gap: 0.25rem; align-items: center; flex: 1; flex-wrap: wrap; }
   .hb-wt-dot {
+    width: 10px; height: 44px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .hb-wt-dot::after {
+    content: "";
     width: 7px; height: 7px;
     border-radius: 50%;
     background: rgba(255,255,255,0.15);
-    border: none;
-    cursor: pointer;
     transition: background 0.15s ease, transform 0.15s ease;
-    flex-shrink: 0;
+    display: block;
   }
+  .hb-wt-dot.active::after { background: var(--wt-dot-color, rgba(255,255,255,0.8)); transform: scale(1.3); }
+  .hb-wt-dot:hover:not(.active)::after { background: rgba(255,255,255,0.3); }
   .hb-wt-dot.active { transform: scale(1.3); }
   .hb-wt-dot:hover:not(.active) { background: rgba(255,255,255,0.3); }
   .hb-wt-play {
