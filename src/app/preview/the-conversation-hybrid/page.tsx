@@ -11,6 +11,7 @@
  */
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import { CursorGradient, FadeIn } from "@level9/brand/components/motion";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -146,6 +147,17 @@ const MODULE_ORDER: ModuleId[] = [
   "wrapper-story",
 ];
 
+// Per-module accent colors from brand palette
+const MODULE_COLOR: Record<ModuleId, string> = {
+  "counter":       "#ef4444", // Chassis / Vault
+  "calculator":    "#06b6d4", // Measure / LucidORG
+  "article":       "#64748b", // COO Playbook / slate
+  "live-feed":     "#ef4444", // Chassis / Vault
+  "comparison":    "#8b5cf6", // Decide / StratOS
+  "voice-pitch":   "#ec4899", // MAX
+  "wrapper-story": "#f59e0b", // Execute / OutboundOS
+};
+
 // Pre-surfaced tabs for State 3 (skipped)
 const SKIP_DEFAULT_TABS: ModuleId[] = ["counter", "calculator", "comparison", "article"];
 
@@ -273,7 +285,7 @@ function ArticleModule() {
   return (
     <div className="hb-module-article">
       <div className="hbart-eyebrow">Case Study</div>
-      <h2 className="hbart-headline">How $5.07 a Month Prevented $52,686 in 90 Days</h2>
+      <h2 className="hbart-headline" style={{ fontFamily: "var(--font-playfair), Georgia, serif" }}>How $5.07 a Month Prevented $52,686 in 90 Days</h2>
       <p className="hbart-dropcap">
         <span className="hbart-dc">T</span>he number sounds made up. It isn&apos;t. Over 90 days,
         across 299 Claude Code sessions, a single governance layer blocked, rerouted, or flagged over
@@ -472,6 +484,26 @@ function WrapperStoryModule() {
   );
 }
 
+function ModuleShimmer() {
+  return (
+    <div className="hb-module-shimmer">
+      <div className="hb-shimmer-line hb-shimmer-line-h" />
+      <div className="hb-shimmer-line hb-shimmer-line-m" />
+      <div className="hb-shimmer-line hb-shimmer-line-s" />
+      <div className="hb-shimmer-block" />
+    </div>
+  );
+}
+
+function ModuleError({ onRetry }: { onRetry: () => void }) {
+  return (
+    <div className="hb-module-error">
+      <div className="hb-module-error-text">Couldn&apos;t load this one. Try another?</div>
+      <button className="hb-reply hb-module-error-retry" onClick={onRetry}>Retry</button>
+    </div>
+  );
+}
+
 function ModuleRenderer({
   moduleId,
   userAnswers,
@@ -479,22 +511,43 @@ function ModuleRenderer({
   moduleId: ModuleId;
   userAnswers: Record<string, unknown>;
 }) {
-  switch (moduleId) {
-    case "counter": return <CounterModule />;
-    case "calculator":
-      return (
-        <CalculatorModule
-          defaultEmployees={userAnswers.employees as number | undefined}
-          defaultTools={userAnswers.tools as number | undefined}
-        />
-      );
-    case "article": return <ArticleModule />;
-    case "live-feed": return <LiveFeedModule />;
-    case "comparison": return <ComparisonModule />;
-    case "voice-pitch": return <VoicePitchModule />;
-    case "wrapper-story": return <WrapperStoryModule />;
-    default: return null;
-  }
+  const [loading, setLoading] = useState(true);
+  const [errored, setErrored] = useState(false);
+  const [key, setKey] = useState(0);
+
+  useEffect(() => {
+    setLoading(true);
+    setErrored(false);
+    const t = setTimeout(() => setLoading(false), 320);
+    return () => clearTimeout(t);
+  }, [moduleId, key]);
+
+  if (loading) return <ModuleShimmer />;
+  if (errored) return <ModuleError onRetry={() => setKey((k) => k + 1)} />;
+
+  const content = (() => {
+    switch (moduleId) {
+      case "counter": return <CounterModule />;
+      case "calculator":
+        return (
+          <CalculatorModule
+            defaultEmployees={userAnswers.employees as number | undefined}
+            defaultTools={userAnswers.tools as number | undefined}
+          />
+        );
+      case "article": return <ArticleModule />;
+      case "live-feed": return <LiveFeedModule />;
+      case "comparison": return <ComparisonModule />;
+      case "voice-pitch": return <VoicePitchModule />;
+      case "wrapper-story": return <WrapperStoryModule />;
+      default: {
+        setErrored(true);
+        return null;
+      }
+    }
+  })();
+
+  return <div className="hb-module-reveal">{content}</div>;
 }
 
 // ─── State helpers ─────────────────────────────────────────────────────────────
@@ -1222,21 +1275,29 @@ export default function TheConversationHybrid() {
   const isDashboard = visitorState === "dashboard" || visitorState === "transitioning";
   const agentLabel = maxSelf ? "MAX" : "Level9OS";
   const agentInitials = maxSelf ? "MX" : "L9";
+  const activeColor = activeModule ? MODULE_COLOR[activeModule] : "#8b5cf6";
 
   return (
     <div className={`hb-root ${visitorState}`}>
       <style>{CSS}</style>
+      <CursorGradient color="rgba(139,92,246,0.06)" size={520} />
 
       {/* ── SPLASH STATE ── */}
       {visitorState === "splash" && (
         <div className="hb-splash">
+          {/* Ambient gradient orbs */}
+          <div className="hb-orb hb-orb-violet" aria-hidden="true" />
+          <div className="hb-orb hb-orb-fuchsia" aria-hidden="true" />
+          <div className="hb-orb hb-orb-cyan" aria-hidden="true" />
+
           {/* Skip link top-right */}
           <button className="hb-skip-btn" onClick={handleSkip}>
             skip to site &#8594;
           </button>
 
-          {/* Centered chat box */}
-          <div className="hb-splash-chat">
+          {/* Centered chat box with FadeIn entrance */}
+          <FadeIn delay={0.05} direction="up">
+          <div className="hb-splash-chat hb-splash-chat-pulse">
             <div className="hb-splash-header">
               <div className="hb-splash-avatar">L9</div>
               <div className="hb-splash-agent-info">
@@ -1287,6 +1348,7 @@ export default function TheConversationHybrid() {
               </div>
             )}
           </div>
+          </FadeIn>
         </div>
       )}
 
@@ -1391,16 +1453,18 @@ export default function TheConversationHybrid() {
             <div className="hb-module-panel">
               {/* Tab strip */}
               {unlockedModules.length > 0 && (
-                <div className="hb-tabs">
+                <div className="hb-tabs" style={{ borderTop: `2px solid ${activeColor}22` }}>
                   {unlockedModules.map((m) => {
                     const meta = MODULE_META[m];
+                    const mColor = MODULE_COLOR[m];
                     return (
                       <button
                         key={m}
                         className={`hb-tab ${activeModule === m ? "active" : ""}`}
+                        style={activeModule === m ? { borderBottomColor: mColor, color: "rgba(255,255,255,0.9)" } : {}}
                         onClick={() => setActiveModule(m)}
                       >
-                        <span className="hb-tab-icon">{meta.icon}</span>
+                        <span className="hb-tab-icon" style={activeModule === m ? { color: mColor, background: `${mColor}18`, borderColor: `${mColor}30` } : {}}>{meta.icon}</span>
                         {meta.label}
                         <span
                           className="hb-tab-close"
@@ -1429,36 +1493,43 @@ export default function TheConversationHybrid() {
                   <ModuleRenderer moduleId={activeModule} userAnswers={userAnswers} />
                 </div>
               ) : unlockedModules.length === 0 ? (
-                // Empty tabs state
+                // Empty tabs state: muted module icons that pulse
                 <div className="hb-panel-empty">
-                  <div className="hb-panel-empty-icon">&#9633;</div>
-                  <div className="hb-panel-empty-text">
+                  <div className="hb-module-icons-row">
+                    {MODULE_ORDER.map((m, i) => {
+                      const meta = MODULE_META[m];
+                      const mColor = MODULE_COLOR[m];
+                      return (
+                        <button
+                          key={m}
+                          className="hb-module-icon-chip"
+                          title={meta.label}
+                          style={{ animationDelay: `${i * 0.18}s` }}
+                          onClick={() => handleReply(m, meta.suggestedReply)}
+                        >
+                          <span className="hb-mic-icon" style={{ color: mColor, borderColor: `${mColor}25`, background: `${mColor}10` }}>{meta.icon}</span>
+                          <span className="hb-mic-label">{meta.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <div className="hb-panel-empty-text" style={{ marginTop: "1rem" }}>
                     Pick a tab to revisit, or ask MAX for something new.
                   </div>
-                  {/* Quick-launch chips from closed/unseen modules */}
-                  <div className="hb-empty-chips">
-                    {[
-                      ...closedTabs.slice(0, 2).map((m) => ({
-                        id: m,
-                        label: `Reopen: ${MODULE_META[m]?.label}`,
-                      })),
-                      ...MODULE_ORDER.filter(
-                        (m) => !unlockedModules.includes(m) && !closedTabs.includes(m)
-                      )
-                        .slice(0, 2)
-                        .map((m) => ({ id: m, label: MODULE_META[m].suggestedReply })),
-                    ]
-                      .slice(0, 4)
-                      .map((chip) => (
+                  {/* Quick-launch chips from closed tabs */}
+                  {closedTabs.length > 0 && (
+                    <div className="hb-empty-chips">
+                      {closedTabs.slice(0, 2).map((m) => (
                         <button
-                          key={chip.id}
+                          key={m}
                           className="hb-reply hb-empty-chip"
-                          onClick={() => handleReply(chip.id, chip.label)}
+                          onClick={() => handleReply(m, `Reopen: ${MODULE_META[m]?.label}`)}
                         >
-                          {chip.label}
+                          Reopen: {MODULE_META[m]?.label}
                         </button>
                       ))}
-                  </div>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className="hb-panel-empty">
@@ -2259,5 +2330,142 @@ const CSS = `
   @media (max-width: 480px) {
     .hb-topbar { padding: 0.75rem 1rem; }
     .hb-panel-content { padding: 0.875rem; }
+  }
+
+  /* ── Ambient orbs (splash background) ── */
+  .hb-orb {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    filter: blur(80px);
+    will-change: transform;
+  }
+  .hb-orb-violet {
+    width: 520px; height: 520px;
+    top: -10%; left: 50%;
+    transform: translateX(-60%);
+    background: radial-gradient(circle, rgba(139,92,246,0.05) 0%, transparent 65%);
+    animation: hb-orb-drift 18s ease-in-out infinite alternate;
+  }
+  .hb-orb-fuchsia {
+    width: 380px; height: 380px;
+    bottom: 5%; right: -5%;
+    background: radial-gradient(circle, rgba(236,72,153,0.04) 0%, transparent 65%);
+    animation: hb-orb-drift 22s ease-in-out infinite alternate-reverse;
+  }
+  .hb-orb-cyan {
+    width: 300px; height: 300px;
+    bottom: 15%; left: -2%;
+    background: radial-gradient(circle, rgba(6,182,212,0.035) 0%, transparent 65%);
+    animation: hb-orb-drift 26s ease-in-out infinite alternate;
+  }
+  @keyframes hb-orb-drift {
+    0% { transform: translateX(0) translateY(0); }
+    50% { transform: translateX(24px) translateY(-18px); }
+    100% { transform: translateX(-16px) translateY(12px); }
+  }
+
+  /* ── Pulsing border on splash card ── */
+  .hb-splash-chat-pulse {
+    animation: hb-card-pulse 8s ease-in-out infinite;
+  }
+  @keyframes hb-card-pulse {
+    0%, 100% { box-shadow: 0 0 80px rgba(139,92,246,0.06), 0 24px 48px rgba(0,0,0,0.4), 0 0 0 1px rgba(139,92,246,0.12); }
+    50%       { box-shadow: 0 0 100px rgba(139,92,246,0.11), 0 24px 56px rgba(0,0,0,0.45), 0 0 0 1px rgba(139,92,246,0.22); }
+  }
+
+  /* ── Module shimmer / loading state ── */
+  .hb-module-shimmer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+    padding: 0.25rem 0;
+  }
+  .hb-shimmer-line {
+    border-radius: 6px;
+    background: linear-gradient(90deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.09) 50%, rgba(255,255,255,0.04) 100%);
+    background-size: 200% 100%;
+    animation: hb-shimmer 1.4s ease-in-out infinite;
+  }
+  .hb-shimmer-line-h { height: 2.4rem; width: 55%; }
+  .hb-shimmer-line-m { height: 0.9rem; width: 75%; }
+  .hb-shimmer-line-s { height: 0.9rem; width: 45%; }
+  .hb-shimmer-block {
+    height: 5rem;
+    border-radius: 10px;
+    background: linear-gradient(90deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.07) 50%, rgba(255,255,255,0.03) 100%);
+    background-size: 200% 100%;
+    animation: hb-shimmer 1.4s ease-in-out infinite 0.2s;
+  }
+  @keyframes hb-shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  /* ── Module error state ── */
+  .hb-module-error {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1rem 0;
+  }
+  .hb-module-error-text {
+    font-size: 0.82rem;
+    color: rgba(255,255,255,0.32);
+  }
+  .hb-module-error-retry {
+    font-size: 0.74rem;
+    padding: 0.4rem 0.75rem;
+  }
+
+  /* ── Module reveal animation ── */
+  .hb-module-reveal {
+    animation: hb-module-reveal 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  @keyframes hb-module-reveal {
+    from { opacity: 0; transform: scale(0.97) translateY(6px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  /* ── Empty state: module icon grid ── */
+  .hb-module-icons-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.625rem;
+    justify-content: center;
+    max-width: 360px;
+  }
+  .hb-module-icon-chip {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem 0.625rem;
+    border-radius: 10px;
+    transition: background 0.15s ease;
+    animation: hb-icon-pulse 3s ease-in-out infinite alternate;
+  }
+  .hb-module-icon-chip:hover { background: rgba(255,255,255,0.04); }
+  @keyframes hb-icon-pulse {
+    0% { opacity: 0.38; }
+    100% { opacity: 0.68; }
+  }
+  .hb-mic-icon {
+    font-family: ui-monospace, monospace;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 0.3rem 0.45rem;
+    border-radius: 5px;
+    border: 1px solid;
+    flex-shrink: 0;
+  }
+  .hb-mic-label {
+    font-size: 0.6rem;
+    color: rgba(255,255,255,0.28);
+    white-space: nowrap;
   }
 `;
