@@ -487,10 +487,141 @@ export default function GovernancePage() {
       <CursorGradient color="rgba(239,68,68,0.08)" />
       <LiveTicker />
 
-      {/* HERO ──────────────────────────────────────────────── */}
+      {/* CUSTOMER-FACING HERO ──────────────────────────────── */}
       <section
         className="relative pt-40 pb-24 overflow-hidden"
         style={{ background: "var(--bg-root)" }}
+      >
+        <div className="absolute inset-0 pointer-events-none">
+          <div
+            className="absolute w-[900px] h-[900px] rounded-full -top-48 -right-48"
+            style={{
+              background: "radial-gradient(circle, rgba(239,68,68,0.14) 0%, transparent 60%)",
+              filter: "blur(160px)",
+            }}
+          />
+          <div
+            className="absolute w-[600px] h-[600px] rounded-full bottom-0 -left-32"
+            style={{
+              background: "radial-gradient(circle, rgba(139,92,246,0.12) 0%, transparent 60%)",
+              filter: "blur(120px)",
+            }}
+          />
+        </div>
+
+        <div className="max-w-6xl mx-auto px-6 sm:px-12 relative z-10">
+          <FadeIn>
+            <div
+              className="inline-flex items-center gap-3 mb-10 px-4 py-2 rounded-full backdrop-blur-sm"
+              style={{
+                background: "rgba(239,68,68,0.08)",
+                border: "1px solid rgba(239,68,68,0.35)",
+              }}
+            >
+              <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: VAULT_RED }} />
+              <span className="text-[12px] font-mono tracking-[0.3em] uppercase" style={{ color: VAULT_RED }}>
+                The Vault · Governance Chassis
+              </span>
+            </div>
+          </FadeIn>
+
+          <div className="space-y-2 mb-10">
+            <RevealMask>
+              <h1 className="text-[clamp(2rem,5vw,4rem)] font-black leading-[1.05] tracking-tight text-white/95">
+                You see the AI agent.
+              </h1>
+            </RevealMask>
+            <RevealMask delay={150}>
+              <h1 className="text-[clamp(2rem,5vw,4rem)] font-black leading-[1.05] tracking-tight text-white/95">
+                You don&apos;t see what it&apos;s doing.
+              </h1>
+            </RevealMask>
+            <RevealMask delay={300}>
+              <h2
+                className="text-[clamp(2rem,5vw,4rem)] font-black leading-[1.05] tracking-tight"
+              >
+                <span
+                  className="bg-clip-text text-transparent"
+                  style={{
+                    backgroundImage: `linear-gradient(135deg, ${VAULT_RED} 0%, #f97316 50%, ${VAULT_RED} 100%)`,
+                  }}
+                >
+                  Level9OS makes the invisible visible.
+                </span>
+              </h2>
+            </RevealMask>
+          </div>
+
+          <FadeIn delay={0.5}>
+            <ul className="space-y-3 mb-14 max-w-2xl">
+              {[
+                "Every action logged. Not summarized. Logged.",
+                "Every dollar tracked. Budget hard stops enforced before they are breached.",
+                "Every output gated before it reaches production. No agent self-approves.",
+              ].map((item) => (
+                <li key={item} className="flex items-start gap-3">
+                  <span
+                    className="mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0"
+                    style={{ background: VAULT_RED }}
+                  />
+                  <span className="text-white/75 text-lg leading-relaxed">{item}</span>
+                </li>
+              ))}
+            </ul>
+          </FadeIn>
+
+          {/* Governance ROI strip */}
+          <FadeIn delay={0.7}>
+            <div
+              className="rounded-2xl p-7 sm:p-10 mb-6"
+              style={{
+                background: "rgba(239,68,68,0.04)",
+                border: "1px solid rgba(239,68,68,0.18)",
+              }}
+            >
+              <div
+                className="text-[11px] font-mono tracking-[0.22em] uppercase mb-6"
+                style={{ color: VAULT_RED }}
+              >
+                Governance ROI · Production numbers
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                {[
+                  { value: "$52,686", label: "Prevented in cost overruns" },
+                  { value: "236 hrs", label: "Saved in manual verification" },
+                  { value: "$5.07/mo", label: "Total governance cost" },
+                  { value: "3,464x", label: "Gross ROI · 34.8x net" },
+                ].map((stat) => (
+                  <div key={stat.label}>
+                    <div
+                      className="text-[clamp(1.5rem,3vw,2.25rem)] font-black tracking-tight mb-1"
+                      style={{ color: VAULT_RED }}
+                    >
+                      {stat.value}
+                    </div>
+                    <div className="text-[12px] text-white/55 leading-snug">{stat.label}</div>
+                  </div>
+                ))}
+              </div>
+              <p className="mt-6 text-white/35 text-xs font-mono">
+                Numbers pulled from production logs. Not projections.
+              </p>
+            </div>
+          </FadeIn>
+
+          <FadeIn delay={0.85}>
+            <p className="text-white/55 text-base max-w-3xl leading-relaxed">
+              Below: the full governance program. Four chapters, seven documents, ten standards mapped.
+              Every claim links to a primary source. Every open issue tracked with an owner and a target.
+            </p>
+          </FadeIn>
+        </div>
+      </section>
+
+      {/* VAULT DOC HUB HERO ──────────────────────────────────── */}
+      <section
+        className="relative pt-20 pb-24 overflow-hidden"
+        style={{ background: "var(--bg-surface)" }}
       >
         {/* Atmospheric glow layers */}
         <div className="absolute inset-0 pointer-events-none">
