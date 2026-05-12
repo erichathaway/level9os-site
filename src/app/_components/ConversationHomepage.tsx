@@ -20,6 +20,8 @@ import { SearchPalette, type PaletteItem } from "@/components/SearchPalette";
 import ConsoleGraphicLite from "@/app/_components/ConsoleGraphicLite";
 import { ForgeCube, type ForgeProduct } from "@level9/brand/components/architecture";
 import HomeHeroSplash from "@/components/motion/HomeHeroSplash";
+import DecisionTrace from "@/components/motion/DecisionTrace";
+import StackFlow from "@/components/motion/StackFlow";
 import { products } from "@level9/brand/content/products";
 import { pressurePoints, chassis, installManual } from "@level9/brand/content/pressurePoints";
 import { stack } from "@level9/brand/content/stack";
@@ -1659,6 +1661,8 @@ function AboutModule() {
 
 function ArchitectureModule() {
   const layerById = (id: string) => stack.find((l) => l.id === id);
+  const [dtActiveIdx, setDtActiveIdx] = useState(0);
+  const [dtPaused, setDtPaused] = useState(false);
 
   return (
     <div className="hb-rich-module">
@@ -1679,6 +1683,24 @@ function ArchitectureModule() {
             <span style={{ fontSize: "0.62rem", fontFamily: "ui-monospace,monospace", letterSpacing: "0.1em", color: "rgba(255,255,255,0.6)" }}>{badge.count} {badge.label}</span>
           </div>
         ))}
+      </div>
+
+      {/* StackFlow: 4-layer hover-swap — structure */}
+      <div className="hb-rich-section-label" style={{ color: "rgba(139,92,246,0.6)" }}>How the four layers work together</div>
+      <div style={{ width: "100%", margin: "0 0 1.5rem", overflow: "hidden", borderRadius: "14px", border: "1px solid rgba(139,92,246,0.08)" }}>
+        <StackFlow />
+      </div>
+
+      {/* DecisionTrace: 8-stage auto-cycle — one decision in motion */}
+      <div className="hb-rich-section-label" style={{ color: "rgba(6,182,212,0.6)" }}>One decision through all 8 layers</div>
+      <div style={{ width: "100%", margin: "0 0 1.5rem", overflow: "hidden", borderRadius: "14px", border: "1px solid rgba(6,182,212,0.08)" }}>
+        <DecisionTrace
+          activeIdx={dtActiveIdx}
+          setActiveIdx={setDtActiveIdx}
+          paused={dtPaused}
+          setPaused={setDtPaused}
+          inline={true}
+        />
       </div>
 
       {/* Pressure points */}
