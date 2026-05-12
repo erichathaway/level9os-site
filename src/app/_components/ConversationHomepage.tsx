@@ -22,6 +22,7 @@ import { ForgeCube, type ForgeProduct } from "@level9/brand/components/architect
 import HomeHeroSplash from "@/components/motion/HomeHeroSplash";
 import DecisionTrace from "@/components/motion/DecisionTrace";
 import StackFlow from "@/components/motion/StackFlow";
+import CompoundingRiskWalkthrough from "@/app/_components/CompoundingRiskWalkthrough";
 import { products } from "@level9/brand/content/products";
 import { pressurePoints, chassis, installManual } from "@level9/brand/content/pressurePoints";
 import { stack } from "@level9/brand/content/stack";
@@ -45,7 +46,8 @@ type ModuleId =
   | "about"
   | "architecture"
   | "compare"
-  | "walkthroughs";
+  | "walkthroughs"
+  | "compounding-risk";
 
 type PoolGroup = "A" | "B" | "C" | "D" | "E" | "F";
 
@@ -211,6 +213,12 @@ const MODULE_META: Record<
     suggestedReply: "Roll the tape.",
     agentIntro: "Three depths. 30 seconds, 1:30, 5 minutes. Pick how far in you want to go.",
   },
+  "compounding-risk": {
+    label: "Agent Risk",
+    icon: "!",
+    suggestedReply: "Show me the compounding math.",
+    agentIntro: "Seven scenes. One agent. Then five. Then the governance line that keeps it flat.",
+  },
 };
 
 const MODULE_ORDER: ModuleId[] = [
@@ -229,6 +237,7 @@ const MODULE_ORDER: ModuleId[] = [
   "architecture",
   "compare",
   "walkthroughs",
+  "compounding-risk",
 ];
 
 // Per-module accent colors from brand palette
@@ -248,6 +257,7 @@ const MODULE_COLOR: Record<ModuleId, string> = {
   "architecture":  "#06b6d4", // Measure / cyan
   "compare":       "#8b5cf6", // Decide / violet
   "walkthroughs":  "#ec4899", // MAX / fuchsia
+  "compounding-risk": "#ef4444", // Red / danger signal
 };
 
 // Pre-surfaced tabs for State 3 (skipped)
@@ -2218,6 +2228,27 @@ function WalkthroughsModule() {
   );
 }
 
+// ─── CompoundingRiskModule ─────────────────────────────────────────────────────
+
+function CompoundingRiskModule({ onOpenModule }: { onOpenCounter?: () => void; onOpenModule?: (id: ModuleId) => void }) {
+  return (
+    <div className="hb-rich-module">
+      <div className="hb-rich-eyebrow" style={{ color: "#ef4444" }}>Why Multi-Agent is Risky</div>
+      <h2 className="hb-rich-headline">One agent: manageable.<br /><span style={{ color: "#ef4444" }}>Five agents: 90% error rate.</span></h2>
+      <p className="hb-rich-sub">Scroll through seven scenes. See how errors compound, how governance flattens the curve, and what 95% reliability looks like at any agent count.</p>
+
+      <CompoundingRiskWalkthrough
+        onOpenCounter={() => onOpenModule?.("counter")}
+        onOpenChat={() => onOpenModule?.("voice-pitch")}
+      />
+
+      <div style={{ marginTop: "1rem", fontSize: "0.72rem", color: "rgba(255,255,255,0.28)", fontFamily: "ui-monospace,monospace", lineHeight: 1.6, textAlign: "center" }}>
+        Based on 299 real Claude Code sessions, 90 days of production data.
+      </div>
+    </div>
+  );
+}
+
 // ─── HowExplainer component ────────────────────────────────────────────────────
 
 function HowExplainer({
@@ -2306,6 +2337,7 @@ function ModuleRenderer({
       case "architecture": return <ArchitectureModule />;
       case "compare": return <CompareModule />;
       case "walkthroughs": return <WalkthroughsModule />;
+      case "compounding-risk": return <CompoundingRiskModule />;
       default: {
         setErrored(true);
         return null;
@@ -2479,6 +2511,14 @@ const CONTENT_POOL: PoolPrompt[] = [
     label: "Want the receipt? It is a single page that pretty much tells our story.",
     group: "D",
     opensModule: "counter",
+  },
+
+  // Group D compounding risk
+  {
+    id: "reveal-compounding-risk",
+    label: "Want to see what happens with 5 agents and no governance?",
+    group: "D",
+    opensModule: "compounding-risk",
   },
 
   // Group A (continued): deep dives into new rich modules
@@ -3081,6 +3121,7 @@ export default function ConversationHomepage() {
     { patterns: ["path", "start", "how to start", "onboard", "get started", "first step"], moduleId: "paths" },
     { patterns: ["about", "who are you", "company", "team", "history", "founded"], moduleId: "about" },
     { patterns: ["architecture", "how it works", "layers", "stack", "pressure point", "design"], moduleId: "architecture" },
+    { patterns: ["multi-agent risk", "compounding", "agent risk", "why is this risky", "what could go wrong", "risky", "5 agents", "multiple agents"], moduleId: "compounding-risk" },
   ];
 
   const keywordRoute = useCallback(
