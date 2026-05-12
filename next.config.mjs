@@ -4,11 +4,21 @@ const nextConfig = {
   transpilePackages: ["@level9/brand"],
   async redirects() {
     return [
+      // Legacy route — kept from earlier config
       {
         source: "/how-we-work",
-        destination: "/paths",
+        destination: "/?surface=paths",
         permanent: true,
       },
+      // Phase C: collapsed routed pages now live as dashboard modules
+      { source: "/products",     destination: "/?surface=products",     permanent: true },
+      { source: "/governance",   destination: "/?surface=governance",   permanent: true },
+      { source: "/paths",        destination: "/?surface=paths",        permanent: true },
+      { source: "/wrappers",     destination: "/?surface=wrappers",     permanent: true },
+      { source: "/about",        destination: "/?surface=about",        permanent: true },
+      { source: "/architecture", destination: "/?surface=architecture", permanent: true },
+      { source: "/compare",      destination: "/?surface=compare",      permanent: true },
+      { source: "/partnerships", destination: "/?surface=about",        permanent: true },
     ];
   },
   async headers() {
