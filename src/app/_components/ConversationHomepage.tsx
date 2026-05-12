@@ -39,7 +39,8 @@ type ModuleId =
   | "wrappers"
   | "about"
   | "architecture"
-  | "compare";
+  | "compare"
+  | "walkthroughs";
 
 type PoolGroup = "A" | "B" | "C" | "D" | "E" | "F";
 
@@ -199,6 +200,12 @@ const MODULE_META: Record<
     suggestedReply: "Who are you up against?",
     agentIntro: "Mapped 70+ vendors across 8 capability layers. Seven real competitors. Honest read on each.",
   },
+  walkthroughs: {
+    label: "Walkthroughs",
+    icon: ">>",
+    suggestedReply: "Roll the tape.",
+    agentIntro: "Three depths. 30 seconds, 1:30, 5 minutes. Pick how far in you want to go.",
+  },
 };
 
 const MODULE_ORDER: ModuleId[] = [
@@ -216,6 +223,7 @@ const MODULE_ORDER: ModuleId[] = [
   "about",
   "architecture",
   "compare",
+  "walkthroughs",
 ];
 
 // Per-module accent colors from brand palette
@@ -234,6 +242,7 @@ const MODULE_COLOR: Record<ModuleId, string> = {
   "about":         "#10b981", // Coordinate / emerald
   "architecture":  "#06b6d4", // Measure / cyan
   "compare":       "#8b5cf6", // Decide / violet
+  "walkthroughs":  "#ec4899", // MAX / fuchsia
 };
 
 // Pre-surfaced tabs for State 3 (skipped)
@@ -1817,6 +1826,295 @@ function CompareModule() {
   );
 }
 
+// ─── Walkthroughs module ──────────────────────────────────────────────────────
+
+// TODO: ElevenLabs voice render in operator's clone, pending approval.
+
+const WALKTHROUGH_SCENES = {
+  "30s": [
+    {
+      id: "pain",
+      label: "The Pain",
+      bg: "#ef4444",
+      headline: "Most AI tools add agents.",
+      body: "None of them govern them.",
+      caption: "Most AI tools add agents. None of them govern them.",
+    },
+    {
+      id: "proof",
+      label: "The Proof",
+      bg: "#8b5cf6",
+      headline: "236 hours.",
+      body: "Operator time returned in 90 days from governance catching what agents got wrong.",
+      caption: "236 hours. That's operator time we returned in 90 days, just from governance catching what agents got wrong.",
+    },
+    {
+      id: "product",
+      label: "What We Do",
+      bg: "#06b6d4",
+      headline: "One control plane.",
+      body: "Every agent. Every vendor. Every workflow. Built for a 10 to 50 person company.",
+      caption: "Level9OS is your AI operating system. One control plane for every agent, every vendor, every workflow. Built for a 10 to 50 person company that can't afford to learn this the hard way.",
+    },
+    {
+      id: "cta",
+      label: "The CTA",
+      bg: "#10b981",
+      headline: "Your first AI operating system.",
+      body: "Or your last one.",
+      caption: "Your first AI operating system. Or your last one. Start at level9os.com.",
+    },
+  ],
+  "1m30": [
+    {
+      id: "pain",
+      label: "The Pain",
+      bg: "#ef4444",
+      headline: "You've introduced an agent.",
+      body: "Maybe a few. They're running.",
+      caption: "You've introduced an agent. Maybe a few. They're running.",
+    },
+    {
+      id: "problem",
+      label: "The Problem",
+      bg: "#f59e0b",
+      headline: "They're claiming done.",
+      body: "When the work isn't done. Reversing mid-task. Burning your best model on work that costs a tenth as much.",
+      caption: "Here's what's actually happening: they're claiming done when the work isn't done. They're reversing mid-task. They're burning your best model on work that costs a tenth as much somewhere else. And you won't know until something breaks.",
+    },
+    {
+      id: "numbers",
+      label: "The Numbers",
+      bg: "#8b5cf6",
+      headline: "$52,686 prevented. $5.07/mo.",
+      body: "236 hours returned. 3,464x ROI. Not a projection. Production data.",
+      caption: "236 hours of operator time returned in 90 days. Up to $17,562 a month in prevented rework. Governance infrastructure running at $5.07 a month. That's not a projection. That's our production environment.",
+    },
+    {
+      id: "bridge",
+      label: "The Architecture",
+      bg: "#06b6d4",
+      headline: "Plug any agent.",
+      body: "Claude, GPT, Gemini. One control plane. One audit trail. No lock-in.",
+      caption: "Plug any agent. Claude, GPT, Gemini. One control plane. One audit trail. No lock-in.",
+    },
+    {
+      id: "hook",
+      label: "The Hook",
+      bg: "#10b981",
+      headline: "Introduce an agent. Give it a day.",
+      body: "It comes back and walks you through what it found. That's the demo.",
+      caption: "The GTM hook we ship to every customer: introduce an agent. Give it access. Give it a day. It comes back and walks you through what it found.",
+    },
+    {
+      id: "cta",
+      label: "CTA",
+      bg: "#ec4899",
+      headline: "Your first AI operating system.",
+      body: "Or your last one. level9os.com",
+      caption: "Your first AI operating system. Or your last one. level9os.com.",
+    },
+  ],
+  "5min": [
+    {
+      id: "pain",
+      label: "The Pain",
+      bg: "#ef4444",
+      headline: "You approved the work.",
+      body: "The agent said it was done. Three days later, your team found the failure.",
+      caption: "You've approved the work. The agent says it's done. You move on. Three days later, someone on your team finds the failure. The agent never finished. It just told you it did.",
+    },
+    {
+      id: "proof",
+      label: "The Data",
+      bg: "#f59e0b",
+      headline: "26% lie rate.",
+      body: "In 299 real production sessions over 90 days. One in four done-claims was wrong.",
+      caption: "In 299 real production sessions over 90 days, we measured a 26% lie rate from our own AI agents. One in four done-claims was wrong.",
+    },
+    {
+      id: "operator",
+      label: "Who We're For",
+      bg: "#8b5cf6",
+      headline: "10 to 50 people.",
+      body: "Not a thousand-person enterprise. The operator who has real AI running and no system around it yet.",
+      caption: "We're an AI operating system for companies between 10 and 50 people. The operator who's already running AI. Who has 3, 5, maybe 10 agents active. And no real system governing any of them.",
+    },
+    {
+      id: "competition",
+      label: "The Competition",
+      bg: "#64748b",
+      headline: "$1M vs $499/mo.",
+      body: "Microsoft Agent 365: ~$1M/yr. Salesforce Agentforce: ~$850K/yr. Level9OS: $499/mo.",
+      caption: "Microsoft Agent 365 runs close to $1 million a year. Salesforce Agentforce, around $850,000. Workday ASOR, $500,000 and it doesn't leave the HR and finance lane. Level9OS is $499 a month. And it's not locked to one vendor.",
+    },
+    {
+      id: "numbers",
+      label: "The Numbers",
+      bg: "#06b6d4",
+      headline: "$52,686. 236 hrs. $5.07.",
+      body: "3,464x return. Production data. Not projections.",
+      caption: "In 90 days: $52,686 in prevented rework. Monthly run rate: $17,562 in costs we didn't pay. Operator time returned: 236 hours in 90 days. Cost of the governance system: $5.07 a month.",
+    },
+    {
+      id: "product",
+      label: "The Product",
+      bg: "#8b5cf6",
+      headline: "18 governance services.",
+      body: "Truth enforcement. Cost control. Identity + access. Running from the first agent action.",
+      caption: "The governance layer is not a feature on top of the product. It's the foundation the whole system runs on. 18 services across truth enforcement, budget control, and identity management.",
+    },
+    {
+      id: "compare",
+      label: "Competitive Demolition",
+      bg: "#ef4444",
+      headline: "They govern their own agents.",
+      body: "We govern all of them. Multi-vendor. No lock-in.",
+      caption: "Multi-vendor AI governance and management platform. Plug any agent. Claude. GPT-4. Gemini. A custom-built model. One control plane. One audit trail.",
+    },
+    {
+      id: "window",
+      label: "The Window",
+      bg: "#f59e0b",
+      headline: "12 to 18 months.",
+      body: "Microsoft, Salesforce, Anthropic, Workday are all moving. The window before consolidation is months, not years.",
+      caption: "The window here is 12 to 18 months. By late 2027, one or two of them will consolidate the category. We're building for the operators who don't want to wait.",
+    },
+    {
+      id: "cta",
+      label: "CTA",
+      bg: "#10b981",
+      headline: "Your first AI operating system.",
+      body: "Or your last one. We'll show you what's actually running.",
+      caption: "Your first AI operating system. Or your last one. level9os.com. We'll show you what's actually running.",
+    },
+  ],
+};
+
+type WalkthroughId = "30s" | "1m30" | "5min";
+
+function WalkthroughPlayer({ id, onClose }: { id: WalkthroughId; onClose: () => void }) {
+  const scenes = WALKTHROUGH_SCENES[id];
+  const [scene, setScene] = useState(0);
+  const [autoplay, setAutoplay] = useState(false);
+  const durations: Record<WalkthroughId, number> = { "30s": 7500, "1m30": 15000, "5min": 33000 };
+  const sceneDuration = Math.round(durations[id] / scenes.length);
+
+  useEffect(() => {
+    if (!autoplay) return;
+    if (scene >= scenes.length - 1) { setAutoplay(false); return; }
+    const t = setTimeout(() => setScene((s) => s + 1), sceneDuration);
+    return () => clearTimeout(t);
+  }, [autoplay, scene, scenes.length, sceneDuration]);
+
+  const current = scenes[scene];
+
+  return (
+    <div className="hb-walkthrough-player">
+      {/* Scene */}
+      <div
+        className="hb-wt-scene"
+        key={scene}
+        style={{ background: `${current.bg}12`, borderColor: `${current.bg}30` }}
+      >
+        <div className="hb-wt-scene-label" style={{ color: current.bg }}>{current.label}</div>
+        <div className="hb-wt-headline" style={{ color: "rgba(255,255,255,0.92)" }}>{current.headline}</div>
+        <div className="hb-wt-body">{current.body}</div>
+        {/* Waveform placeholder */}
+        <div className="hb-wt-waveform-wrap">
+          <div className="hb-wt-waveform" style={{ borderColor: `${current.bg}25` }}>
+            {Array.from({ length: 20 }).map((_, i) => (
+              <div
+                key={i}
+                className="hb-wt-bar"
+                style={{
+                  height: `${10 + Math.abs(Math.sin(i * 0.9 + scene * 0.7)) * 22}px`,
+                  background: current.bg,
+                  animationDelay: `${i * 0.04}s`,
+                  animationPlayState: autoplay ? "running" : "paused",
+                }}
+              />
+            ))}
+          </div>
+          <div className="hb-wt-pending">Voice render pending operator approval</div>
+        </div>
+        {/* Caption */}
+        <div className="hb-wt-caption">&ldquo;{current.caption}&rdquo;</div>
+      </div>
+
+      {/* Controls */}
+      <div className="hb-wt-controls">
+        <button className="hb-wt-nav" onClick={() => setScene((s) => Math.max(0, s - 1))} disabled={scene === 0}>
+          ←
+        </button>
+        <div className="hb-wt-dots">
+          {scenes.map((_, i) => (
+            <button
+              key={i}
+              className={`hb-wt-dot ${i === scene ? "active" : ""}`}
+              style={i === scene ? { background: current.bg } : {}}
+              onClick={() => { setScene(i); setAutoplay(false); }}
+            />
+          ))}
+        </div>
+        <button className="hb-wt-nav" onClick={() => setScene((s) => Math.min(scenes.length - 1, s + 1))} disabled={scene === scenes.length - 1}>
+          →
+        </button>
+        <button
+          className="hb-wt-play"
+          style={{ borderColor: `${current.bg}40`, color: current.bg }}
+          onClick={() => setAutoplay(!autoplay)}
+        >
+          {autoplay ? "■ Stop" : "▶ Auto-play"}
+        </button>
+      </div>
+      <div className="hb-wt-progress">
+        {scene + 1} / {scenes.length}
+      </div>
+
+      <button className="hb-wt-close" onClick={onClose}>← Back to walkthroughs</button>
+    </div>
+  );
+}
+
+function WalkthroughsModule() {
+  const [selected, setSelected] = useState<WalkthroughId | null>(null);
+
+  if (selected) {
+    return <WalkthroughPlayer id={selected} onClose={() => setSelected(null)} />;
+  }
+
+  const options: { id: WalkthroughId; label: string; time: string; desc: string; color: string }[] = [
+    { id: "30s", label: "Quick walkthrough", time: "30 sec", desc: "The number. The cost. The ROI. Done.", color: "#ef4444" },
+    { id: "1m30", label: "Product walkthrough", time: "1:30", desc: "Four categories, full math, one CTA.", color: "#8b5cf6" },
+    { id: "5min", label: "Full pitch", time: "5 min", desc: "Full operator briefing. Architecture, proof, onboarding.", color: "#ec4899" },
+  ];
+
+  return (
+    <div className="hb-rich-module">
+      <div className="hb-rich-eyebrow" style={{ color: "#ec4899" }}>Walkthroughs</div>
+      <h2 className="hb-rich-headline">Three depths. Pick how far you want to go.</h2>
+      <p className="hb-rich-sub">Each walkthrough is scroll-driven. Captions from the pitch scripts verbatim. Voice render pending operator approval.</p>
+      <div className="hb-wt-picker">
+        {options.map((opt) => (
+          <button
+            key={opt.id}
+            className="hb-wt-card"
+            style={{ borderColor: `${opt.color}25`, "--wt-color": opt.color } as React.CSSProperties}
+            onClick={() => setSelected(opt.id)}
+          >
+            <div className="hb-wt-card-bar" style={{ background: opt.color }} />
+            <div className="hb-wt-card-time" style={{ color: opt.color }}>{opt.time}</div>
+            <div className="hb-wt-card-label">{opt.label}</div>
+            <div className="hb-wt-card-desc">{opt.desc}</div>
+            <div className="hb-wt-card-cta" style={{ color: opt.color }}>Start →</div>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ─── HowExplainer component ────────────────────────────────────────────────────
 
 function HowExplainer({
@@ -1904,6 +2202,7 @@ function ModuleRenderer({
       case "about": return <AboutModule />;
       case "architecture": return <ArchitectureModule />;
       case "compare": return <CompareModule />;
+      case "walkthroughs": return <WalkthroughsModule />;
       default: {
         setErrored(true);
         return null;
@@ -3968,6 +4267,163 @@ const CSS = `
     from { opacity: 1; transform: translateY(0) scale(1); }
     to { opacity: 0; transform: translateY(-60px) scale(0.3); }
   }
+
+  /* ── Walkthrough module ── */
+  .hb-wt-picker {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+  }
+  @media (max-width: 560px) { .hb-wt-picker { grid-template-columns: 1fr; } }
+  .hb-wt-card {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid;
+    border-radius: 12px;
+    padding: 1.25rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    text-align: left;
+    font-family: inherit;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .hb-wt-card:hover { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.15) !important; }
+  .hb-wt-card-bar { position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+  .hb-wt-card-time { font-size: 1.4rem; font-weight: 900; letter-spacing: -0.02em; }
+  .hb-wt-card-label { font-size: 0.82rem; font-weight: 700; color: rgba(255,255,255,0.85); }
+  .hb-wt-card-desc { font-size: 0.72rem; color: rgba(255,255,255,0.42); line-height: 1.5; }
+  .hb-wt-card-cta { font-size: 0.72rem; font-weight: 600; margin-top: 0.25rem; }
+  .hb-walkthrough-player {
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+  }
+  .hb-wt-scene {
+    border: 1px solid;
+    border-radius: 14px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+    animation: hb-module-reveal 0.3s cubic-bezier(0.16,1,0.3,1);
+    min-height: 240px;
+  }
+  .hb-wt-scene-label {
+    font-size: 0.58rem;
+    font-family: ui-monospace,monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+  }
+  .hb-wt-headline {
+    font-size: clamp(1.1rem, 2.8vw, 1.5rem);
+    font-weight: 900;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+  }
+  .hb-wt-body { font-size: 0.83rem; color: rgba(255,255,255,0.58); line-height: 1.6; }
+  .hb-wt-waveform-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    margin: 0.25rem 0;
+  }
+  .hb-wt-waveform {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    height: 36px;
+    padding: 0.35rem 0.5rem;
+    border: 1px solid;
+    border-radius: 8px;
+    background: rgba(0,0,0,0.2);
+  }
+  .hb-wt-bar {
+    width: 3px;
+    border-radius: 2px;
+    opacity: 0.5;
+    animation: hbvoice-wave 0.8s ease-in-out infinite alternate;
+  }
+  .hb-wt-pending {
+    font-size: 0.58rem;
+    color: rgba(255,255,255,0.2);
+    font-style: italic;
+    font-family: ui-monospace,monospace;
+  }
+  .hb-wt-caption {
+    font-size: 0.76rem;
+    color: rgba(255,255,255,0.45);
+    line-height: 1.65;
+    font-style: italic;
+    border-left: 2px solid rgba(255,255,255,0.12);
+    padding-left: 0.75rem;
+    margin-top: 0.25rem;
+  }
+  .hb-wt-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    flex-wrap: wrap;
+  }
+  .hb-wt-nav {
+    width: 32px; height: 32px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    color: rgba(255,255,255,0.55);
+    font-size: 0.85rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.15s ease;
+  }
+  .hb-wt-nav:disabled { opacity: 0.25; cursor: not-allowed; }
+  .hb-wt-nav:not(:disabled):hover { background: rgba(255,255,255,0.08); }
+  .hb-wt-dots { display: flex; gap: 0.3rem; align-items: center; flex: 1; flex-wrap: wrap; }
+  .hb-wt-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.15);
+    border: none;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.15s ease;
+    flex-shrink: 0;
+  }
+  .hb-wt-dot.active { transform: scale(1.3); }
+  .hb-wt-dot:hover:not(.active) { background: rgba(255,255,255,0.3); }
+  .hb-wt-play {
+    padding: 0.4rem 0.875rem;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid;
+    border-radius: 8px;
+    font-size: 0.72rem;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s ease;
+  }
+  .hb-wt-play:hover { background: rgba(255,255,255,0.08); }
+  .hb-wt-progress {
+    font-size: 0.62rem;
+    color: rgba(255,255,255,0.22);
+    font-family: ui-monospace,monospace;
+  }
+  .hb-wt-close {
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.32);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    font-family: inherit;
+    transition: color 0.15s ease;
+    text-align: left;
+  }
+  .hb-wt-close:hover { color: rgba(255,255,255,0.7); }
 
   /* ── Governance capability grid ── */
   .hb-gov-grid {
