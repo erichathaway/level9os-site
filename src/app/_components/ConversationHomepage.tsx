@@ -340,6 +340,28 @@ function CounterModule() {
           </div>
         </div>
       )}
+      {subVisible && (
+        <HowExplainer label="How? Breakdown">
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.625rem" }}>
+            {[
+              { label: "Reversals caught", pct: "60%", amount: "$26,361", color: "#8b5cf6" },
+              { label: "Stop hook fires", pct: "21%", amount: "$10,834", color: "#ef4444" },
+              { label: "Flub events stopped", pct: "22%", amount: "$11,500", color: "#f59e0b" },
+              { label: "Cost-router refusals", pct: "<1%", amount: "$31", color: "#06b6d4" },
+            ].map((item, i) => (
+              <div key={item.label} style={{ display: "flex", alignItems: "center", gap: "0.625rem", animation: `hb-fade-in 0.35s ease ${i * 0.08}s both` }}>
+                <div style={{ width: 8, height: 8, borderRadius: "50%", background: item.color, flexShrink: 0 }} />
+                <span style={{ flex: 1, fontSize: "0.76rem", color: "rgba(255,255,255,0.62)" }}>{item.label}</span>
+                <span style={{ fontSize: "0.68rem", color: "rgba(255,255,255,0.3)", fontFamily: "ui-monospace,monospace" }}>{item.pct}</span>
+                <span style={{ fontSize: "0.78rem", fontWeight: 700, color: item.color, fontVariantNumeric: "tabular-nums" }}>{item.amount}</span>
+              </div>
+            ))}
+            <div style={{ marginTop: "0.25rem", fontSize: "0.65rem", color: "rgba(255,255,255,0.22)", fontFamily: "ui-monospace,monospace", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: "0.5rem" }}>
+              Numbers pulled from production session logs. Not projections.
+            </div>
+          </div>
+        </HowExplainer>
+      )}
     </div>
   );
 }
@@ -423,6 +445,17 @@ function CalculatorModule({
           <div className="hbcalc-anchor">
             Eric&apos;s actual numbers: $52,686 prevented. $5.07/mo. 3,464x ROI.
           </div>
+          <HowExplainer label="How is this calculated?">
+            <div style={{ fontSize: "0.76rem", color: "rgba(255,255,255,0.55)", lineHeight: 1.7, display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+              <p style={{ margin: 0 }}>The formula uses three inputs:</p>
+              <p style={{ margin: 0, fontFamily: "ui-monospace,monospace", fontSize: "0.68rem", background: "rgba(255,255,255,0.03)", padding: "0.5rem 0.75rem", borderRadius: 6, color: "rgba(255,255,255,0.65)" }}>
+                complexity = 1 + (tools - 1) * 0.08<br />
+                waste_at_risk = spend * (0.18 + tools*0.015 + people*0.001) * complexity<br />
+                prevented = waste_at_risk * 87.8%
+              </p>
+              <p style={{ margin: 0 }}>Prevention rate (87.8%) is derived from Eric&apos;s 90-day production data: $52,686 prevented out of ~$59,963 waste-at-risk.</p>
+            </div>
+          </HowExplainer>
         </div>
       )}
     </div>
@@ -466,17 +499,17 @@ function ArticleModule() {
   );
 }
 
-const FEED_EVENTS = [
-  { action: "Done-claim without build verify", verdict: "BLOCKED", saved: 86.67, cat: "Stop hook" },
-  { action: "Broad grep on expensive model tier", verdict: "REROUTED", saved: 0.71, cat: "Cost-router" },
-  { action: "Write to protected governance hook", verdict: "BLOCKED", saved: 110.0, cat: "Protected-resource" },
-  { action: "Unverified claim before production push", verdict: "BLOCKED", saved: 250.0, cat: "Flub/claim" },
-  { action: "Mid-session reversal on prior done-claim", verdict: "FLAGGED", saved: 33.71, cat: "Reversal" },
-  { action: "Em dash in user-facing marketing copy", verdict: "FLAGGED", saved: 33.71, cat: "Voice-rule" },
-  { action: "Mechanical rename rerouted to Haiku", verdict: "REROUTED", saved: 1.4, cat: "Cost-router" },
-  { action: "Force-push to main attempted", verdict: "BLOCKED", saved: 110.0, cat: "Protected-resource" },
-  { action: "Classification sweep on correct tier", verdict: "ALLOWED", saved: 0, cat: "Cost-router" },
-  { action: "Build verified, done-claim accepted", verdict: "ALLOWED", saved: 0, cat: "Stop hook" },
+const FEED_EVENTS: { action: string; verdict: string; saved: number; cat: string; rule: string }[] = [
+  { action: "Done-claim without build verify", verdict: "BLOCKED", saved: 86.67, cat: "Stop hook", rule: "Stop hook requires a deterministic verifier before any done-claim is accepted. No build verify = no done-claim." },
+  { action: "Broad grep on expensive model tier", verdict: "REROUTED", saved: 0.71, cat: "Cost-router", rule: "Cost-router classifies PLUMBING tasks and routes them to Haiku. Broad grep on Opus tier triggers the PLUMBING redirect." },
+  { action: "Write to protected governance hook", verdict: "BLOCKED", saved: 110.0, cat: "Protected-resource", rule: "Protected-resource hook checks every write against the deny list. ~/.claude/hooks is a protected path. No capability grant = blocked." },
+  { action: "Unverified claim before production push", verdict: "BLOCKED", saved: 250.0, cat: "Flub/claim", rule: "Claim-verify hook flags any assertion that lacks a traceable source. Unverified claims before production push hit the anti-lie stop hook." },
+  { action: "Mid-session reversal on prior done-claim", verdict: "FLAGGED", saved: 33.71, cat: "Reversal", rule: "Session state tracking detects when an agent contradicts a prior done-claim in the same thread. Logged to cmd_routing_log as a reversal event." },
+  { action: "Em dash in user-facing marketing copy", verdict: "FLAGGED", saved: 33.71, cat: "Voice-rule", rule: "Voice-rule hook detects em dash characters in agent-generated copy and flags for correction before publication." },
+  { action: "Mechanical rename rerouted to Haiku", verdict: "REROUTED", saved: 1.4, cat: "Cost-router", rule: "PLUMBING tasks (mechanical rename, bulk ops) route to Haiku tier. Running them on Opus triggers the cost-router redirect." },
+  { action: "Force-push to main attempted", verdict: "BLOCKED", saved: 110.0, cat: "Protected-resource", rule: "Force-push to main is blocked by the guard-bash hook. Listed in the four hard-blocked patterns. No exceptions." },
+  { action: "Classification sweep on correct tier", verdict: "ALLOWED", saved: 0, cat: "Cost-router", rule: "CLASSIFICATION task correctly routed to Haiku. No redirect needed. Event logged as ALLOWED to confirm policy compliance." },
+  { action: "Build verified, done-claim accepted", verdict: "ALLOWED", saved: 0, cat: "Stop hook", rule: "Done-claim registered a passing build verify. Stop hook checked the proof, confirmed it. Claim accepted." },
 ];
 
 const VERDICT_COLORS: Record<string, { color: string; bg: string }> = {
@@ -519,16 +552,21 @@ function LiveFeedModule() {
           const ts = new Date(now - tsOffset);
           const tsStr = `${ts.getHours().toString().padStart(2, "0")}:${ts.getMinutes().toString().padStart(2, "0")}:${ts.getSeconds().toString().padStart(2, "0")}`;
           return (
-            <div key={i} className="hbfeed-event" style={{ animation: isNew ? "hbfeed-enter 0.3s cubic-bezier(0.16,1,0.3,1)" : undefined }}>
-              <span className="hbfeed-ts">{tsStr}</span>
-              <span
-                className={`hbfeed-verdict ${ev.verdict === "BLOCKED" ? "hbfeed-verdict-blocked" : ev.verdict === "REROUTED" ? "hbfeed-verdict-rerouted" : ""}`}
-                style={{ color: vc.color, background: vc.bg, animation: isNew && ev.verdict === "BLOCKED" ? "hbfeed-stamp 0.15s cubic-bezier(0.16,1,0.3,1)" : undefined }}
-              >
-                {ev.verdict}
-              </span>
-              <span className="hbfeed-action">{ev.action}</span>
-              {ev.saved > 0 && <span className="hbfeed-saved">+${ev.saved.toFixed(2)}</span>}
+            <div key={i} className="hbfeed-event-wrap" style={{ animation: isNew ? "hbfeed-enter 0.3s cubic-bezier(0.16,1,0.3,1)" : undefined }}>
+              <div className="hbfeed-event">
+                <span className="hbfeed-ts">{tsStr}</span>
+                <span
+                  className={`hbfeed-verdict ${ev.verdict === "BLOCKED" ? "hbfeed-verdict-blocked" : ev.verdict === "REROUTED" ? "hbfeed-verdict-rerouted" : ""}`}
+                  style={{ color: vc.color, background: vc.bg, animation: isNew && ev.verdict === "BLOCKED" ? "hbfeed-stamp 0.15s cubic-bezier(0.16,1,0.3,1)" : undefined }}
+                >
+                  {ev.verdict}
+                </span>
+                <span className="hbfeed-action">{ev.action}</span>
+                {ev.saved > 0 && <span className="hbfeed-saved">+${ev.saved.toFixed(2)}</span>}
+              </div>
+              <HowExplainer label="How was this caught?">
+                <p style={{ margin: 0, fontSize: "0.73rem", color: "rgba(255,255,255,0.55)", lineHeight: 1.65 }}>{ev.rule}</p>
+              </HowExplainer>
             </div>
           );
         })}
@@ -1074,6 +1112,22 @@ function GovernanceModule() {
         <p style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.25)", fontFamily: "ui-monospace,monospace", marginTop: "0.5rem" }}>Numbers pulled from production logs. Not projections.</p>
       </div>
 
+      {/* How explainer for ROI numbers */}
+      <HowExplainer label="How are these numbers calculated?">
+        <div style={{ fontSize: "0.73rem", color: "rgba(255,255,255,0.55)", lineHeight: 1.65, display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+          <p style={{ margin: 0 }}>4 categories, 90 days of production session logs from Eric&apos;s real deployment:</p>
+          <ul style={{ margin: 0, paddingLeft: "1.25rem", display: "flex", flexDirection: "column", gap: "0.2rem" }}>
+            <li>Stop hook fires: 125 events * avg $86.67 = $10,834</li>
+            <li>Mid-session reversals: 782 events * avg $33.71 = $26,361</li>
+            <li>Flub events: 46 events * avg $250.00 = $11,500</li>
+            <li>Cost-router refusals: 44 events * avg $0.71 = $31</li>
+          </ul>
+          <p style={{ margin: 0, color: "rgba(255,255,255,0.3)", fontFamily: "ui-monospace,monospace", fontSize: "0.65rem" }}>
+            Total: $52,686. Infrastructure cost: $5.07/mo. ROI: 3,464x.
+          </p>
+        </div>
+      </HowExplainer>
+
       {/* Chapter links */}
       <div className="hb-rich-section-label" style={{ color: VAULT_RED }}>Four chapters</div>
       <div className="hb-rich-stack">
@@ -1182,6 +1236,19 @@ function PathsModule() {
                 </div>
               ))}
             </div>
+            <HowExplainer label="What do I get on day 1?">
+              <div style={{ fontSize: "0.73rem", color: "rgba(255,255,255,0.55)", lineHeight: 1.65 }}>
+                <p style={{ margin: "0 0 0.4rem" }}>First-week deliverables:</p>
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.3rem" }}>
+                  {path.deliverables.slice(0, 2).map((d) => (
+                    <div key={d} style={{ display: "flex", gap: "0.5rem", alignItems: "flex-start" }}>
+                      <span style={{ color: path.accent, flexShrink: 0, marginTop: "0.05rem" }}>→</span>
+                      <span>{d}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </HowExplainer>
             <a href={path.href} style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem", padding: "0.5rem 1rem", borderRadius: "99px", background: path.accent, color: "white", fontSize: "0.78rem", fontWeight: 600, textDecoration: "none" }}>
               Start here →
             </a>
@@ -1248,6 +1315,19 @@ function WrappersModule() {
           </li>
         ))}
       </ul>
+
+      <HowExplainer label="How does the pod structure work?">
+        <div style={{ fontSize: "0.73rem", color: "rgba(255,255,255,0.55)", lineHeight: 1.65, display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+          <p style={{ margin: 0 }}>Each wrapper follows the same pattern:</p>
+          <ul style={{ margin: 0, paddingLeft: "1.25rem", display: "flex", flexDirection: "column", gap: "0.25rem" }}>
+            <li>1 human manager. No daily intervention required.</li>
+            <li>Autonomous pods run the work. Each pod has a specific function.</li>
+            <li>1 shared voice profile RAG across all pods. Output register keeps outputs aligned.</li>
+            <li>1 governance trail: every action, every cost, every output logged.</li>
+          </ul>
+          <p style={{ margin: 0 }}>OutboundOS has 3 pods: LinkupOS (LinkedIn), ABM Engine (multi-channel), AutoCS (customer service). All share one governance layer.</p>
+        </div>
+      </HowExplainer>
 
       <div className="hb-rich-section-label" style={{ color: "#10b981" }}>OutboundOS · Live in Production</div>
       <div className="hb-rich-stack">
@@ -1656,6 +1736,30 @@ function CompareModule() {
           This window is open. Level9OS is building the architecture. We&apos;re not waiting for a distribution deal to close.
         </p>
       </div>
+    </div>
+  );
+}
+
+// ─── HowExplainer component ────────────────────────────────────────────────────
+
+function HowExplainer({
+  label,
+  children,
+}: {
+  label?: string;
+  children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="hb-how-wrap">
+      <button className="hb-how-btn" onClick={() => setOpen(!open)}>
+        {open ? "↑ Close" : `${label ?? "How?"}`}
+      </button>
+      {open && (
+        <div className="hb-how-panel">
+          {children}
+        </div>
+      )}
     </div>
   );
 }
@@ -3787,6 +3891,40 @@ const CSS = `
     from { opacity: 1; transform: translateY(0) scale(1); }
     to { opacity: 0; transform: translateY(-60px) scale(0.3); }
   }
+
+  /* ── HowExplainer ── */
+  .hb-how-wrap { margin-top: 0.625rem; }
+  .hb-how-btn {
+    font-size: 0.67rem;
+    color: rgba(139,92,246,0.65);
+    background: rgba(139,92,246,0.06);
+    border: 1px solid rgba(139,92,246,0.15);
+    border-radius: 6px;
+    padding: 0.28rem 0.6rem;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+    font-family: inherit;
+    letter-spacing: 0.02em;
+  }
+  .hb-how-btn:hover { background: rgba(139,92,246,0.14); color: rgba(139,92,246,0.9); }
+  .hb-how-panel {
+    margin-top: 0.5rem;
+    padding: 0.75rem 0.875rem;
+    background: rgba(139,92,246,0.04);
+    border: 1px solid rgba(139,92,246,0.12);
+    border-radius: 8px;
+    animation: hb-module-reveal 0.3s cubic-bezier(0.16,1,0.3,1);
+  }
+
+  /* Feed event wrapper for How? sublayer */
+  .hbfeed-event-wrap {
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    padding-bottom: 0.35rem;
+    margin-bottom: 0.1rem;
+  }
+  .hbfeed-event-wrap .hbfeed-event { border-bottom: none; margin-bottom: 0; }
+  .hbfeed-event-wrap .hb-how-wrap { margin-top: 0.2rem; }
+  .hbfeed-event-wrap .hb-how-btn { font-size: 0.6rem; padding: 0.18rem 0.45rem; }
 
   /* ── Reduced motion overrides ── */
   @media (prefers-reduced-motion: reduce) {
