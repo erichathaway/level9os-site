@@ -101,7 +101,7 @@ const COMPETITORS: Competitor[] = [
   {
     id: "workday",
     name: "Workday",
-    tagline: "ASOR — Agent System of Record",
+    tagline: "ASOR: Agent System of Record",
     strongest:
       "Positioning language. Workday explicitly says agents are managed as part of the overall organizational structure alongside employees. That is the closest verbatim match to what Level9OS is building. They own payroll, headcount data, and the org chart.",
     gap:
@@ -864,7 +864,7 @@ export default function ComparePage() {
             <div className="mt-12 space-y-3">
               {[
                 { date: "Jan 2026", event: "Humans& raises $480M seed at $4.48B valuation.", color: "#f97316" },
-                { date: "Apr 2026", event: "Anthropic launches Managed Agents — multi-agent orchestration inside Claude Console.", color: "#8b5cf6" },
+                { date: "Apr 2026", event: "Anthropic launches Managed Agents. Multi-agent orchestration inside Claude Console.", color: "#8b5cf6" },
                 { date: "Q2 2026", event: "Workday ASOR enters general availability.", color: "#06b6d4" },
                 { date: "Q4 2027 (est.)", event: "Likely consolidation window closes.", color: "#ef4444" },
               ].map((item) => (

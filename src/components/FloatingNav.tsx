@@ -8,15 +8,15 @@ import { motion } from "framer-motion";
 import { products } from "@level9/brand/content/products";
 
 const pages = [
-  { label: "Overview", href: "/" },
+  { label: "Platform", href: "/" },
   { label: "Architecture", href: "/architecture" },
   { label: "Products", href: "/products" },
-  { label: "How We Work", href: "/how-we-work" },
-  { label: "Partnerships", href: "/partnerships" },
+  { label: "Governance", href: "/governance" },
+  { label: "Work With Us", href: "/paths" },
 ];
 
 const secondary = [
-  { label: "About Level9", href: "/about" },
+  { label: "About Level9OS", href: "/about" },
   { label: "Contact", href: "/contact" },
 ];
 
@@ -50,8 +50,8 @@ const navProducts = products.map((p) => ({
 }));
 
 const external = [
+  { label: "Stay Level", href: "https://erichathaway.substack.com", desc: "Eric Hathaway · weekly" },
   { label: "Lucid Insights", href: "https://lucidinsights.substack.com", desc: "Field notes · weekly" },
-  { label: "The Alignment Advantage", href: "#", desc: "Book · 2026" },
 ];
 
 export default function FloatingNav() {
