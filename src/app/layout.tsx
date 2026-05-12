@@ -63,9 +63,33 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const isPreview = process.env.VERCEL_ENV === "preview";
+  const branch = process.env.VERCEL_GIT_COMMIT_REF;
   return (
     <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        {isPreview && (
+          <div
+            style={{
+              position: "fixed",
+              top: 0,
+              right: 0,
+              zIndex: 9999,
+              background: "rgba(139, 92, 246, 0.95)",
+              color: "white",
+              padding: "4px 12px",
+              fontSize: "10px",
+              fontFamily: "ui-monospace, SFMono-Regular, monospace",
+              letterSpacing: "0.1em",
+              borderBottomLeftRadius: "6px",
+              pointerEvents: "none",
+            }}
+          >
+            PREVIEW · {branch || "rebuild"}
+          </div>
+        )}
+        {children}
+      </body>
     </html>
   );
 }
