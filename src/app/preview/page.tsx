@@ -7,6 +7,17 @@
 import { MagneticCard } from "@level9/brand/components/motion";
 import { FadeIn } from "@level9/brand/components/motion";
 
+const FEATURED = {
+  id: "the-receipt",
+  name: "The Receipt",
+  tagline: "Shock and awe. Four-act vertical scroll combining the strongest elements from all five approaches.",
+  pitch: "Act 1: massive counter from $0 to $52,686. Act 2: streaming audit feed with ticking mini-counter. Act 3: competitor comparison table. Act 4: single magnetic CTA. No swipe panels. No horizontal scroll. Pure vertical drama.",
+  href: "/preview/the-receipt",
+  color: "#8b5cf6",
+  rgb: "139,92,246",
+  badge: "New",
+};
+
 const APPROACHES = [
   {
     id: "the-sandbox",
@@ -285,6 +296,116 @@ export default function PreviewIndex() {
           position: relative;
           z-index: 2;
         }
+        /* Featured card */
+        .pi-featured-wrap {
+          width: 100%;
+          max-width: 1060px;
+          margin-bottom: 1.75rem;
+          position: relative;
+          z-index: 2;
+        }
+        .pi-featured-card {
+          background: #0d0d18;
+          border: 1px solid rgba(139,92,246,0.3);
+          border-radius: 16px;
+          padding: 2.25rem 2rem;
+          display: flex;
+          align-items: flex-start;
+          gap: 2rem;
+          position: relative;
+          overflow: hidden;
+          box-shadow: 0 0 60px rgba(139,92,246,0.08), 0 0 120px rgba(139,92,246,0.04);
+        }
+        .pi-featured-card::before {
+          content: '';
+          position: absolute;
+          top: 0; left: 0; right: 0;
+          height: 2px;
+          background: linear-gradient(90deg, transparent, #8b5cf6, transparent);
+          border-radius: 16px 16px 0 0;
+        }
+        .pi-featured-left {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          gap: 0.875rem;
+        }
+        .pi-featured-badges {
+          display: flex;
+          align-items: center;
+          gap: 0.625rem;
+        }
+        .pi-featured-new {
+          display: inline-flex;
+          align-items: center;
+          font-family: ui-monospace, SFMono-Regular, monospace;
+          font-size: 0.6rem;
+          letter-spacing: 0.16em;
+          text-transform: uppercase;
+          color: #fff;
+          background: rgba(139,92,246,0.8);
+          border-radius: 4px;
+          padding: 0.25rem 0.625rem;
+          font-weight: 700;
+        }
+        .pi-featured-type {
+          font-family: ui-monospace, SFMono-Regular, monospace;
+          font-size: 0.6rem;
+          letter-spacing: 0.14em;
+          text-transform: uppercase;
+          color: rgba(139,92,246,0.8);
+          background: rgba(139,92,246,0.1);
+          border: 1px solid rgba(139,92,246,0.2);
+          border-radius: 4px;
+          padding: 0.25rem 0.625rem;
+        }
+        .pi-featured-name {
+          font-size: 1.5rem;
+          font-weight: 800;
+          letter-spacing: -0.025em;
+          color: rgba(255,255,255,0.95);
+        }
+        .pi-featured-tagline {
+          font-size: 0.9rem;
+          color: rgba(255,255,255,0.6);
+          line-height: 1.6;
+          max-width: 52ch;
+        }
+        .pi-featured-pitch {
+          font-size: 0.78rem;
+          color: rgba(255,255,255,0.32);
+          line-height: 1.7;
+          font-style: italic;
+          max-width: 56ch;
+        }
+        .pi-featured-cta {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          padding: 0.75rem 1.75rem;
+          background: rgba(139,92,246,0.15);
+          border: 1px solid rgba(139,92,246,0.4);
+          border-radius: 8px;
+          color: rgba(255,255,255,0.9);
+          font-size: 0.92rem;
+          font-weight: 700;
+          text-decoration: none;
+          width: fit-content;
+          transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .pi-featured-cta:hover {
+          background: rgba(139,92,246,0.3);
+          border-color: rgba(139,92,246,0.7);
+          box-shadow: 0 0 24px rgba(139,92,246,0.2);
+        }
+        .pi-featured-arrow {
+          font-size: 0.9rem;
+          transition: transform 0.2s ease;
+        }
+        .pi-featured-cta:hover .pi-featured-arrow { transform: translateX(3px); }
+        @media (max-width: 680px) {
+          .pi-featured-card { flex-direction: column; gap: 1.25rem; }
+        }
         /* Mobile */
         @media (max-width: 1000px) {
           .pi-grid-top { grid-template-columns: repeat(2, minmax(0, 380px)); }
@@ -306,9 +427,9 @@ export default function PreviewIndex() {
       <FadeIn delay={0}>
         <div className="pi-header">
           <div className="pi-eyebrow">Level9OS Site Rebuild · Design Review</div>
-          <h1 className="pi-title">Five fundamentally different approaches.</h1>
+          <h1 className="pi-title">Six fundamentally different approaches.</h1>
           <p className="pi-sub">
-            Not variations of the same theme. Five distinct entry metaphors, each using the same governance ROI numbers as the framing element.
+            Not variations of the same theme. Six distinct entry metaphors, each using the same governance ROI numbers as the framing element.
           </p>
         </div>
       </FadeIn>
@@ -332,9 +453,29 @@ export default function PreviewIndex() {
         </div>
       </FadeIn>
 
-      <FadeIn delay={0.12}>
+      {/* Featured: The Receipt */}
+      <FadeIn delay={0.1}>
+        <div className="pi-featured-wrap">
+          <div className="pi-featured-card">
+            <div className="pi-featured-left">
+              <div className="pi-featured-badges">
+                <span className="pi-featured-new">&#x2605; NEW</span>
+                <span className="pi-featured-type">Shock &amp; Awe</span>
+              </div>
+              <div className="pi-featured-name">{FEATURED.name}</div>
+              <div className="pi-featured-tagline">{FEATURED.tagline}</div>
+              <div className="pi-featured-pitch">{FEATURED.pitch}</div>
+              <a href={FEATURED.href} className="pi-featured-cta">
+                Open <span className="pi-featured-arrow">&#8594;</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </FadeIn>
+
+      <FadeIn delay={0.14}>
         <div className="pi-section-label">
-          <span className="pi-section-label-text">Five approaches</span>
+          <span className="pi-section-label-text">Five reference approaches</span>
           <div className="pi-section-label-line" />
         </div>
       </FadeIn>
