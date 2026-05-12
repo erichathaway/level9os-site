@@ -5,49 +5,18 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { products } from "@level9/brand/content/products";
-
 const pages = [
   { label: "Platform", href: "/" },
-  { label: "Architecture", href: "/architecture" },
-  { label: "Products", href: "/products" },
-  { label: "Governance", href: "/governance" },
-  { label: "Work With Us", href: "/paths" },
+  { label: "Architecture", href: "/?surface=architecture" },
+  { label: "Products", href: "/?surface=products" },
+  { label: "Governance", href: "/?surface=governance" },
+  { label: "Work With Us", href: "/?surface=paths" },
 ];
 
 const secondary = [
-  { label: "About Level9OS", href: "/about" },
+  { label: "About Level9OS", href: "/?surface=about" },
   { label: "Contact", href: "/contact" },
 ];
-
-/**
- * Product roster derived from the canonical roster in
- * `@level9/brand/content/products`. Only the nav-specific display metadata
- * (chip desc, logo folder override for coo-playbook) is kept local.
- * Names, IDs, colors, and order come from the brand package.
- */
-const NAV_DESC: Record<string, string> = {
-  stratos:    "AI Decision Rooms",
-  commandos:  "Agent Orchestration",
-  outboundos: "LinkupOS · ABM · AutoCS",
-  playbook:   "Execution Methodology",
-  lucidorg:   "Measurement Platform",
-  max:        "Coming Soon",
-};
-
-// canonical logo folders don't always match product ids (playbook → coo-playbook)
-const LOGO_DIR: Record<string, string> = {
-  playbook: "coo-playbook",
-};
-
-const navProducts = products.map((p) => ({
-  label: p.name,
-  href: `/products#${p.id}`,
-  color: p.color,
-  icon: p.name.charAt(0),
-  desc: NAV_DESC[p.id] ?? p.tag,
-  image: `/brand/logos/${LOGO_DIR[p.id] ?? p.id}/chip.svg`,
-}));
 
 const external = [
   { label: "Stay Level", href: "https://erichathaway.substack.com", desc: "Eric Hathaway · weekly" },
@@ -164,16 +133,9 @@ export default function FloatingNav() {
         >
           {/* Mobile: pt-24 leaves room for the fixed top-right hamburger close
               button (top-6 + 44px button = ~70px). Desktop: items-center handles
-              spacing.
-              The Products column (the iPhone-grid of 6 product chips) is only
-              shown on /products — that's the page where the visitor came to
-              shop products and benefits from a quick chip nav. On every other
-              page the menu collapses to two columns: Navigate + Our Thinking,
-              which keeps the menu small and the content sharp. */}
+              spacing. Two columns: Navigate + Our Thinking. */}
           <div
-            className={`grid grid-cols-1 ${
-              pathname === "/products" ? "sm:grid-cols-3" : "sm:grid-cols-2"
-            } gap-8 sm:gap-16 ${pathname === "/products" ? "max-w-6xl" : "max-w-3xl"} w-full pt-24 pb-12 sm:py-0`}
+            className="grid grid-cols-1 sm:grid-cols-2 gap-8 sm:gap-16 max-w-3xl w-full pt-24 pb-12 sm:py-0"
           >
             {/* Primary nav */}
             <div>
@@ -182,7 +144,8 @@ export default function FloatingNav() {
               </div>
               <div className="space-y-4">
                 {pages.map((item) => {
-                  const isActive = pathname === item.href;
+                  // Active only for the root route; surface links don't change pathname
+                  const isActive = item.href === "/" && pathname === "/";
                   return (
                     <Link
                       key={item.label}
@@ -214,60 +177,6 @@ export default function FloatingNav() {
               </div>
             </div>
 
-            {/* Products column — only shown on /products. The iPhone-grid of
-                six product chips is intentionally a /products-page detail. On
-                every other page the same six are reachable in one click via
-                Navigate > Products. */}
-            {pathname === "/products" && (
-              <div>
-                <div className="text-[11px] tracking-[0.3em] uppercase font-mono text-white/25 mb-8">
-                  Products
-                </div>
-                <div className="space-y-3">
-                  {navProducts.map((p) => (
-                    <Link
-                      key={p.label}
-                      href={p.href}
-                      onClick={() => setOpen(false)}
-                      className="flex items-center gap-4 group cursor-pointer py-2"
-                    >
-                      <div
-                        className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden transition-all duration-300 group-hover:scale-110"
-                        style={{
-                          background: `${p.color}12`,
-                          border: `1px solid ${p.color}30`,
-                        }}
-                      >
-                        {p.image ? (
-                          <Image
-                            src={p.image}
-                            alt={p.label}
-                            width={44}
-                            height={44}
-                            className="w-full h-full object-contain"
-                          />
-                        ) : (
-                          <span
-                            className="text-sm font-black"
-                            style={{ color: `${p.color}cc` }}
-                          >
-                            {p.icon}
-                          </span>
-                        )}
-                      </div>
-                      <div>
-                        <h4 className="text-base sm:text-lg font-bold text-white/60 group-hover:text-white transition-colors">
-                          {p.label}
-                        </h4>
-                        <p className="text-[12px] transition-colors" style={{ color: `${p.color}80` }}>
-                          {p.desc}
-                        </p>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            )}
 
             {/* Thinking / Resources */}
             <div>
