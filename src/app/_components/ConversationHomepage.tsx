@@ -594,6 +594,7 @@ const COMPARISON_ROWS = [
 ];
 
 function ComparisonModule() {
+  const [hoveredRow, setHoveredRow] = useState<string | null>(null);
   return (
     <div className="hb-module-comparison">
       <div className="hbcomp-label">Vendor comparison</div>
@@ -610,17 +611,31 @@ function ComparisonModule() {
           </thead>
           <tbody>
             {COMPARISON_ROWS.map((r) => (
-              <tr key={r.label}>
+              <tr
+                key={r.label}
+                onMouseEnter={() => setHoveredRow(r.label)}
+                onMouseLeave={() => setHoveredRow(null)}
+                style={{
+                  background: hoveredRow === r.label ? "rgba(139,92,246,0.05)" : undefined,
+                  transition: "background 0.15s ease",
+                }}
+              >
                 <td className="hbcomp-row-label">{r.label}</td>
                 <td>{r.ms}</td>
                 <td>{r.sf}</td>
                 <td>{r.wd}</td>
-                <td className="l9c l9cv">{r.l9}</td>
+                <td className="l9c l9cv" style={{ fontWeight: hoveredRow === r.label ? 900 : undefined }}>{r.l9}</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+      <HowExplainer label="How was this comparison scored?">
+        <div style={{ fontSize: "0.73rem", color: "rgba(255,255,255,0.55)", lineHeight: 1.65 }}>
+          <p style={{ margin: "0 0 0.4rem" }}>Scored on 6 dimensions using public pricing, product documentation, and analyst reports. Level9OS numbers are production figures, not marketing claims.</p>
+          <p style={{ margin: 0, color: "rgba(255,255,255,0.3)", fontFamily: "ui-monospace,monospace", fontSize: "0.62rem" }}>Source: LEVEL9OS-POSITIONING-V2-AND-MARKET-RESEARCH-2026-05-11.md</p>
+        </div>
+      </HowExplainer>
     </div>
   );
 }
@@ -668,6 +683,7 @@ function VoicePitchModule() {
 }
 
 function WrapperStoryModule() {
+  const [hoveredWrapper, setHoveredWrapper] = useState<string | null>(null);
   const wrappers = [
     { name: "OutboundOS", status: "live", desc: "ABM outbound. 30 workflows. Signal to send in under 5 minutes.", color: "#f59e0b" },
     { name: "FinanceOS", status: "planned", desc: "AP/AR automation, spend governance, vendor intelligence.", color: "#06b6d4" },
@@ -679,8 +695,17 @@ function WrapperStoryModule() {
       <div className="hbwrap-label">Level9OS is the governance layer. Wrappers sit on top.</div>
       <div className="hbwrap-stack">
         {wrappers.map((w) => (
-          <div key={w.name} className={`hbwrap-card ${w.status}`}
-            style={{ "--wc": w.color } as React.CSSProperties}>
+          <div
+            key={w.name}
+            className={`hbwrap-card ${w.status}`}
+            style={{
+              "--wc": w.color,
+              transform: hoveredWrapper === w.name ? "translateX(4px)" : undefined,
+              transition: "transform 0.18s cubic-bezier(0.16,1,0.3,1), opacity 0.15s ease",
+            } as React.CSSProperties}
+            onMouseEnter={() => setHoveredWrapper(w.name)}
+            onMouseLeave={() => setHoveredWrapper(null)}
+          >
             <div className="hbwc-top">
               <span className="hbwc-name">{w.name}</span>
               <span className="hbwc-badge">{w.status === "live" ? "Live" : "Planned"}</span>
@@ -779,7 +804,7 @@ function ProductsModule() {
       <div className="hb-rich-section-label" style={{ color: "#8b5cf6" }}>Tier 1: Level9OS Core</div>
       <div className="hb-rich-stack">
         {[commandos, lucidorg, max].filter(Boolean).map((p) => (
-          <div key={p.id} className="hb-rich-card" style={{ borderColor: `${p.color}25` }}>
+          <div key={p.id} className="hb-rich-card hb-product-card" style={{ borderColor: `${p.color}25`, "--pc": p.color } as React.CSSProperties}>
             <div className="hb-rich-card-bar" style={{ background: `linear-gradient(90deg, ${p.color}, ${p.color}30, transparent)` }} />
             <div className="hb-rich-card-head">
               <span className="hb-rich-tag" style={{ color: `${p.color}aa` }}>{p.tag}</span>
@@ -1509,11 +1534,19 @@ function AboutModule() {
         </p>
       </div>
 
-      {/* Charter values */}
+      {/* Charter values - stagger reveal */}
       <div className="hb-rich-section-label" style={{ color: "rgba(255,255,255,0.35)" }}>Operating Charter</div>
       <div className="hb-rich-grid-3" style={{ marginBottom: "1rem" }}>
-        {CHARTER_VALUES_DATA.map((val) => (
-          <div key={val.label} className="hb-rich-ghost-card" style={{ borderColor: `${val.color}18`, opacity: 1 }}>
+        {CHARTER_VALUES_DATA.map((val, i) => (
+          <div
+            key={val.label}
+            className="hb-rich-ghost-card hb-charter-card"
+            style={{
+              borderColor: `${val.color}18`,
+              opacity: 1,
+              animationDelay: `${i * 0.1}s`,
+            }}
+          >
             <div className="hb-rich-ghost-bar" style={{ background: val.color }} />
             <h4 style={{ fontSize: "0.78rem", fontWeight: 700, color: val.color, marginBottom: "0.25rem", lineHeight: 1.3 }}>{val.label}</h4>
             <p style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.45)", lineHeight: 1.5 }}>{val.desc}</p>
@@ -4267,6 +4300,27 @@ const CSS = `
     from { opacity: 1; transform: translateY(0) scale(1); }
     to { opacity: 0; transform: translateY(-60px) scale(0.3); }
   }
+
+  /* ── Interactive depth pass additions ── */
+  /* Charter value cards: stagger fade in */
+  .hb-charter-card {
+    animation: hb-fade-in 0.5s ease both;
+  }
+  /* Product card hover glow */
+  .hb-product-card {
+    transition: box-shadow 0.25s ease, transform 0.2s cubic-bezier(0.16,1,0.3,1);
+  }
+  .hb-product-card:hover {
+    box-shadow: 0 0 20px var(--pc, #8b5cf6)18;
+    transform: translateY(-1px);
+  }
+  /* Comparison table row highlight already handled inline */
+  /* Architecture: mild scale on pressure-point cards */
+  .hb-arch-pp-card {
+    transition: transform 0.2s cubic-bezier(0.16,1,0.3,1);
+    cursor: default;
+  }
+  .hb-arch-pp-card:hover { transform: scale(1.005); }
 
   /* ── Walkthrough module ── */
   .hb-wt-picker {
