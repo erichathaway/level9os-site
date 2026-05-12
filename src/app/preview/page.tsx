@@ -1,11 +1,35 @@
 "use client";
 /**
  * /preview — Design Direction Selector
- * Five fundamentally different approaches using governance ROI numbers as hero proof.
+ * Six fundamentally different approaches using governance ROI numbers as hero proof.
+ * Plus two Conversation variants being compared for navigation pattern.
  */
 
 import { MagneticCard } from "@level9/brand/components/motion";
 import { FadeIn } from "@level9/brand/components/motion";
+
+const CONVERSATION_VARIANTS = [
+  {
+    id: "the-conversation-pure",
+    name: "Chat-Only",
+    tagline: "Modules render inline inside the chat thread. Scroll up to revisit any past module.",
+    pitch: "Single-column chat takes the entire viewport. The chat history IS the navigation. No tabs, no right panel.",
+    href: "/preview/the-conversation-pure",
+    color: "#8b5cf6",
+    rgb: "139,92,246",
+    badge: "Chat-Only",
+  },
+  {
+    id: "the-conversation-tabs",
+    name: "Chat + Panel",
+    tagline: "Chat on the left, active module on the right. Tabs let you revisit any unlocked module.",
+    pitch: "Two-column layout. Chat drives unlocking. Right panel shows the active module. Tab strip at top for navigation.",
+    href: "/preview/the-conversation-tabs",
+    color: "#6366f1",
+    rgb: "99,102,241",
+    badge: "Chat + Panel",
+  },
+];
 
 const FEATURED = {
   id: "the-receipt",
@@ -420,6 +444,93 @@ export default function PreviewIndex() {
           .pi-card { padding: 1.5rem; }
           .pi-proof { gap: 1.25rem; }
         }
+        /* Conversation testing banner */
+        .pi-test-banner {
+          width: 100%;
+          max-width: 1060px;
+          background: rgba(139,92,246,0.06);
+          border: 1px solid rgba(139,92,246,0.22);
+          border-radius: 14px;
+          padding: 1.5rem 1.75rem;
+          margin-bottom: 2rem;
+          position: relative;
+          z-index: 2;
+        }
+        .pi-test-banner-label {
+          display: flex;
+          align-items: center;
+          gap: 0.625rem;
+          margin-bottom: 0.75rem;
+        }
+        .pi-test-star { color: #f59e0b; font-size: 0.85rem; }
+        .pi-test-heading {
+          font-size: 0.75rem;
+          font-weight: 700;
+          color: rgba(255,255,255,0.65);
+          letter-spacing: 0.05em;
+          text-transform: uppercase;
+        }
+        .pi-test-sub {
+          font-size: 0.8rem;
+          color: rgba(255,255,255,0.38);
+          margin-bottom: 1rem;
+          line-height: 1.6;
+        }
+        .pi-test-grid {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 0.875rem;
+        }
+        @media (max-width: 600px) {
+          .pi-test-grid { grid-template-columns: minmax(0, 1fr); }
+        }
+        .pi-test-card {
+          background: rgba(255,255,255,0.03);
+          border: 1px solid rgba(255,255,255,0.08);
+          border-radius: 10px;
+          padding: 1.125rem 1.25rem;
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+          transition: border-color 0.2s ease;
+        }
+        .pi-test-card:hover { border-color: rgba(var(--tc-rgb),0.3); }
+        .pi-test-card-badge {
+          font-family: ui-monospace, monospace;
+          font-size: 0.6rem;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          color: var(--tc-color);
+          background: rgba(var(--tc-rgb),0.1);
+          border: 1px solid rgba(var(--tc-rgb),0.2);
+          border-radius: 4px;
+          padding: 0.2rem 0.5rem;
+          width: fit-content;
+        }
+        .pi-test-card-name {
+          font-size: 0.95rem;
+          font-weight: 800;
+          color: rgba(255,255,255,0.88);
+          letter-spacing: -0.01em;
+        }
+        .pi-test-card-tagline { font-size: 0.78rem; color: rgba(255,255,255,0.5); line-height: 1.55; }
+        .pi-test-card-cta {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.4rem;
+          margin-top: 0.25rem;
+          padding: 0.55rem 1.125rem;
+          background: rgba(var(--tc-rgb),0.1);
+          border: 1px solid rgba(var(--tc-rgb),0.22);
+          border-radius: 8px;
+          color: var(--tc-color);
+          font-size: 0.8rem;
+          font-weight: 600;
+          text-decoration: none;
+          width: fit-content;
+          transition: background 0.15s ease;
+        }
+        .pi-test-card-cta:hover { background: rgba(var(--tc-rgb),0.2); }
       `}</style>
 
       <div className="pi-mesh" />
@@ -450,6 +561,35 @@ export default function PreviewIndex() {
               <span className="pi-proof-label">{s.label}</span>
             </div>
           ))}
+        </div>
+      </FadeIn>
+
+      {/* Currently testing: Conversation variants */}
+      <FadeIn delay={0.09}>
+        <div className="pi-test-banner">
+          <div className="pi-test-banner-label">
+            <span className="pi-test-star">&#x2605;</span>
+            <span className="pi-test-heading">Currently testing: pick the navigation pattern</span>
+          </div>
+          <p className="pi-test-sub">
+            Same content. Same modules. Same agent voice. Only the shell pattern differs. Which one works better?
+          </p>
+          <div className="pi-test-grid">
+            {CONVERSATION_VARIANTS.map((v) => (
+              <div
+                key={v.id}
+                className="pi-test-card"
+                style={{ "--tc-color": v.color, "--tc-rgb": v.rgb } as React.CSSProperties}
+              >
+                <span className="pi-test-card-badge">{v.badge}</span>
+                <div className="pi-test-card-name">{v.name}</div>
+                <div className="pi-test-card-tagline">{v.tagline}</div>
+                <a href={v.href} className="pi-test-card-cta">
+                  Open &#8594;
+                </a>
+              </div>
+            ))}
+          </div>
         </div>
       </FadeIn>
 
