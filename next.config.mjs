@@ -2,6 +2,15 @@
 const nextConfig = {
   // @level9/brand ships TypeScript source — Next.js compiles it inline
   transpilePackages: ["@level9/brand"],
+  async redirects() {
+    return [
+      {
+        source: "/how-we-work",
+        destination: "/paths",
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
       {
