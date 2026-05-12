@@ -17,6 +17,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { CursorGradient, FadeIn } from "@level9/brand/components/motion";
 import { SearchPalette, type PaletteItem } from "@/components/SearchPalette";
+import ConsoleGraphicLite from "@/app/_components/ConsoleGraphicLite";
 import { products } from "@level9/brand/content/products";
 import { pressurePoints, chassis, installManual } from "@level9/brand/content/pressurePoints";
 import { stack } from "@level9/brand/content/stack";
@@ -925,137 +926,7 @@ function ProductsModule() {
   );
 }
 
-// ─── Vault orbital component ──────────────────────────────────────────────────
-
-const ORBIT_GROUPS = [
-  {
-    label: "Truth Enforcement",
-    color: "#ef4444",
-    radius: 70,
-    speed: 18,
-    icons: ["⚑", "✓", "⊘", "∞"],
-  },
-  {
-    label: "Budget + Cost Control",
-    color: "#f59e0b",
-    radius: 110,
-    speed: 28,
-    icons: ["$", "≤", "⊕", "◎"],
-  },
-  {
-    label: "Identity + Access",
-    color: "#8b5cf6",
-    radius: 152,
-    speed: 40,
-    icons: ["⌗", "🔒", "⊞", "●", "◈"],
-  },
-];
-
-function VaultOrbit() {
-  const [hovered, setHovered] = useState(false);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const rafRef = useRef<number>(0);
-  const startRef = useRef<number>(Date.now());
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    const SIZE = 320;
-    canvas.width = SIZE;
-    canvas.height = SIZE;
-    const cx = SIZE / 2;
-    const cy = SIZE / 2;
-
-    const draw = () => {
-      ctx.clearRect(0, 0, SIZE, SIZE);
-      const elapsed = (Date.now() - startRef.current) / 1000;
-      const slowFactor = hovered ? 0.15 : 1;
-
-      // Vault core
-      const pulse = 0.85 + Math.sin(elapsed * 2) * 0.07;
-      ctx.save();
-      ctx.beginPath();
-      ctx.arc(cx, cy, 28 * pulse, 0, Math.PI * 2);
-      const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, 28 * pulse);
-      grad.addColorStop(0, "rgba(239,68,68,0.35)");
-      grad.addColorStop(1, "rgba(239,68,68,0.06)");
-      ctx.fillStyle = grad;
-      ctx.fill();
-      // Vault icon
-      ctx.fillStyle = "rgba(239,68,68,0.9)";
-      ctx.font = "bold 13px ui-monospace,monospace";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText("⊙", cx, cy);
-      ctx.restore();
-
-      // Orbits
-      ORBIT_GROUPS.forEach((group) => {
-        const angle0 = (elapsed * (Math.PI * 2)) / (group.speed * slowFactor);
-
-        // Orbit ring
-        ctx.save();
-        ctx.beginPath();
-        ctx.arc(cx, cy, group.radius, 0, Math.PI * 2);
-        ctx.strokeStyle = `${group.color}20`;
-        ctx.lineWidth = 1;
-        ctx.stroke();
-        ctx.restore();
-
-        // Icons
-        group.icons.forEach((icon, j) => {
-          const a = angle0 + (j * Math.PI * 2) / group.icons.length;
-          const x = cx + Math.cos(a) * group.radius;
-          const y = cy + Math.sin(a) * group.radius;
-
-          // Glow
-          ctx.save();
-          ctx.beginPath();
-          ctx.arc(x, y, 11, 0, Math.PI * 2);
-          const g = ctx.createRadialGradient(x, y, 0, x, y, 11);
-          g.addColorStop(0, `${group.color}30`);
-          g.addColorStop(1, "transparent");
-          ctx.fillStyle = g;
-          ctx.fill();
-
-          // Icon
-          ctx.fillStyle = group.color;
-          ctx.font = "10px ui-monospace,monospace";
-          ctx.textAlign = "center";
-          ctx.textBaseline = "middle";
-          ctx.fillText(icon, x, y);
-          ctx.restore();
-        });
-      });
-
-      rafRef.current = requestAnimationFrame(draw);
-    };
-
-    rafRef.current = requestAnimationFrame(draw);
-    return () => cancelAnimationFrame(rafRef.current);
-  }, [hovered]);
-
-  return (
-    <div
-      className="hb-vault-orbit"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
-      <canvas ref={canvasRef} style={{ width: "100%", maxWidth: 320, height: "auto", cursor: "pointer" }} />
-      <div className="hb-vault-label">The Vault</div>
-      <div className="hb-vault-sublabel">
-        {ORBIT_GROUPS.map((g) => (
-          <span key={g.label} style={{ color: g.color }}>
-            {g.label}
-          </span>
-        ))}
-      </div>
-    </div>
-  );
-}
+// VaultOrbit and ORBIT_GROUPS removed — replaced by ConsoleGraphicLite in GovernanceModule
 
 // ─── Governance capability grid component ─────────────────────────────────────
 
@@ -1183,8 +1054,8 @@ function GovernanceModule() {
       <div className="hb-rich-eyebrow" style={{ color: VAULT_RED }}>The Vault · Governance Chassis</div>
       <h2 className="hb-rich-headline">You see the AI agent.<br />You don&apos;t see what it&apos;s doing.</h2>
       <p className="hb-rich-sub" style={{ color: `${VAULT_RED}cc` }}>Level9OS makes the invisible visible.</p>
-      {/* Vault orbital diagram */}
-      <VaultOrbit />
+      {/* Governance radial diagram — 16 officers, 4 buckets, packet flows */}
+      <ConsoleGraphicLite />
       <ul style={{ listStyle: "none", padding: 0, margin: "0 0 1.25rem", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
         {[
           "Every action logged. Not summarized. Logged.",
