@@ -19,6 +19,7 @@ import { CursorGradient, FadeIn } from "@level9/brand/components/motion";
 import { SearchPalette, type PaletteItem } from "@/components/SearchPalette";
 import ConsoleGraphicLite from "@/app/_components/ConsoleGraphicLite";
 import { ForgeCube, type ForgeProduct } from "@level9/brand/components/architecture";
+import HomeHeroSplash from "@/components/motion/HomeHeroSplash";
 import { products } from "@level9/brand/content/products";
 import { pressurePoints, chassis, installManual } from "@level9/brand/content/pressurePoints";
 import { stack } from "@level9/brand/content/stack";
@@ -3474,6 +3475,20 @@ export default function ConversationHomepage() {
       {/* ── SPLASH STATE ── */}
       {visitorState === "splash" && (
         <div className="hb-splash">
+          {/* HomeHeroSplash: mesh blobs + flash + ripples behind the chat card */}
+          <div
+            aria-hidden="true"
+            style={{
+              position: "absolute",
+              inset: 0,
+              pointerEvents: "none",
+              zIndex: 0,
+              overflow: "hidden",
+            }}
+          >
+            <HomeHeroSplash anchorX="50%" anchorY="50%" />
+          </div>
+
           {/* Ambient gradient orbs */}
           <div className="hb-orb hb-orb-violet" aria-hidden="true" />
           <div className="hb-orb hb-orb-fuchsia" aria-hidden="true" />
@@ -3854,6 +3869,8 @@ const CSS = `
     box-shadow: 0 0 80px rgba(139,92,246,0.06), 0 24px 48px rgba(0,0,0,0.4);
     min-height: min(70vh, 560px);
     max-height: min(80vh, 680px);
+    position: relative;
+    z-index: 1;
   }
   .hb-splash-header {
     display: flex;
