@@ -2000,12 +2000,53 @@ export default function ConversationHomepage() {
     });
   }, [addMessage, scrollToBottom, triggerTransition]);
 
+  // Phase B: sync URL ?surface= param on activeModule change
+  useEffect(() => {
+    if (visitorState !== "dashboard") return;
+    const url = new URL(window.location.href);
+    if (activeModule) {
+      url.searchParams.set("surface", activeModule);
+    } else {
+      url.searchParams.delete("surface");
+    }
+    window.history.replaceState(null, "", url.toString());
+  }, [activeModule, visitorState]);
+
   // Init
   useEffect(() => {
     if (hasInitialized.current) return;
     hasInitialized.current = true;
 
+    // Phase B: read ?surface= deep-link param
+    const urlSurface = typeof window !== "undefined"
+      ? new URLSearchParams(window.location.search).get("surface")
+      : null;
+    const validSurface = urlSurface && Object.keys(MODULE_META).includes(urlSurface)
+      ? (urlSurface as ModuleId)
+      : null;
+
     const saved = loadState();
+
+    // Phase B: ?surface= deep-link boots directly to dashboard with module open
+    if (validSurface) {
+      setVisitorState("dashboard");
+      const baseModules = saved?.unlockedModules.length
+        ? saved.unlockedModules
+        : SKIP_DEFAULT_TABS;
+      const withSurface = baseModules.includes(validSurface)
+        ? baseModules
+        : [...baseModules, validSurface];
+      setUnlockedModules(withSurface);
+      setActiveModule(validSurface);
+      if (saved?.messages.length) setMessages(saved.messages);
+      if (saved?.closedTabs?.length) setClosedTabs(saved.closedTabs);
+      if (saved?.poolHistory?.length) setPoolHistory(saved.poolHistory);
+      agentSay(
+        `Opening ${MODULE_META[validSurface].label} for you. Let me know if you want to dig into anything else.`,
+        300
+      );
+      return;
+    }
 
     if (saved?.skippedSplash) {
       // State 3: skipped
