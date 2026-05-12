@@ -1023,6 +1023,79 @@ function VaultOrbit() {
   );
 }
 
+// ─── Governance capability grid component ─────────────────────────────────────
+
+function GovernanceGrid() {
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [activeAnchor, setActiveAnchor] = useState<string | null>(null);
+
+  // Check URL hash for deep-link on mount
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const hash = window.location.hash.replace("#", "");
+    if (hash) setActiveAnchor(hash);
+  }, []);
+
+  return (
+    <div className="hb-gov-grid">
+      {GOV_CAPABILITIES.map((cap, i) => {
+        const isActive = activeId === cap.id || activeAnchor === cap.id;
+        return (
+          <div
+            key={cap.id}
+            id={cap.id}
+            className={`hb-gov-cap ${isActive ? "active" : ""}`}
+            style={{
+              borderColor: isActive ? `${cap.color}45` : `${cap.color}15`,
+              background: isActive ? `${cap.color}08` : "rgba(255,255,255,0.015)",
+              animationDelay: `${i * 0.03}s`,
+            }}
+            onClick={() => setActiveId(activeId === cap.id ? null : cap.id)}
+          >
+            <div className="hb-gov-cap-bar" style={{ background: cap.color }} />
+            <div className="hb-gov-cap-group" style={{ color: `${cap.color}80` }}>{cap.group}</div>
+            <div className="hb-gov-cap-name">{cap.name}</div>
+            {isActive && (
+              <div className="hb-gov-cap-desc" style={{ animation: "hb-fade-in 0.2s ease" }}>
+                {cap.desc}
+              </div>
+            )}
+            <button className="hb-gov-cap-see" onClick={(e) => { e.stopPropagation(); setActiveId(isActive ? null : cap.id); }}>
+              {isActive ? "↑ Close" : "See how →"}
+            </button>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ─── Governance capability grid data ──────────────────────────────────────────
+
+const GOV_CAPABILITIES = [
+  // Truth Enforcement
+  { id: "multi-vendor", name: "Multi-vendor orchestration", desc: "Claude + GPT + Gemini + custom agents in one control plane.", group: "Truth Enforcement", color: "#ef4444" },
+  { id: "lie-detector", name: "Lie detector", desc: "Flags outputs that contradict established facts before they ship to production.", group: "Truth Enforcement", color: "#ef4444" },
+  { id: "claim-verify", name: "Claim/verify engine", desc: "Every assertion checked against the canonical rules engine before it leaves the session.", group: "Truth Enforcement", color: "#ef4444" },
+  { id: "done-claim", name: "Done-claim verifier", desc: "No agent claims completion without a deterministic build or test verifier passing first.", group: "Truth Enforcement", color: "#ef4444" },
+  { id: "thoroughness", name: "Thoroughness discipline", desc: "Three-pass discovery protocol: cast wide, validate with a second method, spot-check 10%.", group: "Truth Enforcement", color: "#ef4444" },
+  { id: "canonical-rules", name: "Canonical rules engine", desc: "The source of truth every agent writes against. Fetched at session start, not hardcoded.", group: "Truth Enforcement", color: "#ef4444" },
+  // Budget + Cost Control
+  { id: "cost-routing", name: "Cost routing", desc: "Routes each task to its best-fit model at the lowest cost. PLUMBING to Haiku. Strategy to Opus.", group: "Budget + Cost Control", color: "#f59e0b" },
+  { id: "budget-caps", name: "Per-agent budget caps", desc: "No agent runs without a ceiling. 75% warn, 90% pause enforcement via Conductor.", group: "Budget + Cost Control", color: "#f59e0b" },
+  { id: "costs-dashboard", name: "Real-time cost dashboard", desc: "Spend per agent, per task, per system. cmd_routing_log visible in CentralOS fleet UI.", group: "Budget + Cost Control", color: "#f59e0b" },
+  { id: "garbage-man", name: "Garbage-man discipline", desc: "No junk code. Every file added must justify its existence. Dead code is flagged and removed.", group: "Budget + Cost Control", color: "#f59e0b" },
+  { id: "officer-system", name: "Officer system", desc: "48 officers. G1 plan / G2 mid / G3 ship, three review gates. Governance signs off before production.", group: "Budget + Cost Control", color: "#f59e0b" },
+  { id: "performance-scoring", name: "Performance scoring", desc: "Humans and agents measured on the same scaffold. ECI baseline, 90-day re-score.", group: "Budget + Cost Control", color: "#f59e0b" },
+  // Identity + Access
+  { id: "protected-resources", name: "Protected resources", desc: "No agent touches a load-bearing file or workflow without an active capability grant.", group: "Identity + Access", color: "#8b5cf6" },
+  { id: "intent-guardrail", name: "Intent guardrail", desc: "Agent actions checked against declared intent before execution. Operator exit-intent detected.", group: "Identity + Access", color: "#8b5cf6" },
+  { id: "audit-trail", name: "Audit trail", desc: "Append-only event log. cmd_routing_log. Every LLM call, every governance event, every cost.", group: "Identity + Access", color: "#8b5cf6" },
+  { id: "auto-doc", name: "Auto doc creation", desc: "LibraryOS generates and updates governance documentation continuously. Always current.", group: "Identity + Access", color: "#8b5cf6" },
+  { id: "trust-scores", name: "Trust scores per agent", desc: "Every agent accrues a trust score based on accuracy, flub rate, and claim-verify pass rate.", group: "Identity + Access", color: "#8b5cf6" },
+  { id: "continuous-compliance", name: "Continuous compliance", desc: "SOC2 / NIST / ISO / GDPR / AI RMF. Compliance state maintained continuously, not at audit time.", group: "Identity + Access", color: "#8b5cf6" },
+];
+
 // ─── Governance module ─────────────────────────────────────────────────────────
 
 const VAULT_RED = "#ef4444";
@@ -1127,6 +1200,10 @@ function GovernanceModule() {
           </p>
         </div>
       </HowExplainer>
+
+      {/* 18-capability grid */}
+      <div className="hb-rich-section-label" style={{ color: VAULT_RED }}>18 governance capabilities</div>
+      <GovernanceGrid />
 
       {/* Chapter links */}
       <div className="hb-rich-section-label" style={{ color: VAULT_RED }}>Four chapters</div>
@@ -3891,6 +3968,65 @@ const CSS = `
     from { opacity: 1; transform: translateY(0) scale(1); }
     to { opacity: 0; transform: translateY(-60px) scale(0.3); }
   }
+
+  /* ── Governance capability grid ── */
+  .hb-gov-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+  @media (max-width: 600px) {
+    .hb-gov-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  .hb-gov-cap {
+    border: 1px solid;
+    border-radius: 9px;
+    padding: 0.65rem 0.75rem;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    transition: border-color 0.15s ease, background 0.15s ease;
+    animation: hb-fade-in 0.4s ease both;
+  }
+  .hb-gov-cap:hover { border-color: rgba(255,255,255,0.15) !important; }
+  .hb-gov-cap.active { box-shadow: 0 0 0 1px currentColor; }
+  .hb-gov-cap-bar { position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+  .hb-gov-cap-group {
+    font-size: 0.52rem;
+    font-family: ui-monospace,monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    line-height: 1.2;
+  }
+  .hb-gov-cap-name {
+    font-size: 0.73rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.82);
+    line-height: 1.3;
+  }
+  .hb-gov-cap-desc {
+    font-size: 0.68rem;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.5;
+    margin-top: 0.15rem;
+  }
+  .hb-gov-cap-see {
+    font-size: 0.6rem;
+    color: rgba(139,92,246,0.6);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    margin-top: 0.2rem;
+    text-align: left;
+    font-family: inherit;
+    transition: color 0.15s ease;
+  }
+  .hb-gov-cap-see:hover { color: rgba(139,92,246,0.9); }
 
   /* ── HowExplainer ── */
   .hb-how-wrap { margin-top: 0.625rem; }
