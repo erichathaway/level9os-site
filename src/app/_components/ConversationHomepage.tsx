@@ -2381,7 +2381,7 @@ function Wt30sScene3() {
 // All 1:30 scenes use the live ConsoleGraphicLite as the primary visual.
 // Each scene surfaces a different focus label so the visitor knows where to look.
 const WT_1M30_FOCUS = [
-  { label: "Agents at work", color: "#ef4444", note: "16 officers — 4 per bucket. Packets flow down to their bucket." },
+  { label: "Agents at work", color: "#ef4444", note: "16 officers, 4 per bucket. Packets flow down to their bucket." },
   { label: "Error propagation", color: "#f59e0b", note: "No governance layer means errors compound silently." },
   { label: "Governance intercepts", color: "#8b5cf6", note: "Watch the Decide ring. Every decision gated before it ships." },
   { label: "Cross-bucket coordination", color: "#06b6d4", note: "Coordinate ring: agents scheduling, prioritizing, handing off." },
@@ -2757,7 +2757,7 @@ function WhyUsRaceModule() {
 
   const SCENE_CAPTIONS = [
     "Four solutions. Same starting line. Very different price tags.",
-    "Each one runs. The enterprise platforms hit walls — deploy time, vendor lock-in, scope limits.",
+    "Each one runs. The enterprise platforms hit walls: deploy time, vendor lock-in, scope limits.",
     "Level9OS crosses the finish line alone. 5 minutes to set up. Multi-vendor. SMB-ready. Pay less than we save you.",
   ];
 
@@ -2887,7 +2887,7 @@ function TryItModule() {
           No signup. Bring your Claude or GPT API key. The sandbox puts a live governance layer under your agent for a test run. See the audit trail in real time.
         </p>
         <div style={{ fontSize: "0.68rem", color: "rgba(255,255,255,0.3)", fontFamily: "ui-monospace,monospace", padding: "0.35rem 0.6rem", background: "rgba(139,92,246,0.06)", borderRadius: "6px", display: "inline-block" }}>
-          Sandbox launching soon — join the free tier to get notified first
+          Sandbox launching soon. Join the free tier to get notified first.
         </div>
       </div>
 
@@ -3721,7 +3721,7 @@ export default function ConversationHomepage() {
     // State 1: fresh visit
     setVisitorState("splash");
     agentSay(
-      "Hi. I'm Level9OS — the operating layer that catches your AI agents before they lie, overspend, or break things. Quick question first: how big is your operation?"
+      "Hi. I'm Level9OS. The operating layer that catches your AI agents before they lie, overspend, or break things. Quick question first: how big is your operation?"
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -4001,7 +4001,7 @@ export default function ConversationHomepage() {
           solo: "Got it. Solo builders are who this is built for first. Let me show you what catches your eye.",
           smb: "Got it. SMB founders are who we built this for. Let me show you what catches your eye.",
           growth: "Got it. Growth-stage teams get the most from the routing and governance layers. Let me show you what's relevant.",
-          enterprise: "Got it. Enterprise teams evaluating this — let me surface the most relevant angles for you.",
+          enterprise: "Got it. Enterprise teams evaluating this: let me surface the most relevant angles for you.",
         };
         await agentSay(confirmMessages[detectedIcp], 200);
         return;
