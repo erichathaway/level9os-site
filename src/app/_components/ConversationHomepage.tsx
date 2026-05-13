@@ -655,44 +655,90 @@ function ComparisonModule() {
   );
 }
 
+const VOICE_SCRIPTS = {
+  "30s": {
+    label: "30 seconds",
+    desc: "The number. The cost. The ROI. Done.",
+    color: "#ef4444",
+    script: [
+      "Most AI tools add agents. None of them govern them.",
+      "In 90 days, our governance layer prevented $52,686 in wasted work. 236 hours of operator time returned. Infrastructure cost: $5.07 a month.",
+      "Level9OS is your AI operating system. One control plane for every agent, every vendor, every workflow. Built for a 10 to 50 person company that can't afford to learn this the hard way.",
+      "Your first AI operating system. Or your last one. Start at level9os.com.",
+    ],
+  },
+  "90s": {
+    label: "1 minute 30",
+    desc: "Four categories, full math, one CTA.",
+    color: "#8b5cf6",
+    script: [
+      "You've introduced an agent. Maybe a few. They're running.",
+      "Here's what's actually happening: they're claiming done when the work isn't done. They're reversing mid-task. They're burning your best model on work that costs a tenth as much somewhere else. And you won't know until something breaks.",
+      "236 hours of operator time returned in 90 days. Up to $17,562 a month in prevented rework. Governance infrastructure running at $5.07 a month. That's not a projection. That's our production environment.",
+      "Plug any agent. Claude, GPT, Gemini. One control plane. One audit trail. No lock-in.",
+      "The GTM hook we ship to every customer: introduce an agent. Give it access. Give it a day. It comes back and walks you through what it found. That's the demo.",
+      "Your first AI operating system. Or your last one. level9os.com.",
+    ],
+  },
+  "5m": {
+    label: "5 minutes",
+    desc: "Full operator briefing. Architecture, proof, onboarding.",
+    color: "#ec4899",
+    script: [
+      "You've approved the work. The agent says it's done. You move on. Three days later, someone on your team finds the failure. The agent never finished. It just told you it did.",
+      "In 299 real production sessions over 90 days, we measured a 26% lie rate from our own AI agents. One in four done-claims was wrong.",
+      "We're an AI operating system for companies between 10 and 50 people. The operator who's already running AI. Who has 3, 5, maybe 10 agents active. And no real system governing any of them.",
+      "Microsoft Agent 365 runs close to $1 million a year. Salesforce Agentforce, around $850,000. Workday ASOR, $500,000 and it doesn't leave the HR and finance lane. Level9OS is $499 a month. And it's not locked to one vendor.",
+      "In 90 days: $52,686 in prevented rework. Monthly run rate: $17,562. Operator time returned: 236 hours. Cost of the governance system: $5.07 a month.",
+      "The governance layer is not a feature on top of the product. It's the foundation the whole system runs on. 18 services across truth enforcement, budget control, and identity management.",
+      "Multi-vendor AI governance and management platform. Plug any agent. Claude. GPT-4. Gemini. A custom-built model. One control plane. One audit trail.",
+      "The window here is 12 to 18 months. By late 2027, one or two of them will consolidate the category. We're building for the operators who don't want to wait.",
+      "Your first AI operating system. Or your last one. level9os.com. We'll show you what's actually running.",
+    ],
+  },
+};
+
 function VoicePitchModule() {
-  const [playing, setPlaying] = useState<string | null>(null);
-  const tracks = [
-    { id: "30s", label: "30 seconds", desc: "The number. The cost. The ROI. Done." },
-    { id: "90s", label: "1 minute 30", desc: "Four categories, full math, one CTA." },
-    { id: "5m", label: "5 minutes", desc: "Full operator briefing. Architecture, proof, onboarding." },
-  ];
+  const [expanded, setExpanded] = useState<string | null>(null);
+
   return (
     <div className="hb-module-voice">
       <div className="hbvoice-label">Three versions. Same message, different depth.</div>
-      {tracks.map((t) => (
-        <div key={t.id} className="hbvoice-track">
-          <div className="hbvoice-track-info">
-            <span className="hbvt-label">{t.label}</span>
-            <span className="hbvt-desc">{t.desc}</span>
-          </div>
+      <div className="hbvoice-note-top" style={{ marginBottom: "0.75rem", fontSize: "0.72rem", color: "rgba(255,255,255,0.35)", fontFamily: "ui-monospace,monospace", background: "rgba(236,72,153,0.06)", border: "1px solid rgba(236,72,153,0.15)", borderRadius: "6px", padding: "0.4rem 0.75rem" }}>
+        Voice render coming soon. Read the script while we record in Eric&apos;s voice.
+      </div>
+      {(Object.entries(VOICE_SCRIPTS) as [string, typeof VOICE_SCRIPTS["30s"]][]).map(([id, track]) => (
+        <div key={id} className="hbvoice-track" style={{ flexDirection: "column", alignItems: "stretch" }}>
           <button
-            className={`hbvoice-play ${playing === t.id ? "active" : ""}`}
-            onClick={() => setPlaying(playing === t.id ? null : t.id)}
+            className="hbvoice-track-header"
+            style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "none", border: "none", cursor: "pointer", padding: "0.6rem 0", textAlign: "left", width: "100%" }}
+            onClick={() => setExpanded(expanded === id ? null : id)}
           >
-            {playing === t.id ? "■" : "▶"}
+            <div className="hbvoice-track-info" style={{ display: "flex", flexDirection: "column", gap: "0.1rem" }}>
+              <span className="hbvt-label" style={{ color: track.color }}>{track.label}</span>
+              <span className="hbvt-desc">{track.desc}</span>
+            </div>
+            <span style={{ color: track.color, fontSize: "0.75rem", fontFamily: "ui-monospace,monospace", flexShrink: 0 }}>
+              {expanded === id ? "Close ↑" : "Read script →"}
+            </span>
           </button>
-          <div className="hbvoice-waveform">
-            {Array.from({ length: 28 }).map((_, i) => (
-              <div
-                key={i}
-                className="hbvoice-bar"
-                style={{
-                  height: `${8 + Math.abs(Math.sin(i * 0.7)) * 20}px`,
-                  animationDelay: `${i * 0.04}s`,
-                  animationPlayState: playing === t.id ? "running" : "paused",
-                }}
-              />
-            ))}
-          </div>
+          {expanded === id && (
+            <div className="hbvoice-script" style={{ borderTop: `1px solid ${track.color}20`, paddingTop: "0.75rem", marginTop: "0.25rem" }}>
+              {track.script.map((line, i) => (
+                <div key={i} style={{ display: "flex", gap: "0.6rem", marginBottom: "0.65rem", alignItems: "flex-start" }}>
+                  <span style={{ fontSize: "0.6rem", fontFamily: "ui-monospace,monospace", color: `${track.color}70`, minWidth: "1.4rem", marginTop: "0.25rem", flexShrink: 0 }}>
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <p style={{ margin: 0, fontSize: "0.8rem", color: "rgba(255,255,255,0.72)", lineHeight: 1.7 }}>{line}</p>
+                </div>
+              ))}
+              <div style={{ marginTop: "0.5rem", paddingTop: "0.5rem", borderTop: `1px solid ${track.color}15`, fontSize: "0.65rem", color: "rgba(255,255,255,0.2)", fontFamily: "ui-monospace,monospace" }}>
+                {track.script.length} lines · Voice recording in production queue
+              </div>
+            </div>
+          )}
         </div>
       ))}
-      <div className="hbvoice-note">Audio coming soon. Placeholder play states shown.</div>
     </div>
   );
 }
