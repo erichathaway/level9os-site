@@ -51,8 +51,11 @@ type ModuleId =
 
 type PoolGroup = "A" | "B" | "C" | "D" | "E" | "F";
 
+// ICP segments
+type ICP = "solo" | "smb" | "growth" | "enterprise" | null;
+
 // Engagement ladder chip types
-type ChipType = "module" | "yes-no" | "guess";
+type ChipType = "module" | "yes-no" | "guess" | "icp";
 
 interface PoolPrompt {
   id: string;
@@ -64,6 +67,8 @@ interface PoolPrompt {
   opensModule?: ModuleId;
   /** Handler key for special behaviors */
   action?: "cta-person" | "cta-voice" | "reopen-module";
+  /** ICP relevance tags — if set, only show for these ICPs (or when ICP is null) */
+  icpTags?: ICP[];
 }
 
 type VisitorState = "splash" | "dashboard" | "transitioning";
@@ -82,6 +87,7 @@ interface ConversationState {
   lastVisitorActivity: number;
   engagementLevel: number;
   lastPlayfulLabel?: string;
+  icp?: ICP;
 }
 
 interface ChatMessage {
@@ -2787,6 +2793,7 @@ function loadState(): ConversationState | null {
       lastVisitorActivity: s.lastVisitorActivity ?? Date.now(),
       engagementLevel: partial.engagementLevel ?? 0,
       lastPlayfulLabel: partial.lastPlayfulLabel,
+      icp: partial.icp ?? null,
     };
   } catch {
     return null;
@@ -3026,6 +3033,15 @@ const CONTENT_POOL: PoolPrompt[] = [
     action: "cta-person",
   },
 
+  // ICP solo: "Can I solo this?" — setup walkthrough entry
+  {
+    id: "f-try-it-solo",
+    label: "Can I solo this?",
+    group: "B",
+    opensModule: "paths",
+    icpTags: ["solo"],
+  },
+
   // Group F: playful pop culture openers — rotate in the 4th chip slot, never repeat back-to-back
   {
     id: "f-show-money",
@@ -3079,6 +3095,7 @@ interface PoolEngineState {
   poolHistory: string[];
   lastGroupShown?: PoolGroup;
   userAnswers: Record<string, unknown>;
+  icp?: ICP;
 }
 
 function getPoolSuggestions(
@@ -3091,6 +3108,7 @@ function getPoolSuggestions(
     poolHistory,
     lastGroupShown,
     userAnswers,
+    icp,
   } = engineState;
 
   const unlockCount = unlockedModules.length;
@@ -3115,6 +3133,8 @@ function getPoolSuggestions(
         return false;
       }
     }
+    // ICP filter: if prompt has icpTags and we have a detected ICP, only show if ICP matches
+    if (p.icpTags && icp && !p.icpTags.includes(icp)) return false;
     return true;
   });
 
@@ -3227,6 +3247,8 @@ export default function ConversationHomepage() {
   const [engagementLevel, setEngagementLevel] = useState(0);
   const [lastPlayfulLabel, setLastPlayfulLabel] = useState<string | undefined>(undefined);
   const lastVisitorActivity = useRef<number>(Date.now());
+
+  const [icp, setIcp] = useState<ICP>(null);
 
   const [freeText, setFreeText] = useState("");
   const [freeTextPending, setFreeTextPending] = useState(false);
@@ -3382,6 +3404,7 @@ export default function ConversationHomepage() {
       if (saved.poolHistory?.length) setPoolHistory(saved.poolHistory);
       if (saved.engagementLevel) setEngagementLevel(saved.engagementLevel);
       if (saved.lastPlayfulLabel) setLastPlayfulLabel(saved.lastPlayfulLabel);
+      if (saved.icp) setIcp(saved.icp);
       setIsReturning(true);
       setVisitorState("dashboard");
 
@@ -3406,7 +3429,7 @@ export default function ConversationHomepage() {
     // State 1: fresh visit
     setVisitorState("splash");
     agentSay(
-      "Hi. I just saved someone $52,686 in 90 days. I have about 8 things to show you, in whatever order you want. Where should we start?"
+      "Hi. I'm Level9OS — the operating layer that catches your AI agents before they lie, overspend, or break things. Quick question first: how big is your operation?"
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -3427,8 +3450,9 @@ export default function ConversationHomepage() {
       lastVisitorActivity: lastVisitorActivity.current,
       engagementLevel,
       lastPlayfulLabel,
+      icp,
     });
-  }, [messages, unlockedModules, activeModule, userAnswers, isSkipped, closedTabs, poolHistory, engagementLevel, lastPlayfulLabel]);
+  }, [messages, unlockedModules, activeModule, userAnswers, isSkipped, closedTabs, poolHistory, engagementLevel, lastPlayfulLabel, icp]);
 
   // Cmd+K / Ctrl+K listener
   useEffect(() => {
@@ -3674,6 +3698,21 @@ export default function ConversationHomepage() {
         return;
       }
 
+      // ICP detection chip handling
+      if (replyId.startsWith("icp-")) {
+        const detectedIcp = replyId.replace("icp-", "") as NonNullable<ICP>;
+        addMessage({ role: "user", content: replyLabel });
+        setIcp(detectedIcp);
+        const confirmMessages: Record<NonNullable<ICP>, string> = {
+          solo: "Got it. Solo builders are who this is built for first. Let me show you what catches your eye.",
+          smb: "Got it. SMB founders are who we built this for. Let me show you what catches your eye.",
+          growth: "Got it. Growth-stage teams get the most from the routing and governance layers. Let me show you what's relevant.",
+          enterprise: "Got it. Enterprise teams evaluating this — let me surface the most relevant angles for you.",
+        };
+        await agentSay(confirmMessages[detectedIcp], 200);
+        return;
+      }
+
       if (replyId === "cta") {
         addMessage({ role: "user", content: replyLabel });
         await agentSay(
@@ -3821,7 +3860,7 @@ export default function ConversationHomepage() {
       }
     },
     [addMessage, agentSay, revealModule, unlockedModules, maxSelf, visitorState,
-     closedTabs, poolHistory, lastGroupShown, userAnswers, recordActivity, recordPoolShown]
+     closedTabs, poolHistory, lastGroupShown, userAnswers, recordActivity, recordPoolShown, setIcp]
   );
 
   // Build palette items from module metadata + content pool
@@ -3853,6 +3892,42 @@ export default function ConversationHomepage() {
     [handleReply]
   );
 
+  // ── ICP detection chips — shown before any ICP is set ───────────────────────
+  const ICP_DETECTION_CHIPS: { id: string; label: string; icp: ICP }[] = [
+    { id: "icp-solo", label: "Just me", icp: "solo" },
+    { id: "icp-smb", label: "Small team (10-50)", icp: "smb" },
+    { id: "icp-growth", label: "Growing fast (50-200)", icp: "growth" },
+    { id: "icp-enterprise", label: "Big org (200+)", icp: "enterprise" },
+  ];
+
+  // ── ICP-adapted initial chip sets ────────────────────────────────────────────
+  const ICP_CHIPS: Record<NonNullable<ICP>, { id: string; label: string }[]> = {
+    solo: [
+      { id: "compounding-risk", label: "Show me the 1-agent risk math." },
+      { id: "calculator", label: "What is the ROI at my size?" },
+      { id: "f-try-it-solo", label: "Can I solo this?" },
+      { id: "f-show-money", label: "Show me what is cheap." },
+    ],
+    smb: [
+      { id: "calculator", label: "How much would I save?" },
+      { id: "article", label: "Show me the receipts." },
+      { id: "compare", label: "Who do you beat?" },
+      { id: "counter", label: "Show me the money." },
+    ],
+    growth: [
+      { id: "architecture", label: "How does this bridge to my stack?" },
+      { id: "wrappers", label: "Department-level governance?" },
+      { id: "governance", label: "Multi-vendor support?" },
+      { id: "live-feed", label: "Houston we have a problem." },
+    ],
+    enterprise: [
+      { id: "compare", label: "How do you neutralize lock-in?" },
+      { id: "governance", label: "Is compliance state continuous?" },
+      { id: "compare", label: "How do you compare to Workday or Microsoft?" },
+      { id: "live-feed", label: "Take me to the audit room." },
+    ],
+  };
+
   // ── Engagement-aware suggested replies ──────────────────────────────────────
   // Level 0-2: initial 4 chips (positional spec from Phase 1)
   // Level 3-5: slot 3 becomes a yes/no question from MAX
@@ -3881,14 +3956,42 @@ export default function ConversationHomepage() {
     if (allPrimariesUnlocked) {
       // Pure pool mode
       const pool = getPoolSuggestions({
-        unlockedModules, closedTabs, poolHistory, lastGroupShown, userAnswers,
+        unlockedModules, closedTabs, poolHistory, lastGroupShown, userAnswers, icp,
       }, 3);
       const replies: { id: string; label: string }[] = pool.map((p) => ({ id: p.id, label: p.label }));
       replies.push({ id: "restart", label: "Start over" });
       return replies.slice(0, 4);
     }
 
-    // Fresh state (no modules unlocked yet): use the positional 4 chips with engagement ladder
+    // Fresh state (no modules unlocked yet, no ICP detected): show ICP detection chips
+    if (unlockedModules.length === 0 && !isSkipped && icp === null) {
+      return ICP_DETECTION_CHIPS.map((c) => ({ id: c.id, label: c.label }));
+    }
+
+    // ICP detected, no modules yet: show ICP-adapted chips
+    if (unlockedModules.length === 0 && !isSkipped && icp !== null) {
+      return ICP_CHIPS[icp].slice(0, 4);
+    }
+
+    // Modules unlocked with ICP: use ICP-filtered pool
+    if (icp !== null) {
+      const primary = getInitialSuggestions(unlockedModules, isSkipped);
+      const poolExtras = getPoolSuggestions({
+        unlockedModules, closedTabs, poolHistory, lastGroupShown, userAnswers, icp,
+      }, Math.max(0, 4 - primary.length));
+      const combined = [
+        ...primary,
+        ...poolExtras.map((p) => ({ id: p.id, label: p.label })),
+      ];
+      const seen = new Set<string>();
+      return combined.filter((r) => {
+        if (seen.has(r.id)) return false;
+        seen.add(r.id);
+        return true;
+      }).slice(0, 4);
+    }
+
+    // Fresh state (no modules unlocked yet, skipped): use the positional 4 chips with engagement ladder
     if (unlockedModules.length === 0 && !isSkipped) {
       const chips: { id: string; label: string; chipType?: ChipType }[] = [
         INITIAL_4_CHIPS[0],
@@ -3913,7 +4016,7 @@ export default function ConversationHomepage() {
     // Mixed mode: primary modules + pool prompts
     const primary = getInitialSuggestions(unlockedModules, isSkipped);
     const poolExtras = getPoolSuggestions({
-      unlockedModules, closedTabs, poolHistory, lastGroupShown, userAnswers,
+      unlockedModules, closedTabs, poolHistory, lastGroupShown, userAnswers, icp,
     }, Math.max(0, 4 - primary.length));
     const combined = [
       ...primary,
