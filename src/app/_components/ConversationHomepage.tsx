@@ -271,11 +271,39 @@ const SKIP_DEFAULT_TABS: ModuleId[] = ["counter", "calculator", "comparison", "a
 
 // ─── Module components (reused from pure/tabs variants) ────────────────────────
 
-function CounterModule() {
+const ICP_COUNTER_FRAMES: Record<NonNullable<ICP>, { headline: string; sub: string; target: number; label: string }> = {
+  solo: {
+    headline: "$580/month",
+    sub: "Average AI spend wasted per solo builder. We catch most of it.",
+    target: 580,
+    label: "Per month, on average for solo operators",
+  },
+  smb: {
+    headline: "$52,686",
+    sub: "Prevented in 90 days. From our own real deployment.",
+    target: 52686,
+    label: "Prevented in 90 days",
+  },
+  growth: {
+    headline: "12%",
+    sub: "Of your AI spend, preventable. That is the governance layer's job.",
+    target: 12,
+    label: "Of AI spend preventable with governance",
+  },
+  enterprise: {
+    headline: "Millions/yr",
+    sub: "Multiplied across your vendor sprawl. The unit economics start at $52,686 per operator, per 90 days.",
+    target: 52686,
+    label: "Unit economics per operator per 90 days",
+  },
+};
+
+function CounterModule({ icp }: { icp?: ICP }) {
   const [value, setValue] = useState(0);
   const [burst, setBurst] = useState(false);
   const [subVisible, setSubVisible] = useState(false);
-  const TARGET = 52686;
+  const icpFrame = icp && icp !== null ? ICP_COUNTER_FRAMES[icp] : null;
+  const TARGET = icpFrame?.target ?? 52686;
 
   useEffect(() => {
     const start = Date.now();
@@ -311,12 +339,23 @@ function CounterModule() {
           ))}
         </div>
       )}
-      <div className="hbmc-number"
-        style={{ color: value >= TARGET ? "#ef4444" : "#8b5cf6", transition: "color 0.5s ease" }}
-      >
-        ${value.toLocaleString()}
-      </div>
-      <div className="hbmc-label">Prevented in 90 days</div>
+      {icpFrame && (icp === "solo" || icp === "growth" || icp === "enterprise") ? (
+        <div className="hbmc-number" style={{ color: "#ef4444", fontSize: icp === "enterprise" ? "2.5rem" : undefined }}>
+          {icpFrame.headline}
+        </div>
+      ) : (
+        <div className="hbmc-number"
+          style={{ color: value >= TARGET ? "#ef4444" : "#8b5cf6", transition: "color 0.5s ease" }}
+        >
+          ${value.toLocaleString()}
+        </div>
+      )}
+      <div className="hbmc-label">{icpFrame?.label ?? "Prevented in 90 days"}</div>
+      {icpFrame && icp !== "smb" && (
+        <div style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.6)", lineHeight: 1.6, marginBottom: "0.75rem", marginTop: "0.35rem", maxWidth: "340px" }}>
+          {icpFrame.sub}
+        </div>
+      )}
       {subVisible && (
         <div style={{ animation: "hb-fade-in 0.5s ease" }}>
           <div className="hbmc-stats">
@@ -2711,9 +2750,11 @@ function ModuleError({ onRetry }: { onRetry: () => void }) {
 function ModuleRenderer({
   moduleId,
   userAnswers,
+  icp,
 }: {
   moduleId: ModuleId;
   userAnswers: Record<string, unknown>;
+  icp?: ICP;
 }) {
   const [loading, setLoading] = useState(true);
   const [errored, setErrored] = useState(false);
@@ -2731,7 +2772,7 @@ function ModuleRenderer({
 
   const content = (() => {
     switch (moduleId) {
-      case "counter": return <CounterModule />;
+      case "counter": return <CounterModule icp={icp} />;
       case "calculator":
         return (
           <CalculatorModule
@@ -4094,7 +4135,7 @@ export default function ConversationHomepage() {
                 if (msg.isModule && msg.moduleId) {
                   return (
                     <div key={msg.id} className="hb-inline-module">
-                      <ModuleRenderer moduleId={msg.moduleId} userAnswers={userAnswers} />
+                      <ModuleRenderer moduleId={msg.moduleId} userAnswers={userAnswers} icp={icp} />
                     </div>
                   );
                 }
@@ -4317,7 +4358,7 @@ export default function ConversationHomepage() {
                   onInput={recordActivity}
                   onPointerDown={recordActivity}
                 >
-                  <ModuleRenderer moduleId={activeModule} userAnswers={userAnswers} />
+                  <ModuleRenderer moduleId={activeModule} userAnswers={userAnswers} icp={icp} />
                 </div>
               ) : unlockedModules.length === 0 ? (
                 // Empty tabs state: muted module icons that pulse
