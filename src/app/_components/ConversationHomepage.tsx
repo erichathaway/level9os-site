@@ -1048,27 +1048,27 @@ function GovernanceGrid() {
 // ─── Governance capability grid data ──────────────────────────────────────────
 
 const GOV_CAPABILITIES = [
-  // Truth Enforcement
-  { id: "multi-vendor", name: "Multi-vendor orchestration", desc: "Claude + GPT + Gemini + custom agents in one control plane.", group: "Truth Enforcement", color: "#ef4444" },
-  { id: "lie-detector", name: "Lie detector", desc: "Flags outputs that contradict established facts before they ship to production.", group: "Truth Enforcement", color: "#ef4444" },
-  { id: "claim-verify", name: "Claim/verify engine", desc: "Every assertion checked against the canonical rules engine before it leaves the session.", group: "Truth Enforcement", color: "#ef4444" },
-  { id: "done-claim", name: "Done-claim verifier", desc: "No agent claims completion without a deterministic build or test verifier passing first.", group: "Truth Enforcement", color: "#ef4444" },
-  { id: "thoroughness", name: "Thoroughness discipline", desc: "Three-pass discovery protocol: cast wide, validate with a second method, spot-check 10%.", group: "Truth Enforcement", color: "#ef4444" },
-  { id: "canonical-rules", name: "Canonical rules engine", desc: "The source of truth every agent writes against. Fetched at session start, not hardcoded.", group: "Truth Enforcement", color: "#ef4444" },
-  // Budget + Cost Control
-  { id: "cost-routing", name: "Cost routing", desc: "Routes each task to its best-fit model at the lowest cost. PLUMBING to Haiku. Strategy to Opus.", group: "Budget + Cost Control", color: "#f59e0b" },
-  { id: "budget-caps", name: "Per-agent budget caps", desc: "No agent runs without a ceiling. 75% warn, 90% pause enforcement via Conductor.", group: "Budget + Cost Control", color: "#f59e0b" },
-  { id: "costs-dashboard", name: "Real-time cost dashboard", desc: "Spend per agent, per task, per system. cmd_routing_log visible in CentralOS fleet UI.", group: "Budget + Cost Control", color: "#f59e0b" },
-  { id: "garbage-man", name: "Garbage-man discipline", desc: "No junk code. Every file added must justify its existence. Dead code is flagged and removed.", group: "Budget + Cost Control", color: "#f59e0b" },
-  { id: "officer-system", name: "Officer system", desc: "48 officers. G1 plan / G2 mid / G3 ship, three review gates. Governance signs off before production.", group: "Budget + Cost Control", color: "#f59e0b" },
-  { id: "performance-scoring", name: "Performance scoring", desc: "Humans and agents measured on the same scaffold. ECI baseline, 90-day re-score.", group: "Budget + Cost Control", color: "#f59e0b" },
-  // Identity + Access
-  { id: "protected-resources", name: "Protected resources", desc: "No agent touches a load-bearing file or workflow without an active capability grant.", group: "Identity + Access", color: "#8b5cf6" },
-  { id: "intent-guardrail", name: "Intent guardrail", desc: "Agent actions checked against declared intent before execution. Operator exit-intent detected.", group: "Identity + Access", color: "#8b5cf6" },
-  { id: "audit-trail", name: "Audit trail", desc: "Append-only event log. cmd_routing_log. Every LLM call, every governance event, every cost.", group: "Identity + Access", color: "#8b5cf6" },
-  { id: "auto-doc", name: "Auto doc creation", desc: "LibraryOS generates and updates governance documentation continuously. Always current.", group: "Identity + Access", color: "#8b5cf6" },
-  { id: "trust-scores", name: "Trust scores per agent", desc: "Every agent accrues a trust score based on accuracy, flub rate, and claim-verify pass rate.", group: "Identity + Access", color: "#8b5cf6" },
-  { id: "continuous-compliance", name: "Continuous compliance", desc: "SOC2 / NIST / ISO / GDPR / AI RMF. Compliance state maintained continuously, not at audit time.", group: "Identity + Access", color: "#8b5cf6" },
+  // Truth Enforcement — "Your AI won't lie to you in production"
+  { id: "multi-vendor", name: "Multi-vendor orchestration", desc: "Claude + GPT + Gemini + custom agents in one control plane.", group: "Your AI won't lie to you in production", color: "#ef4444" },
+  { id: "lie-detector", name: "Lie detector", desc: "Flags outputs that contradict established facts before they ship to production.", group: "Your AI won't lie to you in production", color: "#ef4444" },
+  { id: "claim-verify", name: "Claim/verify engine", desc: "Every assertion checked against the canonical rules engine before it leaves the session.", group: "Your AI won't lie to you in production", color: "#ef4444" },
+  { id: "done-claim", name: "Done-claim verifier", desc: "No agent claims completion without a deterministic build or test verifier passing first.", group: "Your AI won't lie to you in production", color: "#ef4444" },
+  { id: "thoroughness", name: "Thoroughness discipline", desc: "Three-pass discovery: cast wide, validate with a second method, spot-check 10%. No half-done scans.", group: "Your AI won't lie to you in production", color: "#ef4444" },
+  { id: "canonical-rules", name: "Canonical rules engine", desc: "The source of truth every agent writes against. Fetched at session start, not hardcoded.", group: "Your AI won't lie to you in production", color: "#ef4444" },
+  // Budget + Cost Control — "Your AI won't overspend without you knowing"
+  { id: "cost-routing", name: "Cost routing", desc: "Routes each task to its best-fit model at the lowest cost. Simple tasks go to cheap models. Strategy to the best one.", group: "Your AI won't overspend without you knowing", color: "#f59e0b" },
+  { id: "budget-caps", name: "Per-agent budget caps", desc: "No agent runs without a spending ceiling. 75% triggers a warning. 90% triggers a pause.", group: "Your AI won't overspend without you knowing", color: "#f59e0b" },
+  { id: "costs-dashboard", name: "Real-time cost dashboard", desc: "Spend per agent, per task, per system. Live. Not a monthly invoice surprise.", group: "Your AI won't overspend without you knowing", color: "#f59e0b" },
+  { id: "garbage-man", name: "No junk code rule", desc: "Every file added must justify its existence. Dead code flagged and removed before it accumulates.", group: "Your AI won't overspend without you knowing", color: "#f59e0b" },
+  { id: "officer-system", name: "Review gate system", desc: "3 checkpoints: plan, mid-build, ship. Governance signs off before production. Nothing self-approves.", group: "Your AI won't overspend without you knowing", color: "#f59e0b" },
+  { id: "performance-scoring", name: "Performance scoring", desc: "Humans and agents measured on the same scale. Baseline, then 90-day re-score to track change.", group: "Your AI won't overspend without you knowing", color: "#f59e0b" },
+  // Identity + Access — "Your AI won't touch what it shouldn't"
+  { id: "protected-resources", name: "Protected resources", desc: "No agent touches a critical file or workflow without an active access grant. Blocked at the system level.", group: "Your AI won't touch what it shouldn't", color: "#8b5cf6" },
+  { id: "intent-guardrail", name: "Intent guardrail", desc: "Agent actions checked against declared intent before execution. Drift detected and stopped.", group: "Your AI won't touch what it shouldn't", color: "#8b5cf6" },
+  { id: "audit-trail", name: "Audit trail", desc: "Every action logged. Every LLM call, every governance event, every cost. Append-only. Tamper-evident.", group: "Your AI won't touch what it shouldn't", color: "#8b5cf6" },
+  { id: "auto-doc", name: "Auto documentation", desc: "Governance documentation generated and updated continuously. Always current. Never stale.", group: "Your AI won't touch what it shouldn't", color: "#8b5cf6" },
+  { id: "trust-scores", name: "Trust scores per agent", desc: "Every agent earns a trust score based on accuracy, error rate, and claim-verify pass rate.", group: "Your AI won't touch what it shouldn't", color: "#8b5cf6" },
+  { id: "continuous-compliance", name: "Continuous compliance", desc: "SOC2 / NIST / ISO / GDPR / AI RMF. Compliance state maintained daily, not just at audit time.", group: "Your AI won't touch what it shouldn't", color: "#8b5cf6" },
 ];
 
 // ─── Governance module ─────────────────────────────────────────────────────────
@@ -1176,8 +1176,27 @@ function GovernanceModule() {
         </div>
       </HowExplainer>
 
-      {/* 18-capability grid */}
-      <div className="hb-rich-section-label" style={{ color: VAULT_RED }}>18 governance capabilities</div>
+      {/* 18-capability grid — "why this matters" frame first */}
+      <div className="hb-rich-section-label" style={{ color: VAULT_RED }}>The 18 ways we keep your agents honest, cheap, and accountable.</div>
+
+      {/* Why this matters — three rows before the grid */}
+      <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem", marginBottom: "1.25rem" }}>
+        {[
+          { icon: "T", color: "#ef4444", bold: "When an agent lies, we catch it.", rest: " Before the email sends.", group: "Truth Enforcement" },
+          { icon: "$", color: "#f59e0b", bold: "When an agent spends too much, we stop it.", rest: " Before the bill arrives.", group: "Budget + Cost Control" },
+          { icon: "A", color: "#8b5cf6", bold: "When an agent touches something it shouldn't, we block it.", rest: " Before the damage.", group: "Identity + Access" },
+        ].map((row) => (
+          <div key={row.group} style={{ display: "flex", alignItems: "flex-start", gap: "0.75rem", padding: "0.75rem 1rem", borderRadius: "10px", background: `${row.color}07`, border: `1px solid ${row.color}18` }}>
+            <span style={{ width: "28px", height: "28px", borderRadius: "6px", background: `${row.color}18`, border: `1px solid ${row.color}30`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.7rem", fontWeight: 800, color: row.color, flexShrink: 0, fontFamily: "ui-monospace,monospace" }}>{row.icon}</span>
+            <div>
+              <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "rgba(255,255,255,0.88)" }}>{row.bold}</span>
+              <span style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.55)" }}>{row.rest}</span>
+              <div style={{ marginTop: "0.2rem", fontSize: "0.62rem", color: `${row.color}80`, fontFamily: "ui-monospace,monospace", textTransform: "uppercase", letterSpacing: "0.12em" }}>{row.group} group below</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
       <GovernanceGrid />
 
       {/* Chapter links */}
