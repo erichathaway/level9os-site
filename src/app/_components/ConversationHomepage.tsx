@@ -48,7 +48,8 @@ type ModuleId =
   | "compare"
   | "walkthroughs"
   | "compounding-risk"
-  | "try-it";
+  | "try-it"
+  | "why-us-race";
 
 type PoolGroup = "A" | "B" | "C" | "D" | "E" | "F";
 
@@ -232,6 +233,12 @@ const MODULE_META: Record<
     suggestedReply: "Try it free for a week.",
     agentIntro: "1 agent. 7 days. No credit card. Here is how to start.",
   },
+  "why-us-race": {
+    label: "Why Us",
+    icon: "W",
+    suggestedReply: "Who wins the race?",
+    agentIntro: "30 seconds. Four contestants. One finish line. Watch the race.",
+  },
 };
 
 const MODULE_ORDER: ModuleId[] = [
@@ -252,6 +259,7 @@ const MODULE_ORDER: ModuleId[] = [
   "walkthroughs",
   "compounding-risk",
   "try-it",
+  "why-us-race",
 ];
 
 // Per-module accent colors from brand palette
@@ -273,6 +281,7 @@ const MODULE_COLOR: Record<ModuleId, string> = {
   "walkthroughs":  "#ec4899", // MAX / fuchsia
   "compounding-risk": "#ef4444", // Red / danger signal
   "try-it": "#10b981", // emerald / go signal
+  "why-us-race": "#10b981", // emerald / finish line
 };
 
 // Pre-surfaced tabs for State 3 (skipped)
@@ -1179,7 +1188,12 @@ function GovernanceModule() {
       <h2 className="hb-rich-headline">You see the AI agent.<br />You don&apos;t see what it&apos;s doing.</h2>
       <p className="hb-rich-sub" style={{ color: `${VAULT_RED}cc` }}>Level9OS makes the invisible visible.</p>
       {/* Governance radial diagram — 16 officers, 4 buckets, packet flows */}
-      <ConsoleGraphicLite />
+      <div style={{ position: "relative" }}>
+        <ConsoleGraphicLite />
+        <div style={{ marginTop: "0.5rem", padding: "0.5rem 0.875rem", background: "rgba(239,68,68,0.06)", border: "1px solid rgba(239,68,68,0.14)", borderRadius: "8px", fontSize: "0.72rem", color: "rgba(255,255,255,0.55)", lineHeight: 1.65 }}>
+          <span style={{ color: "#ef4444", fontWeight: 700 }}>How to read this:</span> Each dot is an AI agent. The rings are the governance rules they live inside. Packets flow when work moves between teams. Hover any ring to slow down and see which agents are inside it.
+        </div>
+      </div>
       <ul style={{ listStyle: "none", padding: 0, margin: "0 0 1.25rem", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
         {[
           "Every action logged. Not summarized. Logged.",
@@ -1588,7 +1602,7 @@ function WrappersModule() {
       <p className="hb-rich-sub">OutboundOS proved the pattern. Every department runs the same way: autonomous pods, shared governance, one human manager, zero daily intervention.</p>
 
       {/* ForgeCube hero — 6 faces: OutboundOS + 5 department wrappers */}
-      <div style={{ width: "100%", maxWidth: 480, margin: "0 auto 1.25rem", aspectRatio: "1", minHeight: 260 }}>
+      <div style={{ width: "100%", maxWidth: 480, margin: "0 auto 0.25rem", aspectRatio: "1", minHeight: 260 }}>
         <ForgeCube
           products={WRAPPERS_CUBE_PRODUCTS}
           skipDust={true}
@@ -1596,6 +1610,7 @@ function WrappersModule() {
           className="wrappers-cube"
         />
       </div>
+      <div style={{ textAlign: "center", fontSize: "0.65rem", color: "rgba(255,255,255,0.28)", fontFamily: "ui-monospace,monospace", marginBottom: "1rem" }}>Click any face to see each wrapper in detail</div>
 
       <ul style={{ listStyle: "none", padding: 0, margin: "0 0 1.25rem", display: "flex", flexDirection: "column", gap: "0.35rem" }}>
         {PATTERN_POINTS_DATA.map((point) => (
@@ -1814,14 +1829,21 @@ function ArchitectureModule() {
         ))}
       </div>
 
+      {/* Orientation — 2-sentence guide for non-ops visitors */}
+      <div style={{ marginBottom: "1rem", padding: "0.6rem 0.875rem", background: "rgba(139,92,246,0.06)", border: "1px solid rgba(139,92,246,0.12)", borderRadius: "8px", fontSize: "0.78rem", color: "rgba(255,255,255,0.6)", lineHeight: 1.65 }}>
+        The architecture has 3 levels. This module walks you through all 3: how the layers fit together, how a single decision moves through the system, and what each layer produces.
+      </div>
+
       {/* StackFlow: 4-layer hover-swap — structure */}
-      <div className="hb-rich-section-label" style={{ color: "rgba(139,92,246,0.6)" }}>How the four layers work together</div>
+      <div className="hb-rich-section-label" style={{ color: "rgba(139,92,246,0.6)" }}>Level 1: How the four layers work together</div>
+      <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.4)", marginBottom: "0.5rem" }}>Hover each layer to see: what goes in, what we do, what comes out.</div>
       <div style={{ width: "100%", margin: "0 0 1.5rem", overflow: "hidden", borderRadius: "14px", border: "1px solid rgba(139,92,246,0.08)" }}>
         <StackFlow />
       </div>
 
       {/* DecisionTrace: 8-stage auto-cycle — one decision in motion */}
-      <div className="hb-rich-section-label" style={{ color: "rgba(6,182,212,0.6)" }}>One decision through all 8 layers</div>
+      <div className="hb-rich-section-label" style={{ color: "rgba(6,182,212,0.6)" }}>Level 2: One decision through all 8 layers</div>
+      <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.4)", marginBottom: "0.5rem" }}>A decision starts in Strategy, moves to Coordination, triggers Execution, gets measured by Outcomes.</div>
       <div style={{ width: "100%", margin: "0 0 1.5rem", overflow: "hidden", borderRadius: "14px", border: "1px solid rgba(6,182,212,0.08)" }}>
         <DecisionTrace
           activeIdx={dtActiveIdx}
@@ -1833,6 +1855,7 @@ function ArchitectureModule() {
       </div>
 
       {/* Pressure points */}
+      <div className="hb-rich-section-label" style={{ color: "rgba(139,92,246,0.6)" }}>Level 3: The 4 pressure points, mapped to layers and domains</div>
       <div className="hb-rich-stack">
         {pressurePoints.map((pp) => (
           <div key={pp.id} className="hb-rich-card" style={{ borderColor: `${pp.color}25` }}>
@@ -2265,7 +2288,7 @@ function Wt30sScene0() {
       // label
       ctx.font = "500 11px ui-monospace,monospace";
       ctx.fillStyle = "rgba(239,68,68,0.7)";
-      ctx.fillText("~20% error rate  no governance layer", 10, H - 14);
+      ctx.fillText("~20% error rate | no governance layer", 10, H - 14);
       frame++;
       raf = requestAnimationFrame(draw);
     }
@@ -2712,6 +2735,110 @@ function CompoundingRiskModule({ onOpenModule }: { onOpenCounter?: () => void; o
   );
 }
 
+// ─── Why Us vs Them — animated race walkthrough ───────────────────────────────
+
+const RACE_CONTESTANTS = [
+  { name: "Microsoft", badge: "~$1M/yr", color: "#64748b", wall: "6-month deploy" },
+  { name: "Salesforce", badge: "~$850K/yr", color: "#94a3b8", wall: "Salesforce-locked" },
+  { name: "Workday", badge: "~$500K/yr", color: "#78716c", wall: "HR/Finance only" },
+  { name: "Level9OS", badge: "$499/mo", color: "#10b981", wall: null },
+];
+
+function WhyUsRaceModule() {
+  const [scene, setScene] = useState(0);
+  const [auto, setAuto] = useState(false);
+
+  useEffect(() => {
+    if (!auto) return;
+    if (scene >= 2) { setAuto(false); return; }
+    const t = setTimeout(() => setScene((s) => s + 1), 3200);
+    return () => clearTimeout(t);
+  }, [auto, scene]);
+
+  const SCENE_CAPTIONS = [
+    "Four solutions. Same starting line. Very different price tags.",
+    "Each one runs. The enterprise platforms hit walls — deploy time, vendor lock-in, scope limits.",
+    "Level9OS crosses the finish line alone. 5 minutes to set up. Multi-vendor. SMB-ready. Pay less than we save you.",
+  ];
+
+  return (
+    <div className="hb-rich-module">
+      <div className="hb-rich-eyebrow" style={{ color: "#10b981" }}>Why Us vs Them</div>
+      <h2 className="hb-rich-headline">The race is not even close.</h2>
+      <p className="hb-rich-sub">30 seconds. Four contestants. One finish line.</p>
+
+      {/* Race visual */}
+      <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "14px", padding: "1.25rem 1rem", marginBottom: "0.75rem" }}>
+        {/* Caption */}
+        <div style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.7)", lineHeight: 1.6, marginBottom: "1rem", minHeight: "2.5rem", fontWeight: 500 }}>
+          {SCENE_CAPTIONS[scene]}
+        </div>
+
+        {/* Race lanes */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+          {RACE_CONTESTANTS.map((c, i) => {
+            const isLevel9 = c.name === "Level9OS";
+            const hitWall = scene >= 1 && !isLevel9;
+            const finished = scene >= 2 && isLevel9;
+            const barWidth = scene === 0 ? "8%" : hitWall ? `${20 + i * 8}%` : finished ? "96%" : "8%";
+
+            return (
+              <div key={c.name}>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.25rem" }}>
+                  <span style={{ fontSize: "0.72rem", fontWeight: 700, color: isLevel9 ? c.color : "rgba(255,255,255,0.6)", minWidth: "80px" }}>{c.name}</span>
+                  <span style={{ fontSize: "0.6rem", fontFamily: "ui-monospace,monospace", color: isLevel9 ? `${c.color}cc` : "rgba(255,255,255,0.3)", padding: "0.1rem 0.3rem", borderRadius: "4px", background: `${c.color}10`, border: `1px solid ${c.color}20` }}>{c.badge}</span>
+                  {hitWall && c.wall && (
+                    <span style={{ fontSize: "0.62rem", color: "#ef4444", fontFamily: "ui-monospace,monospace", animation: "hb-fade-in 0.4s ease" }}>
+                      BLOCKED: {c.wall}
+                    </span>
+                  )}
+                  {finished && (
+                    <span style={{ fontSize: "0.62rem", color: "#10b981", fontFamily: "ui-monospace,monospace", fontWeight: 700, animation: "hb-fade-in 0.4s ease" }}>
+                      PRODUCTION
+                    </span>
+                  )}
+                </div>
+                <div style={{ height: "10px", background: "rgba(255,255,255,0.04)", borderRadius: "99px", overflow: "hidden", position: "relative" }}>
+                  <div style={{
+                    height: "100%",
+                    width: barWidth,
+                    background: hitWall ? "#ef444440" : isLevel9 ? c.color : `${c.color}60`,
+                    borderRadius: "99px",
+                    transition: "width 1.2s cubic-bezier(0.16,1,0.3,1)",
+                    boxShadow: isLevel9 && finished ? `0 0 12px ${c.color}60` : undefined,
+                  }} />
+                  {hitWall && (
+                    <div style={{ position: "absolute", top: 0, bottom: 0, left: barWidth, width: "2px", background: "#ef4444", transition: "left 1.2s cubic-bezier(0.16,1,0.3,1)" }} />
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Scene controls */}
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginTop: "1rem" }}>
+          {[0, 1, 2].map((s) => (
+            <button key={s} onClick={() => { setScene(s); setAuto(false); }}
+              style={{ width: "8px", height: "8px", borderRadius: "50%", background: s === scene ? "#10b981" : "rgba(255,255,255,0.15)", border: "none", cursor: "pointer", padding: 0, transition: "background 0.2s" }} />
+          ))}
+          <button
+            onClick={() => { if (scene === 2) setScene(0); setAuto(true); }}
+            style={{ marginLeft: "0.5rem", fontSize: "0.68rem", fontFamily: "ui-monospace,monospace", color: "#10b981", background: "rgba(16,185,129,0.08)", border: "1px solid rgba(16,185,129,0.2)", borderRadius: "6px", padding: "0.25rem 0.5rem", cursor: "pointer" }}
+          >
+            {auto ? "Running..." : scene === 2 ? "▶ Replay" : "▶ Auto-play"}
+          </button>
+        </div>
+      </div>
+
+      {/* Final line */}
+      <div style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.6)", lineHeight: 1.6, padding: "0.75rem 1rem", background: "rgba(16,185,129,0.06)", border: "1px solid rgba(16,185,129,0.14)", borderRadius: "10px" }}>
+        5 minutes to set up. Multi-vendor from day one. SMB-ready. Pay less than we save you.
+      </div>
+    </div>
+  );
+}
+
 // ─── Try It module ────────────────────────────────────────────────────────────
 
 const PRICING_TIERS = [
@@ -2889,6 +3016,7 @@ function ModuleRenderer({
       case "walkthroughs": return <WalkthroughsModule />;
       case "compounding-risk": return <CompoundingRiskModule />;
       case "try-it": return <TryItModule />;
+      case "why-us-race": return <WhyUsRaceModule />;
       default: {
         setErrored(true);
         return null;
@@ -3189,6 +3317,12 @@ const CONTENT_POOL: PoolPrompt[] = [
     group: "B",
     opensModule: "try-it",
     icpTags: ["growth", "enterprise"],
+  },
+  {
+    id: "angle-why-us-race",
+    label: "Who wins when you race all of them?",
+    group: "D",
+    opensModule: "why-us-race",
   },
 
   // ICP solo: "Can I solo this?" — setup walkthrough entry
@@ -3714,6 +3848,7 @@ export default function ConversationHomepage() {
     { patterns: ["architecture", "how it works", "layers", "stack", "pressure point", "design"], moduleId: "architecture" },
     { patterns: ["multi-agent risk", "compounding", "agent risk", "why is this risky", "what could go wrong", "risky", "5 agents", "multiple agents"], moduleId: "compounding-risk" },
     { patterns: ["try it", "free tier", "free trial", "trial", "sandbox", "try free", "no credit card", "pricing", "money back", "how much does it cost", "cost to start"], moduleId: "try-it" },
+    { patterns: ["why us", "who wins", "race", "vs them", "why not microsoft", "why level9", "beat them", "who beats", "competitive"], moduleId: "why-us-race" },
   ];
 
   const keywordRoute = useCallback(
