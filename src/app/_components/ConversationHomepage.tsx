@@ -47,7 +47,8 @@ type ModuleId =
   | "architecture"
   | "compare"
   | "walkthroughs"
-  | "compounding-risk";
+  | "compounding-risk"
+  | "try-it";
 
 type PoolGroup = "A" | "B" | "C" | "D" | "E" | "F";
 
@@ -225,6 +226,12 @@ const MODULE_META: Record<
     suggestedReply: "Show me the compounding math.",
     agentIntro: "Seven scenes. One agent. Then five. Then the governance line that keeps it flat.",
   },
+  "try-it": {
+    label: "Try It Free",
+    icon: "T",
+    suggestedReply: "Try it free for a week.",
+    agentIntro: "1 agent. 7 days. No credit card. Here is how to start.",
+  },
 };
 
 const MODULE_ORDER: ModuleId[] = [
@@ -244,6 +251,7 @@ const MODULE_ORDER: ModuleId[] = [
   "compare",
   "walkthroughs",
   "compounding-risk",
+  "try-it",
 ];
 
 // Per-module accent colors from brand palette
@@ -264,6 +272,7 @@ const MODULE_COLOR: Record<ModuleId, string> = {
   "compare":       "#8b5cf6", // Decide / violet
   "walkthroughs":  "#ec4899", // MAX / fuchsia
   "compounding-risk": "#ef4444", // Red / danger signal
+  "try-it": "#10b981", // emerald / go signal
 };
 
 // Pre-surfaced tabs for State 3 (skipped)
@@ -2703,6 +2712,91 @@ function CompoundingRiskModule({ onOpenModule }: { onOpenCounter?: () => void; o
   );
 }
 
+// ─── Try It module ────────────────────────────────────────────────────────────
+
+const PRICING_TIERS = [
+  { name: "Free", price: "$0", period: "forever", highlight: false, color: "#64748b", what: "1 agent governance. 7 days full access, then 1 agent free." },
+  { name: "Starter", price: "$99", period: "/mo", highlight: false, color: "#8b5cf6", what: "Up to 5 agents. Full audit trail. Cost routing." },
+  { name: "Growth", price: "$499", period: "/mo", highlight: true, color: "#10b981", what: "Up to 20 agents. Department wrappers. SOC2 reporting." },
+  { name: "Pro", price: "$1,499", period: "/mo", highlight: false, color: "#06b6d4", what: "Unlimited agents. Officer system. Custom governance." },
+  { name: "Scale", price: "Custom", period: "", highlight: false, color: "#f59e0b", what: "Enterprise contracts. Dedicated support. SLA." },
+];
+
+function TryItModule() {
+  return (
+    <div className="hb-rich-module">
+      <div className="hb-rich-eyebrow" style={{ color: "#10b981" }}>Try It</div>
+      <h2 className="hb-rich-headline">Start for free. Pay us less than we save you.</h2>
+      <p className="hb-rich-sub">No credit card to try it. No transformation language to get started. One agent live in under 5 minutes.</p>
+
+      {/* Free Tier card */}
+      <div className="hb-rich-card" style={{ borderColor: "rgba(16,185,129,0.3)", background: "rgba(16,185,129,0.05)", marginBottom: "0.75rem" }}>
+        <div className="hb-rich-card-bar" style={{ background: "#10b981" }} />
+        <div className="hb-rich-card-head" style={{ marginBottom: "0.5rem" }}>
+          <span className="hb-rich-tag" style={{ color: "#10b981" }}>Free Tier</span>
+          <StatusBadge status="LIVE" />
+        </div>
+        <h3 style={{ fontSize: "1.25rem", fontWeight: 900, color: "#10b981", marginBottom: "0.25rem" }}>1 agent governance. 7 days. No credit card.</h3>
+        <p style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.65)", lineHeight: 1.6, marginBottom: "0.75rem" }}>
+          Plug your Claude or GPT agent into the governance layer. Full audit trail from day one. Cost routing active. If it doesn&apos;t catch something worth the monthly fee in the first 7 days, you owe nothing.
+        </p>
+        <a
+          href="/contact?path=startup&trial=free"
+          style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem", padding: "0.55rem 1.25rem", borderRadius: "99px", background: "#10b981", color: "white", fontSize: "0.82rem", fontWeight: 700, textDecoration: "none" }}
+        >
+          Get the agent →
+        </a>
+      </div>
+
+      {/* Sandbox card */}
+      <div className="hb-rich-card" style={{ borderColor: "rgba(139,92,246,0.2)", marginBottom: "0.75rem" }}>
+        <div className="hb-rich-card-bar" style={{ background: "#8b5cf6" }} />
+        <div className="hb-rich-card-head" style={{ marginBottom: "0.5rem" }}>
+          <span className="hb-rich-tag" style={{ color: "#8b5cf6" }}>Sandbox</span>
+          <StatusBadge status="IN BUILD" />
+        </div>
+        <h3 style={{ fontSize: "1rem", fontWeight: 800, color: "rgba(255,255,255,0.9)", marginBottom: "0.25rem" }}>Drop in your API key. Try MAX on your own AI tool.</h3>
+        <p style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.55)", lineHeight: 1.6, marginBottom: "0.5rem" }}>
+          No signup. Bring your Claude or GPT API key. The sandbox puts a live governance layer under your agent for a test run. See the audit trail in real time.
+        </p>
+        <div style={{ fontSize: "0.68rem", color: "rgba(255,255,255,0.3)", fontFamily: "ui-monospace,monospace", padding: "0.35rem 0.6rem", background: "rgba(139,92,246,0.06)", borderRadius: "6px", display: "inline-block" }}>
+          Sandbox launching soon — join the free tier to get notified first
+        </div>
+      </div>
+
+      {/* Pricing tiers */}
+      <div className="hb-rich-section-label" style={{ color: "rgba(255,255,255,0.35)" }}>Transparent pricing. No surprises.</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem", marginBottom: "1rem" }}>
+        {PRICING_TIERS.map((tier) => (
+          <div key={tier.name} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0.65rem 0.875rem", borderRadius: "10px", background: tier.highlight ? `${tier.color}0a` : "rgba(255,255,255,0.02)", border: tier.highlight ? `1px solid ${tier.color}35` : "1px solid rgba(255,255,255,0.06)" }}>
+            <div>
+              <span style={{ fontSize: "0.82rem", fontWeight: 700, color: tier.highlight ? tier.color : "rgba(255,255,255,0.8)" }}>{tier.name}</span>
+              {tier.highlight && <span style={{ marginLeft: "0.4rem", fontSize: "0.6rem", fontFamily: "ui-monospace,monospace", padding: "0.1rem 0.35rem", borderRadius: "4px", background: `${tier.color}18`, color: tier.color, border: `1px solid ${tier.color}30` }}>Most popular</span>}
+              <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.4)", marginTop: "0.1rem" }}>{tier.what}</div>
+            </div>
+            <div style={{ textAlign: "right", flexShrink: 0, marginLeft: "1rem" }}>
+              <span style={{ fontSize: "1rem", fontWeight: 900, color: tier.color, fontVariantNumeric: "tabular-nums" }}>{tier.price}</span>
+              {tier.period && <span style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.3)", fontFamily: "ui-monospace,monospace" }}>{tier.period}</span>}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Money-back promise */}
+      <div className="hb-rich-card" style={{ borderColor: "rgba(239,68,68,0.18)", background: "rgba(239,68,68,0.04)" }}>
+        <div className="hb-rich-card-bar" style={{ background: "#ef4444" }} />
+        <h4 style={{ fontSize: "0.9rem", fontWeight: 800, color: "rgba(255,255,255,0.9)", marginBottom: "0.35rem" }}>Pay us less than we save you. Or your money back in 30 days.</h4>
+        <p style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.55)", lineHeight: 1.6 }}>
+          If the governance layer doesn&apos;t prevent more than it costs inside the first 30 days, you get a full refund. No questions. No hoops.
+        </p>
+        <p style={{ marginTop: "0.5rem", fontSize: "0.65rem", color: "rgba(255,255,255,0.25)", fontFamily: "ui-monospace,monospace" }}>
+          Our 90-day average: $52,686 prevented at $5.07/mo infra cost. Your mileage is proportional to your agent count and spend.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 // ─── HowExplainer component ────────────────────────────────────────────────────
 
 function HowExplainer({
@@ -2794,6 +2888,7 @@ function ModuleRenderer({
       case "compare": return <CompareModule />;
       case "walkthroughs": return <WalkthroughsModule />;
       case "compounding-risk": return <CompoundingRiskModule />;
+      case "try-it": return <TryItModule />;
       default: {
         setErrored(true);
         return null;
@@ -3074,12 +3169,34 @@ const CONTENT_POOL: PoolPrompt[] = [
     action: "cta-person",
   },
 
+  // Try It — surfaces via keyword or chip
+  {
+    id: "angle-try-it",
+    label: "What does the trial actually look like?",
+    group: "B",
+    opensModule: "try-it",
+  },
+  {
+    id: "angle-try-it-solo",
+    label: "Can I try this for free?",
+    group: "B",
+    opensModule: "try-it",
+    icpTags: ["solo", "smb"],
+  },
+  {
+    id: "angle-try-it-growth",
+    label: "What does the eval setup look like?",
+    group: "B",
+    opensModule: "try-it",
+    icpTags: ["growth", "enterprise"],
+  },
+
   // ICP solo: "Can I solo this?" — setup walkthrough entry
   {
     id: "f-try-it-solo",
     label: "Can I solo this?",
     group: "B",
-    opensModule: "paths",
+    opensModule: "try-it",
     icpTags: ["solo"],
   },
 
@@ -3596,6 +3713,7 @@ export default function ConversationHomepage() {
     { patterns: ["about", "who are you", "company", "team", "history", "founded"], moduleId: "about" },
     { patterns: ["architecture", "how it works", "layers", "stack", "pressure point", "design"], moduleId: "architecture" },
     { patterns: ["multi-agent risk", "compounding", "agent risk", "why is this risky", "what could go wrong", "risky", "5 agents", "multiple agents"], moduleId: "compounding-risk" },
+    { patterns: ["try it", "free tier", "free trial", "trial", "sandbox", "try free", "no credit card", "pricing", "money back", "how much does it cost", "cost to start"], moduleId: "try-it" },
   ];
 
   const keywordRoute = useCallback(
