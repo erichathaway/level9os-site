@@ -3902,7 +3902,7 @@ export default function ConversationHomepage() {
     // State 1: fresh visit
     setVisitorState("splash");
     agentSay(
-      "Hi. I'm Level9OS. The operating layer that catches your AI agents before they lie, overspend, or break things. Quick question first: how big is your operation?"
+      "Hi. Your AI agents are running. But nobody is watching them yet. Before I show you what that costs, one question: how big is your operation?"
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -4199,10 +4199,10 @@ export default function ConversationHomepage() {
         // Explicit nudge: named ICP → 0.70
         setIcpProbability(explicitIcpNudge(detectedIcp));
         const confirmMessages: Record<NonNullable<ICP>, string> = {
-          solo: "Got it. Solo builders are who this is built for first. Let me show you what catches your eye.",
-          smb: "Got it. SMB founders are who we built this for. Let me show you what catches your eye.",
-          growth: "Got it. Growth-stage teams get the most from the routing and governance layers. Let me show you what's relevant.",
-          enterprise: "Got it. Enterprise teams evaluating this: let me surface the most relevant angles for you.",
+          solo: "Got it. Building alone means every wasted hour is yours. Let me show you what's actually worth your time here.",
+          smb: "Got it. You're patching it together and you know something isn't right. Here's what the problem costs and what fixes it.",
+          growth: "Got it. Growing fast means agent mistakes scale with you. Let me show you the most relevant angles for where you are.",
+          enterprise: "Got it. Evaluating without getting locked in is the right posture. Here's what we surface for teams your size.",
         };
         await agentSay(confirmMessages[detectedIcp], 200);
         return;
@@ -4468,22 +4468,13 @@ export default function ConversationHomepage() {
       return replies.slice(0, 4);
     }
 
-    // Screens 1-2 (fresh session, no engagement yet): force universal chips
-    if (unlockedModules.length === 0 && !isSkipped && engagementLevel < 2) {
-      // Show ICP detection chips first; universal hooks appear as slot 4
-      if (icp === null) {
-        return ICP_DETECTION_CHIPS.map((c) => ({ id: c.id, label: c.label }));
-      }
-      // ICP detected but still early: show ICP chips
-      return ICP_CHIPS[icp].slice(0, 4);
-    }
-
-    // Fresh state (no modules unlocked yet, no ICP detected): show ICP detection chips
+    // Screen 1: ICP detection chips always appear first (no universal-first override)
     if (unlockedModules.length === 0 && !isSkipped && icp === null) {
       return ICP_DETECTION_CHIPS.map((c) => ({ id: c.id, label: c.label }));
     }
 
     // ICP detected, no modules yet: show ICP-adapted chips
+    // (probability engine then runs from Screen 2 onward)
     if (unlockedModules.length === 0 && !isSkipped && icp !== null) {
       return ICP_CHIPS[icp].slice(0, 4);
     }
