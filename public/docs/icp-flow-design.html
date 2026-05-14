@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Level9OS ICP Flow Design</title>
+<style>
+  :root {
+    --bg-root: #030306;
+    --bg-surface: #0d0d18;
+    --bg-elevated: #14142a;
+    --text-primary: #f5f5f5;
+    --text-muted: #a1a1aa;
+    --accent-violet: #8b5cf6;
+    --accent-cyan: #06b6d4;
+    --accent-red: #ef4444;
+    --border: rgba(255, 255, 255, 0.08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg-root);
+    color: var(--text-primary);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Inter, sans-serif;
+    line-height: 1.7;
+    padding: 60px 24px 100px;
+    max-width: 880px;
+    margin: 0 auto;
+    font-size: 16px;
+  }
+  h1 { font-size: clamp(2rem, 5vw, 3rem); font-weight: 900; margin: 60px 0 24px; letter-spacing: -0.02em; line-height: 1.15; }
+  h2 { font-size: clamp(1.5rem, 3.5vw, 2.2rem); font-weight: 800; margin: 56px 0 20px; color: var(--text-primary); border-bottom: 1px solid var(--border); padding-bottom: 14px; }
+  h3 { font-size: clamp(1.2rem, 2.8vw, 1.5rem); font-weight: 700; margin: 40px 0 16px; color: var(--accent-violet); }
+  p { margin: 0 0 18px; color: var(--text-primary); }
+  strong { color: var(--accent-cyan); font-weight: 700; }
+  em { color: var(--text-muted); font-style: italic; }
+  a { color: var(--accent-violet); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+  a:hover { color: var(--accent-cyan); }
+  ul, ol { margin: 0 0 24px 28px; padding: 0; }
+  li { margin: 0 0 10px; color: var(--text-primary); }
+  code { background: var(--bg-elevated); color: var(--accent-cyan); padding: 2px 8px; border-radius: 4px; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.92em; }
+  pre { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; padding: 20px; overflow-x: auto; margin: 0 0 24px; }
+  pre code { background: transparent; color: var(--text-primary); padding: 0; }
+  hr { border: none; height: 1px; background: var(--border); margin: 48px 0; }
+  table { width: 100%; border-collapse: collapse; margin: 0 0 28px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  th { background: var(--bg-elevated); color: var(--accent-violet); font-weight: 700; padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.92em; text-transform: uppercase; letter-spacing: 0.05em; }
+  td { padding: 12px 16px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  blockquote { border-left: 3px solid var(--accent-violet); padding: 8px 0 8px 20px; margin: 0 0 24px; color: var(--text-muted); font-style: italic; }
+  .meta { color: var(--text-muted); font-size: 0.9em; margin: 20px 0 40px; padding-bottom: 30px; border-bottom: 1px solid var(--border); }
+  .badge {
+    display: inline-block;
+    background: var(--bg-elevated);
+    color: var(--accent-violet);
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-family: ui-monospace, monospace;
+    font-size: 0.75em;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border: 1px solid var(--border);
+    margin-right: 8px;
+  }
+  @media (max-width: 600px) {
+    body { padding: 40px 16px 80px; font-size: 15px; }
+    h1 { font-size: 1.8rem; }
+    h2 { font-size: 1.4rem; }
+    table { display: block; overflow-x: auto; }
+  }
+</style>
+</head>
+<body>
+<div class="meta">
+  <span class="badge">PLANNING DOC</span>
+  <span class="badge">2026-05-13</span>
+  <br><br>
+  Source: <code>LEVEL9OS-ICP-FLOW-DESIGN-2026-05-13.md</code>
+</div>
+<h1>LEVEL9OS-ICP-FLOW-DESIGN-2026-05-13</h1>
+
+<p><strong>File target:</strong> <code>/Users/erichathaway/claude code 1/LEVEL9OS-ICP-FLOW-DESIGN-2026-05-13.md</code><br><strong>Status:</strong> Planning deliverable. Operator review required before implementation.<br><strong>Generated:</strong> 2026-05-13<br><strong>Source inputs read:</strong> ConversationHomepage.tsx (full 3900+ lines), CLAUDE.md, LEVEL9OS-VOICE-PITCH-SCRIPTS-2026-05-12.md, GOVERNANCE<em>IMPACT</em>ANALYSIS_2026-05-12.md, LEVEL9OS-DECISIONS-LOCKED-2026-05-11.md</p>
+
+<hr>
+
+<h2>1. Executive Summary</h2>
+
+<p><strong>Total screens designed:</strong> 40 screens (10 per ICP). Recommendation for 8 per ICP is argued in Section 7, but all paths are designed at 10 for Eric's judgment.</p>
+
+<p><strong>The 4 ICP through-lines:</strong></p>
+
+<ul>
+<li><strong>Individual:</strong> "Can I actually do this alone?" starts with honest scarcity acknowledgment, moves to the $580/month waste anchor, and ends at the free-tier with a working sandbox link. The arc is permission-giving: you can start today, one agent, no credit card.</li>
+<li><strong>Founder / Small Team:</strong> "We're patching it together and I know it" opens with pain recognition, drives hard to the $52,686 proof, runs through the governance chassis and competitor cost demolition ($499 vs $1M), and closes at a contact intake. The arc is validation and urgency: your instinct is right, here's what the delay costs.</li>
+<li><strong>Growth:</strong> "We have tools, but they don't talk to each other" opens with multi-vendor sprawl, shows orchestration architecture, surfaces department wrappers as department-level proof, and closes at the 30/90/180 methodology with a call booking. The arc is consolidation: one control plane replacing five single-vendor patches.</li>
+<li><strong>Enterprise:</strong> "I need to evaluate this without getting locked in" opens with anti-lock-in commitment, surfaces compliance capabilities, runs the full competitive analysis, and closes at a custom evaluation request. The arc is risk removal: we don't ask you to rebuild, we govern what you already have.</li>
+</ul>
+
+<p><strong>Top 5 design decisions proposed:</strong></p>
+
+<ol>
+<li>1. The diagnostic question ("How big is your operation?") should offer exactly 4 size buckets that map 1:1 to ICPs. No free text. No ambiguity. Auto-routing happens immediately on click. This is the fastest path to personalized content.</li>
+<li>2. Tour buttons should be persistent and visible from the splash state. Not hidden behind a first interaction. They are the direct path and should not require discovery.</li>
+<li>3. The Counter module becomes the ICP anchor for every path at screen 2 or 3. Each ICP gets a different number already coded in ICP<em>COUNTER</em>FRAMES. This is the most important personalization in the existing codebase.</li>
+<li>4. Group F chips (playful: "Show me the money," "Open the pod bay doors," "Roll the tape," "Houston, we have a problem," "I'll be back") are retired entirely. They were entertainment and they break path coherence.</li>
+<li>5. Voice Pitch module stays in the Founder and Growth paths only, positioned at screen 6-7 as a depth option, not a primary screen. It is transcript-only for now. The "voice render coming soon" banner is acceptable for those ICPs. It does not appear in Individual or Enterprise paths.</li>
+</ol>
+
+<p><strong>3 risks / things to watch:</strong></p>
+
+<ol>
+<li>1. <strong>Path contamination:</strong> If a visitor self-selects Founder Tour but then clicks a chip that opens the Architecture module (which is deep / dense), they may lose the emotional arc. The chip discipline ruleset (Section 5) must be enforced in code, not just in design.</li>
+<li>2. <strong>Counter module ICP state:</strong> The ICP<em>COUNTER</em>FRAMES are coded but the counter currently needs an ICP value set on the ConversationState. If the direct tour buttons set the ICP but the counter renders before state propagation completes, the visitor sees the default $52,686 frame instead of their personalized number. This is a sequencing bug to watch in implementation.</li>
+<li>3. <strong>Breakoff rate at screen 3-4:</strong> Most visitors will leave before screen 6 regardless of path. The email/digest capture (positioned at screen 3 in all four paths) is the highest-leverage implementation in this plan. If it ships without that breakoff handling, conversion optimization is flying blind.</li>
+</ol>
+
+<hr>
+
+<h2>2. Module Audit: Strong vs Weak</h2>
+
+<p><strong>Scoring methodology:</strong> Strong = carries a screen alone with motion and clear proof. Acceptable = good content, needs visual support. Weak = content is real but the module is not yet visually differentiated enough to anchor an ICP path screen.</p>
+
+<hr>
+
+<h3>Counter</h3>
+
+<p><strong>Bar:</strong> Strong. The ICP<em>COUNTER</em>FRAMES already exist for all 4 ICPs. The particle burst at peak, stat trio ($5.07 / 3,464x / 90 days), and breakdown grid are well-executed. The animation easing is clean.</p>
+
+<p><strong>Use in flow:</strong> Hero. This is the proof anchor for all 4 paths at screen 2 or 3.</p>
+
+<p><strong>Recommended changes:</strong> None urgent. Minor: the ICP "enterprise" frame shows "Millions/yr" as a non-animating string instead of a counting animation. Consider replacing with the unit-economics number ($52,686 per operator) for consistency. Also: the "3,464x" stat in the existing module does not match the governance analysis document (which shows 2698x as the defensible number). The 3,464x appears to be a different calculation period or methodology. Eric should lock the canonical number before this goes live.</p>
+
+<hr>
+
+<h3>Calculator</h3>
+
+<p><strong>Bar:</strong> Strong. Interactive sliders are the right format for a qualification moment. The bar visualizations (prevented/mo, hours returned/mo, ROI ratio) animate correctly. The "How is this calculated?" explainer is honest and visible.</p>
+
+<p><strong>Use in flow:</strong> Hero in Founder path (screen 4). Supporting in Growth path (screen 5). Not surfaced in Individual or Enterprise paths.</p>
+
+<p><strong>Recommended changes:</strong> The calculator currently defaults to employees=10, tools=5. For the Founder path, pre-seed to employees=20, tools=7. For Growth, pre-seed to employees=75, tools=12. ICP-aware defaults make the personalization feel real before the visitor touches a slider.</p>
+
+<hr>
+
+<h3>Article</h3>
+
+<p><strong>Bar:</strong> Acceptable. The case study is legitimate and the pullquote is good. But it is a wall of text with a basic breakdown table. No motion. No visual hierarchy beyond the dropcap and pullquote.</p>
+
+<p><strong>Use in flow:</strong> Supporting. Use in Founder path (screen 5) as a depth option after Calculator. Not as a primary screen.</p>
+
+<p><strong>Recommended changes:</strong> The article needs a sub-anchor for deep-linking from chips. Add <code>id="how-52686"</code> to the headline and <code>id="governance-breakdown"</code> to the breakdown table. This allows path chips to drop visitors at a specific section rather than the top. If time allows, add a single animated bar visualization showing the 4 categories vs total, which would upgrade this from Acceptable to Strong.</p>
+
+<hr>
+
+<h3>Live Feed</h3>
+
+<p><strong>Bar:</strong> Strong. The streaming BLOCKED / REROUTED / FLAGGED / ALLOWED stamps with per-event savings are the most visually distinctive module on the dashboard. The "How was this caught?" expandable per event is excellent. The total-saved counter at top is earned.</p>
+
+<p><strong>Use in flow:</strong> Hero in Founder and Enterprise paths. Supporting in Growth path.</p>
+
+<p><strong>Recommended changes:</strong> The feed currently uses static data from FEED_EVENTS. For the Enterprise path, add 3 additional events specific to compliance: "GDPR data residency check" BLOCKED, "SOC2 control evidence request" ALLOWED, "Unaudited model access attempt" BLOCKED. These are Enterprise-relevant and make the feed feel audience-aware without a full rework.</p>
+
+<hr>
+
+<h3>Comparison</h3>
+
+<p><strong>Bar:</strong> Acceptable. The hover-table is clean and the 6-row comparison is accurate. But it only compares Microsoft / Salesforce / Workday. No mid-market or AI-native competitors.</p>
+
+<p><strong>Use in flow:</strong> Supporting in Enterprise and Growth paths. Leads into the full Compare module.</p>
+
+<p><strong>Recommended changes:</strong> Add a row for "Zapier / n8n / Make" as a combined row labeled "Automation tools" with honest values. These are the actual competitors for Individual and Founder ICPs. Without them, the comparison feels aimed at enterprise evaluators only.</p>
+
+<hr>
+
+<h3>Voice Pitch</h3>
+
+<p><strong>Bar:</strong> Weak (current state). The transcript view with "Voice render coming soon" banner is functional but it is not a WOW moment. The accordion expand-to-read is acceptable UX but the visual does not match the quality of the surrounding modules. There is nothing to look at while you read.</p>
+
+<p><strong>Use in flow:</strong> Supporting only. Founder path (screen 6 as a depth option). Growth path (screen 7). Cut from Individual and Enterprise paths entirely.</p>
+
+<p><strong>Recommended changes:</strong> The "Voice render coming soon" note is honest and should stay. But the module needs one visual element while it waits for audio: a static waveform placeholder that animates at low fidelity while the visitor reads. This is a 2-hour build and upgrades Weak to Acceptable. If voice renders ship before the path redesign, this upgrades to Strong automatically. The 5-minute script in particular is the most compelling because the competitive demolition and governance numbers land in sequence the way a live pitch does.</p>
+
+<hr>
+
+<h3>Wrapper Story</h3>
+
+<p><strong>Bar:</strong> Acceptable. The four wrapper cards with live/planned status and hover transform are clean. The "Level9OS is the governance layer. Wrappers sit on top" framing is the right setup.</p>
+
+<p><strong>Use in flow:</strong> Supporting in Growth and Founder paths. The OutboundOS pod is the proof-of-concept that the pattern works.</p>
+
+<p><strong>Recommended changes:</strong> This module needs a sub-anchor for the OutboundOS card specifically (<code>id="outboundos-wrapper"</code>) so chips can deep-link to the live instance rather than the full wrapper architecture. The ghost cards (FinanceOS, SalesOS, ProductOS) reinforce roadmap credibility but should not be the focus of a chip label.</p>
+
+<hr>
+
+<h3>Products</h3>
+
+<p><strong>Bar:</strong> Acceptable. The ForgeCube hero is the best motion asset on the site. The three-tier layout (Core / Plugins / Wrappers) is clean. The governance chassis expandable group section is legitimately impressive. But the module is very long and tries to do too much in one scroll.</p>
+
+<p><strong>Use in flow:</strong> Supporting. Better to surface the ForgeCube hero separately as a visual anchor, then deep-link into Products for catalog depth. The module should split into two logical sub-anchors: <code>products#catalog</code> and <code>products#vault</code> for the governance chassis section.</p>
+
+<p><strong>Recommended changes:</strong> Split governance chassis expandable into its own standalone surface (it currently duplicates a lot of what the Governance module does). Consider making Products = catalog only (ForgeCube + product cards), and routing governance depth to the dedicated Governance module.</p>
+
+<hr>
+
+<h3>Governance</h3>
+
+<p><strong>Bar:</strong> Strong. The ConsoleGraphic Lite hero with 4-bucket radial and packet flows is the strongest visual on the site. The 18-capability grid with click-to-expand is excellent. The three "Your AI won't..." framing headers are clear and memorable.</p>
+
+<p><strong>Use in flow:</strong> Hero in Enterprise path. Hero in Founder path (screen 6). Supporting in Growth. Skip for Individual (too heavy for the free-tier arc).</p>
+
+<p><strong>Recommended changes:</strong> The 18-capability grid needs two sub-anchors for deep-linking: <code>governance#lie-detector</code> (Truth Enforcement) and <code>governance#continuous-compliance</code> (Identity + Access, specifically for the Enterprise path's compliance moment). Both IDs already exist in the GOV_CAPABILITIES data as <code>id</code> fields on the card divs, but they need to be verified as scrollable targets in the DOM.</p>
+
+<hr>
+
+<h3>Paths</h3>
+
+<p><strong>Bar:</strong> Weak. The Startup / Growth / Enterprise three-card layout has no motion. The content is a word-heavy methodology breakdown (30/90/180-day). For a non-ops audience, the phase breakdown is text-dense without a visual hierarchy that rewards scanning.</p>
+
+<p><strong>Use in flow:</strong> Cut from screens 1-5 of all paths. Surfaces at screen 8-9 in Founder, Growth, and Enterprise as the "how do I actually start" module. Not used in Individual path.</p>
+
+<p><strong>Recommended changes:</strong> The Paths module needs a redesign or at minimum a motion element. A timeline visualization (horizontal track with phase markers) would upgrade this from Weak to Acceptable. The three-card layout should collapse to a single focused card per ICP rather than showing all three paths at once. If the visitor is in the Founder path, they should see the Startup entry card, not all three.</p>
+
+<hr>
+
+<h3>Wrappers</h3>
+
+<p><strong>Bar:</strong> Acceptable. The OutboundOS pod grid with ForgeCube hero is genuinely good. The ghost cards for planned wrappers reinforce roadmap without over-committing.</p>
+
+<p><strong>Use in flow:</strong> Supporting in Growth and Founder paths. The OutboundOS demo is the proof that department-level AI governance works.</p>
+
+<p><strong>Recommended changes:</strong> None urgent. Needs the <code>id="outboundos-wrapper"</code> sub-anchor for deep-linking from chips.</p>
+
+<hr>
+
+<h3>About</h3>
+
+<p><strong>Bar:</strong> Weak. Lots of content: proof stats, origin story, charter values, LLC entities, learning capabilities, partner network. All of it is legitimate. None of it has strong motion. The 2-column proof stats grid is the closest thing to a visual anchor. For a visitor in the middle of a guided path, this module is likely to kill momentum.</p>
+
+<p><strong>Use in flow:</strong> Supporting at screen 9 (near the close) in Founder and Individual paths only. Cut from Growth and Enterprise path screens entirely. They can find it via free-text.</p>
+
+<p><strong>Recommended changes:</strong> The About module needs a 60-word ICP-adapted summary card that surfaces before the full module, so visitors can decide whether to go deeper. Currently there is no preview mode. For the guided paths, create a "founder context" summary card (just the origin paragraph + two proof stats) as the surfaced content, with a "full story" chip that opens the complete module.</p>
+
+<hr>
+
+<h3>Architecture</h3>
+
+<p><strong>Bar:</strong> Acceptable. The StackFlow + DecisionTrace pairing is genuinely impressive once you're looking at it. The four-pressure-point to eight-layer taxonomy makes sense. But the "4 → 8 → 8" framing at the top requires the visitor to understand why those numbers matter, and a non-ops visitor often won't.</p>
+
+<p><strong>Use in flow:</strong> Hero in Enterprise path (screen 4). Supporting in Growth path. Cut from Individual and Founder paths (too dense for their emotional arc).</p>
+
+<p><strong>Recommended changes:</strong> The "Orientation" box ("The architecture has 3 levels...") is the right move but needs to be made more prominent. It should be the first thing visible when the module opens, not buried after the badge row. For the Enterprise path specifically, the StackFlow + DecisionTrace pair should be positioned as "how governance runs under your existing stack" rather than "here is our architecture."</p>
+
+<hr>
+
+<h3>Compare</h3>
+
+<p><strong>Bar:</strong> Strong. Nine-section competitive analysis with honest assessments, sourced claims, and the Why Us Race animation setup. This is the best-researched module on the site.</p>
+
+<p><strong>Use in flow:</strong> Hero in Enterprise path (screen 5). Supporting in Growth path (screen 7). Not surfaced in Individual or Founder paths.</p>
+
+<p><strong>Recommended changes:</strong> Needs sub-anchors: <code>compare#pricing</code> and <code>compare#anti-lockout</code> for direct chip deep-linking.</p>
+
+<hr>
+
+<h3>Compounding Risk Walkthrough</h3>
+
+<p><strong>Bar:</strong> Strong. The 7-scene motion graphic (one agent to many to black box to governance line) is exactly the right visual proof for why governance matters. The escalating red as agents multiply is emotionally effective.</p>
+
+<p><strong>Use in flow:</strong> Hero in Founder path (screen 3). Hero in Growth path (screen 2). Supporting in Enterprise and Individual paths.</p>
+
+<p><strong>Recommended changes:</strong> None. This module is the clearest visualization of the core problem in the entire codebase.</p>
+
+<hr>
+
+<h3>Why Us Race Walkthrough</h3>
+
+<p><strong>Bar:</strong> Strong. The 3-scene animated bar race vs Microsoft/Salesforce/Workday is kinetic and memorable. The finish line moment with Level9OS price point lands well.</p>
+
+<p><strong>Use in flow:</strong> Hero in Enterprise path (screen 6). Supporting in Growth and Founder paths at screen 7.</p>
+
+<p><strong>Recommended changes:</strong> The race currently uses three competitors. For the Growth path, replace Workday with "n8n / Zapier" to make the comparison audience-appropriate. The Enterprise path keeps the big three.</p>
+
+<hr>
+
+<h3>Try It Module</h3>
+
+<p><strong>Bar:</strong> Acceptable (in build). The free-tier card and 5-tier pricing layout are the right content for the Individual path. The money-back promise and sandbox link are the conversion moments for that ICP.</p>
+
+<p><strong>Use in flow:</strong> Hero in Individual path (screen 8 and 9). Supporting in Founder path (screen 10 as exit CTA).</p>
+
+<p><strong>Recommended changes:</strong> This module needs an ICP-aware headline. For Individual it shows "1 agent. 7 days. No credit card." For Founder it shows "$499/mo. 30-day money-back. No rebuild required." The sandbox IN BUILD state should show a clear expected-launch date or waitlist option rather than a dead link.</p>
+
+<hr>
+
+<h3>Three Depth Walkthroughs (30s / 1:30 / 5min)</h3>
+
+<p><strong>Bar:</strong> Strong. The scene-by-scene motion narrative structure is the right format. The three depths give visitors genuine agency. The scene canvas animations are technically sound.</p>
+
+<p><strong>Use in flow:</strong> Hero in the Founder path (screen 5 as the "hear the full story" moment). Supporting in Growth. Skip for Individual (30s is fine but the full 5-minute arc is too long for their attention span). Not in Enterprise primary flow.</p>
+
+<p><strong>Recommended changes:</strong> The walkthroughs module needs an ICP-aware entry: for Founder, default to the 1:30 script. For Growth, default to the 5-minute script. Currently all paths land at the same three-depth selector without a recommended depth.</p>
+
+<hr>
+
+<h2>3. The Four ICP Paths</h2>
+
+<hr>
+
+<h3>ICP 1: Individual (solo = 1-2 people, bootstrapped)</h3>
+
+<p><strong>Color accent:</strong> emerald #10b981 (go signal, low cost, growth)<br><strong>Core fear:</strong> "Can I actually do this alone, or is this for bigger teams?"<br><strong>Core want:</strong> Something that works now, costs almost nothing, and doesn't require hiring.</p>
+
+<hr>
+
+<p><strong>Screen 1</strong><br>Chip label: "I'm building this myself"<br>MAX response: "Good. You don't need a team to start. One agent, seven days, free tier. Let me show you what $580 a month in wasted AI spend looks like, so you know what you're protecting."<br>Module: Counter (icp="solo")<br>Sub-anchor: none (full module)<br>Visual asset: Counter animation, target=$580, ICP<em>COUNTER</em>FRAMES.solo variant<br>Aligned text: "Average AI spend wasted per solo builder per month. Governance catches most of it. Free tier available."<br>Pain branch: none<br>Breakoff handling: "Want a weekly digest of what's new on the free tier? Drop your email." (email chip)</p>
+
+<hr>
+
+<p><strong>Screen 2</strong><br>Chip label: "Show me what governance actually does"<br>MAX response: "Here's the live feed. Every time an agent claims done without proof, every time it tries to touch something it shouldn't. This is what's running right now."<br>Module: Live Feed<br>Sub-anchor: none<br>Visual asset: Live Feed streaming events, BLOCKED stamps<br>Aligned text: "Each BLOCKED event is money not wasted. Each FLAGGED event is a problem caught before it grew."<br>Pain branch: none<br>Breakoff handling: rescue chip "Still curious but not ready? See the 30-second version" (opens Walkthroughs#30s)</p>
+
+<hr>
+
+<p><strong>Screen 3</strong><br>Chip label: "What does this cost me?"<br>MAX response: "Free tier gets you one agent, seven days, no card. If you stay, it's $49 a month. Here's the full breakdown."<br>Module: Try It<br>Sub-anchor: try-it#pricing<br>Visual asset: Try It pricing tier display<br>Aligned text: "Free tier: 1 agent, 7 days, no credit card. Paid tier starts at $49/mo. Governance infrastructure included."<br>Pain branch: 3 branches:<br><ul><br><li>"I'm on a shoestring, free is all I can do right now"</li><br><li>"I could do $49/mo if it's worth it"</li><br><li>"I want to compare the tiers"</li><br></ul><br>Breakoff handling: email capture "Get notified when the sandbox is live. No sales calls."</p>
+
+<hr>
+
+<p><strong>Screen 4</strong><br>Chip label: "Why can't I just use Claude directly?"<br>MAX response: "You can. But Claude doesn't govern itself. It'll tell you it's done when it isn't, spend premium tokens on work that costs a tenth as much somewhere else, and touch files you told it not to touch. That's what governance fixes."<br>Module: Compounding Risk Walkthrough<br>Sub-anchor: none<br>Visual asset: CompoundingRiskWalkthrough (7-scene: one agent to black box)<br>Aligned text: "One agent is fine. Two or three and the failure modes compound. Governance keeps the line flat."<br>Pain branch: none<br>Breakoff handling: rescue chip "Too heavy? See the 30-second version instead" (opens Walkthroughs#30s)</p>
+
+<hr>
+
+<p><strong>Screen 5</strong><br>Chip label: "What does the free tier actually let me do?"<br>MAX response: "One agent with full governance. All 18 services. Cost router, lie detector, done-claim verifier. The only limit is one agent. When you're ready to add a second, you upgrade."<br>Module: Governance (focused on the "Your AI won't lie to you" bucket)<br>Sub-anchor: governance#lie-detector<br>Visual asset: ConsoleGraphicLite (radial with 16 officers)<br>Aligned text: "The same governance chassis that runs on the paid tier runs on the free tier. You're not getting a demo version."<br>Pain branch: none<br>Breakoff handling: rescue chip "See the full product catalog" (opens Products)</p>
+
+<hr>
+
+<p><strong>Screen 6</strong><br>Chip label: "I have one agent running. Now what?"<br>MAX response: "Introduce it to your real work. Give it access to something you do every day. Give it a day. It'll show you what it found, what it blocked, and what it cost. That's the GTM hook we give every customer."<br>Module: Custom screen: GTM Hook screen (no existing module, uses copy-only card)<br>Sub-anchor: none<br>Visual asset: HomeHeroSplash (mesh blobs, low-key)<br>Aligned text: "Introduce an agent. Give it access. Give it a day. It comes back and walks you through what it found. That's the start."<br>Pain branch: none<br>Breakoff handling: Try It CTA chip "Start your 7-day trial"</p>
+
+<hr>
+
+<p><strong>Screen 7</strong><br>Chip label: "What happens if I want to grow past solo?"<br>MAX response: "You upgrade to the Startup path. Same governance chassis, more agents, team-level audit trail. The Individual tier is a real starting point, not a toy. Your data and audit history carry over."<br>Module: Paths (Startup card only, not the full 3-path view)<br>Sub-anchor: paths#startup<br>Visual asset: None (Paths module is content-only)<br>Aligned text: "Startup path starts at $499/mo. Supports 10-50 person teams. Full 30/90/180-day methodology."<br>Pain branch: none<br>Breakoff handling: rescue chip "Compare all five pricing tiers" (opens Try It)</p>
+
+<hr>
+
+<p><strong>Screen 8</strong><br>Chip label: "Who built this and why should I trust it?"<br>MAX response: "Eric built this for himself. These numbers are from 299 real sessions over 90 days of his own production environment. He is the customer. The data is the proof."<br>Module: About (founder context card only, not the full module)<br>Sub-anchor: about#origin<br>Visual asset: About proof stats grid (2x2 stat tiles)<br>Aligned text: "20+ years of operating leadership. Built for himself first. Level9OS is the product that came out of running AI at production scale with no governance layer."<br>Pain branch: none<br>Breakoff handling: email capture "Get the governance impact analysis PDF. Real numbers."</p>
+
+<hr>
+
+<p><strong>Screen 9</strong><br>Chip label: "Okay. I want to try it."<br>MAX response: "Here you go. One agent. Seven days. No credit card. The sandbox is in build but the free tier is ready."<br>Module: Try It<br>Sub-anchor: try-it#free-tier<br>Visual asset: Try It free-tier card<br>Aligned text: "1 agent. 7 days. No credit card. All 18 governance services active. Cancel any time."<br>Pain branch: none<br>Breakoff handling: none (this is the conversion screen)</p>
+
+<hr>
+
+<p><strong>Screen 10</strong><br>Chip label: "Before I start, what do most solo builders mess up?"<br>MAX response: "The same thing every builder messes up: they give the agent access to everything before they understand what it's doing. Start narrow. One task, one data source, one day. Then expand."<br>Module: Custom screen: "Start narrow" advice card (copy-only)<br>Sub-anchor: none<br>Visual asset: DecisionTrace (8-stage cycle, shows scoped decision flow)<br>Aligned text: "Start with one agent, one task, one data source. Watch the audit trail. Expand when you trust what you see. That's the Level9OS onboarding method."<br>Pain branch: none<br>Breakoff handling: Try It chip + email capture fallback</p>
+
+<hr>
+
+<p><strong>Through-line summary (Individual):</strong> The visitor arrives asking "is this for me, or is this an enterprise tool with a demo?" MAX confirms their suspicion that they can start alone and for free. The arc moves from skepticism ("why not just use Claude directly?") to proof (live feed, compounding risk) to permission-giving ("the free tier is the real product, not a sample"). The emotional destination is confidence: "I can do this today and it costs nothing until I'm sure." Conversion target is the free-tier signup. Secondary conversion is email capture at screen 3 if they leave before screen 9.</p>
+
+<p><strong>Conversion target:</strong> Free-tier signup or email capture for sandbox waitlist.</p>
+
+<hr>
+
+<h3>ICP 2: Founder / Small Team (10-50 people, $52,686 anchor)</h3>
+
+<p><strong>Color accent:</strong> red #ef4444 (Vault / urgency / the number)<br><strong>Core fear:</strong> "We're duct-taping this together and eventually it's going to break badly."<br><strong>Core want:</strong> Proof that replacing the patchwork is worth the effort and cost.</p>
+
+<hr>
+
+<p><strong>Screen 1</strong><br>Chip label: "We're running AI but it's a mess"<br>MAX response: "That's the exact place we built this for. You have real AI running, no system around it. The first thing we do is show you what the mess is actually costing. Here's the number."<br>Module: Counter (icp="smb")<br>Sub-anchor: none<br>Visual asset: Counter animation, target=$52,686, particle burst<br>Aligned text: "$52,686 prevented in 90 days. From one operator's real deployment. Not a projection. Not a case study. The data is the receipt."<br>Pain branch: none<br>Breakoff handling: email capture "Want the full governance impact analysis? Drop your email."</p>
+
+<hr>
+
+<p><strong>Screen 2</strong><br>Chip label: "How do you know that number is real?"<br>MAX response: "299 sessions. 90 days. Every blocked action in the audit log. The analysis document is public. Here's how the four categories broke down."<br>Module: Article<br>Sub-anchor: article#governance-breakdown<br>Visual asset: Article breakdown table (static but clear)<br>Aligned text: "125 stop hook fires. 782 reversals caught. 46 flub events stopped. 44 cost-router refusals. Total: $52,686. Source: production session logs."<br>Pain branch: none<br>Breakoff handling: Calculator chip "Run the math on your team"</p>
+
+<hr>
+
+<p><strong>Screen 3</strong><br>Chip label: "Show me what's actually going wrong"<br>MAX response: "Here it is. The audit feed. Every agent action, every governance decision. When an agent claims done without proof, you see it catch it in real time."<br>Module: Compounding Risk Walkthrough<br>Sub-anchor: none<br>Visual asset: CompoundingRiskWalkthrough (7 scenes)<br>Aligned text: "One agent is manageable. At five, the failure modes compound. At ten, you have a black box. Governance keeps the line flat."<br>Pain branch: 3 branches:<br><ul><br><li>"We only have 2-3 agents right now"</li><br><li>"We have more than 5 agents running"</li><br><li>"We have agents but they're single-vendor"</li><br></ul><br>Breakoff handling: rescue chip "Skip to the numbers" (opens Calculator)</p>
+
+<hr>
+
+<p><strong>Screen 4</strong><br>Chip label: "Run the math on my team"<br>MAX response: "Put in your team size, tools, and monthly AI spend. I'll show you what you're protecting."<br>Module: Calculator (pre-seeded: employees=20, tools=7)<br>Sub-anchor: none<br>Visual asset: Calculator animated bars<br>Aligned text: "Prevention rate: 87.8%. Derived from 90-day production data. At the median 10-50 person team spend, governance pays for itself in the first week."<br>Pain branch: none<br>Breakoff handling: email capture "Want a custom projection for your stack? Send us your spend and we'll model it."</p>
+
+<hr>
+
+<p><strong>Screen 5</strong><br>Chip label: "What does the product actually look like?"<br>MAX response: "Three tiers. Core runs the governance layer. Plugins extend it into decisions, coordination, and measurement. Department Wrappers put it to work in a business function. Here's the full catalog."<br>Module: Products<br>Sub-anchor: products#vault (governance chassis section)<br>Visual asset: ForgeCube<br>Aligned text: "Level9OS Core: CommandOS + LucidORG + MAX. The Vault runs under all of it. 18 governance services. Not bolted on. Running from the first agent action."<br>Pain branch: none<br>Breakoff handling: rescue chip "See how it compares to what we're already using" (opens Comparison)</p>
+
+<hr>
+
+<p><strong>Screen 6</strong><br>Chip label: "Why not just use Microsoft or Salesforce?"<br>MAX response: "Microsoft Agent 365 runs close to $1 million a year. Salesforce Agentforce, around $850,000. Level9OS is $499 a month and it's not locked to one vendor. Here's the race."<br>Module: Why Us Race Walkthrough<br>Sub-anchor: none<br>Visual asset: Why Us Race (animated bar race)<br>Aligned text: "$499/mo vs $1M/yr. Same governance. Multi-vendor. No lock-in. The window to act before consolidation is 12 to 18 months."<br>Pain branch: none<br>Breakoff handling: rescue chip "Read the 1:30 pitch" (opens Voice Pitch / 90s script)</p>
+
+<hr>
+
+<p><strong>Screen 7</strong><br>Chip label: "How does governance actually work?"<br>MAX response: "18 services. Three buckets. Your AI won't lie to you in production. Your AI won't overspend without you knowing. Your AI won't touch what it shouldn't. Here's how each one works."<br>Module: Governance<br>Sub-anchor: governance#lie-detector<br>Visual asset: ConsoleGraphicLite (4-bucket radial, packet flows)<br>Aligned text: "Truth enforcement. Budget control. Identity and access. All 18 services run under every product from the first agent action."<br>Pain branch: none<br>Breakoff handling: Live Feed chip "See it running in real time" (opens Live Feed)</p>
+
+<hr>
+
+<p><strong>Screen 8</strong><br>Chip label: "How do we actually start?"<br>MAX response: "Startup path. Introduce an agent, give it a day, it shows you what it found. The 30-day engagement baseline and quick wins. $499/mo, 30-day money-back."<br>Module: Paths (Startup card)<br>Sub-anchor: paths#startup<br>Visual asset: None (Paths is content-only; this screen needs a timeline visual)<br>Aligned text: "30-day: ECI baseline + quick wins. 90-day: agent deployment + governance live. 180-day: full operating layer running. Starts at $499/mo."<br>Pain branch: none<br>Breakoff handling: Contact chip "Book a 20-minute call" (routes to /contact)</p>
+
+<hr>
+
+<p><strong>Screen 9</strong><br>Chip label: "Tell me about the team behind this"<br>MAX response: "Eric Hathaway built Level9OS from 20 years of operating leadership: Microsoft, Credit Suisse, T-Mobile, S&amp;P Global. He built this for himself first. The $52,686 number is from his own production environment."<br>Module: About (founder context card)<br>Sub-anchor: about#origin<br>Visual asset: Proof stats grid<br>Aligned text: "This is not a research project. Level9OS is the product that came out of running AI at production scale and discovering the failure modes the hard way."<br>Pain branch: none<br>Breakoff handling: email capture "Not ready to call? Get the governance impact analysis PDF."</p>
+
+<hr>
+
+<p><strong>Screen 10</strong><br>Chip label: "I'm ready to start"<br>MAX response: "Good. Here's how to start: contact form, or book a call directly. 30-day money-back. No lock-in. We don't ask you to rebuild around us."<br>Module: Try It (Startup CTA)<br>Sub-anchor: try-it#startup<br>Visual asset: Try It pricing card (Startup tier)<br>Aligned text: "$499/mo. 30-day money-back guarantee. We govern your existing stack. You don't rebuild around us."<br>Pain branch: none<br>Breakoff handling: none (this is the conversion screen)</p>
+
+<hr>
+
+<p><strong>Through-line summary (Founder):</strong> The visitor arrives knowing they have a problem but not sure if it's big enough to fix now. The arc opens with hard proof ($52,686, real data), moves through visual proof of compounding risk, gives them personalized numbers via the calculator, shows them what the product looks like (ForgeCube / catalog), destroys the competitor price-points in 30 seconds, and closes at a concrete entry point. The emotional destination is urgency: "This is worth fixing now, not after the next failure." The $499/mo vs $1M enterprise contrast is the key moment in the path. Every screen before it earns that contrast.</p>
+
+<p><strong>Conversion target:</strong> Contact intake form submission or calendar booking.</p>
+
+<hr>
+
+<h3>ICP 3: Growth (50-200 people, multi-vendor sprawl)</h3>
+
+<p><strong>Color accent:</strong> violet #8b5cf6 (Decide / StratOS / orchestration)<br><strong>Core fear:</strong> "We have 5-10 tools that don't talk to each other and adding another one might make it worse."<br><strong>Core want:</strong> One control plane that governs everything they already have, without a rip-and-replace.</p>
+
+<hr>
+
+<p><strong>Screen 1</strong><br>Chip label: "We have too many AI tools and no control plane"<br>MAX response: "That's the multi-vendor sprawl problem. You're not running one AI, you're running five. Each one has its own rules, its own costs, its own failure modes. Here's what that actually looks like."<br>Module: Compounding Risk Walkthrough<br>Sub-anchor: none<br>Visual asset: CompoundingRiskWalkthrough<br>Aligned text: "The risk isn't one agent. It's the interaction between all of them with no shared governance. One control plane. All your vendors. That's what we built."<br>Pain branch: 3 branches:<br><ul><br><li>"We're on Claude only right now"</li><br><li>"We run Claude plus at least one other vendor"</li><br><li>"We have 5+ AI tools running in different departments"</li><br></ul><br>Breakoff handling: email capture "Multi-vendor governance checklist. Free. Drop your email."</p>
+
+<hr>
+
+<p><strong>Screen 2</strong><br>Chip label: "Show me what governance looks like at our scale"<br>MAX response: "Here's the vault. 18 services. Running under Claude, GPT, Gemini, and any custom model you plug in. The console shows every agent, every action, every cost."<br>Module: Governance<br>Sub-anchor: none<br>Visual asset: ConsoleGraphicLite (full radial + packet flows)<br>Aligned text: "18 governance services. Multi-vendor from day one. One audit trail for all of them. Not a per-vendor dashboard. One control plane."<br>Pain branch: none<br>Breakoff handling: rescue chip "See the architecture behind it" (opens Architecture)</p>
+
+<hr>
+
+<p><strong>Screen 3</strong><br>Chip label: "How does this fit into what we're already using?"<br>MAX response: "You plug your agents in. We don't ask you to rebuild. Claude stays Claude. GPT stays GPT. We add the governance layer on top. Here's how the architecture works."<br>Module: Architecture<br>Sub-anchor: none<br>Visual asset: StackFlow + DecisionTrace<br>Aligned text: "Four pressure points. Eight operating layers. Your existing tools plug into the execution layer. Governance runs across all of them. No rebuild required."<br>Pain branch: none<br>Breakoff handling: rescue chip "Skip to pricing" (opens Try It)</p>
+
+<hr>
+
+<p><strong>Screen 4</strong><br>Chip label: "What does department-level AI actually look like?"<br>MAX response: "OutboundOS is the proof of concept. 30 workflows, ABM outbound, signal to send in under 5 minutes. All of it governed. Here's how the pattern extends to other departments."<br>Module: Wrappers<br>Sub-anchor: wrappers#outboundos-wrapper<br>Visual asset: ForgeCube (Wrappers face)<br>Aligned text: "OutboundOS is live. FinanceOS, SalesOS, and ExecutionOS are next. Department-level AI with full governance. Same chassis, different business function."<br>Pain branch: none<br>Breakoff handling: Wrapper Story chip "See the OutboundOS architecture" (opens Wrapper Story)</p>
+
+<hr>
+
+<p><strong>Screen 5</strong><br>Chip label: "Run the math on our team"<br>MAX response: "Put in your headcount, tools, and monthly AI spend. The prevention rate at 50-200 people is higher than at smaller teams because the interaction effects compound."<br>Module: Calculator (pre-seeded: employees=75, tools=12)<br>Sub-anchor: none<br>Visual asset: Calculator animated bars<br>Aligned text: "At 75 people, 12 tools: governance prevents a higher share of total spend because there are more failure-mode interaction points. The more tools, the more governance pays."<br>Pain branch: none<br>Breakoff handling: email capture "Get a custom projection for your stack"</p>
+
+<hr>
+
+<p><strong>Screen 6</strong><br>Chip label: "How do we compare to where we could just buy this from Microsoft?"<br>MAX response: "Microsoft Agent 365 is close to $1 million a year and it only governs Microsoft agents. We govern all of them. Here's the bar race."<br>Module: Why Us Race Walkthrough (Growth variant: replace Workday with "Zapier/n8n/Make")<br>Sub-anchor: none<br>Visual asset: Why Us Race animated bar race<br>Aligned text: "$499/mo vs $1M/yr. Multi-vendor from day one. The enterprise platforms only govern their own agents. We govern all of yours."<br>Pain branch: none<br>Breakoff handling: Compare chip "See the full competitive analysis" (opens Compare)</p>
+
+<hr>
+
+<p><strong>Screen 7</strong><br>Chip label: "Show me the full competitive landscape"<br>MAX response: "Nine sections. Mapped 70-plus vendors across 8 capability layers. Seven real competitors. Honest read on each. Where they win, where they don't."<br>Module: Compare<br>Sub-anchor: compare#pricing<br>Visual asset: Compare module (no specific motion)<br>Aligned text: "Level9OS is not a winner in every category. We're the winner on multi-vendor governance, time to value, and SMB fit. Where we lose is documented honestly."<br>Pain branch: none<br>Breakoff handling: rescue chip "Hear the 5-minute pitch instead" (opens Walkthroughs / 5min)</p>
+
+<hr>
+
+<p><strong>Screen 8</strong><br>Chip label: "What does a Growth engagement look like?"<br>MAX response: "Growth path starts at $499/mo. 30-day foundation: department agent deployed, governance live. 90-day: orchestration running across 2-3 departments. 180-day: full control plane."<br>Module: Paths (Growth card)<br>Sub-anchor: paths#growth<br>Visual asset: None (Paths module; this screen needs a phase timeline graphic)<br>Aligned text: "30-day: first department agent + governance live. 90-day: orchestration running. 180-day: full multi-department control plane. $499/mo starting price."<br>Pain branch: none<br>Breakoff handling: Contact chip "Book a Growth evaluation call"</p>
+
+<hr>
+
+<p><strong>Screen 9</strong><br>Chip label: "How do we pilot this without disrupting what's running?"<br>MAX response: "You start with one department. OutboundOS is the most common first deployment for Growth companies because it's discrete, measurable, and the ROI is visible in 30 days. We don't touch the other departments until you're ready."<br>Module: Wrapper Story (OutboundOS focus)<br>Sub-anchor: wrapper-story#outboundos<br>Visual asset: Wrapper Story cards<br>Aligned text: "Start with one department wrapper. Measure the governance impact. Expand when you're confident. Your other departments keep running unchanged."<br>Pain branch: none<br>Breakoff handling: email capture "Not ready to commit? Get the department pilot guide."</p>
+
+<hr>
+
+<p><strong>Screen 10</strong><br>Chip label: "Let's start the evaluation"<br>MAX response: "Growth evaluation is a 30-minute call, custom projection for your stack, and a pilot proposal. No commitment until you've seen the numbers for your specific environment."<br>Module: Try It (Growth CTA / contact form)<br>Sub-anchor: try-it#growth<br>Visual asset: Try It pricing card (Growth tier)<br>Aligned text: "$499/mo starting. 30-day money-back. Pilot in one department. Expand when you're ready. No lock-in."<br>Pain branch: none<br>Breakoff handling: none (conversion screen)</p>
+
+<hr>
+
+<p><strong>Through-line summary (Growth):</strong> The visitor arrives with tool sprawl anxiety. The arc opens immediately with the compounding risk visualization (their exact problem, visualized), moves to governance as the solution, shows how it fits over their existing stack without a rebuild, proves it with OutboundOS as a department-level live example, benchmarks price, and closes at a structured evaluation. The emotional destination is relief: "One control plane over everything I already have. Not another tool to manage." The "no rebuild required" message repeats across screens 3, 4, and 8. This is intentional.</p>
+
+<p><strong>Conversion target:</strong> Growth evaluation call booking or custom projection request.</p>
+
+<hr>
+
+<h3>ICP 4: Enterprise (200+ people, compliance-forward, anti-lock-in)</h3>
+
+<p><strong>Color accent:</strong> cyan #06b6d4 (Measure / LucidORG / visibility)<br><strong>Core fear:</strong> "We evaluate things slowly and carefully, and the wrong choice locks us in for years."<br><strong>Core want:</strong> Proof of multi-vendor governance, compliance posture, and no architectural commitment before the pilot.</p>
+
+<hr>
+
+<p><strong>Screen 1</strong><br>Chip label: "We're evaluating AI governance for a 200-plus person company"<br>MAX response: "The evaluation starts with architecture. No vendor lock-in. No rebuild. Claude, GPT, Gemini, custom models. One control plane. One audit trail. Here's what continuous compliance looks like."<br>Module: Governance<br>Sub-anchor: governance#continuous-compliance<br>Visual asset: ConsoleGraphicLite<br>Aligned text: "SOC2 / NIST / ISO / GDPR / AI RMF. Compliance state maintained daily. Not just at audit time. Every agent action in the append-only audit trail."<br>Pain branch: 3 branches:<br><ul><br><li>"We're primarily concerned with data compliance"</li><br><li>"We need multi-vendor support from day one"</li><br><li>"Our security team needs to see the architecture before we go further"</li><br></ul><br>Breakoff handling: email capture "Get the governance architecture brief. Security-team ready."</p>
+
+<hr>
+
+<p><strong>Screen 2</strong><br>Chip label: "Show me the compliance capabilities"<br>MAX response: "18 services. Identity and access is the relevant bucket for security evaluations. Protected resources, intent guardrail, audit trail, continuous compliance, trust scores per agent. Here's each one."<br>Module: Governance (Identity + Access bucket)<br>Sub-anchor: governance#protected-resources<br>Visual asset: ConsoleGraphicLite (Identity + Access sector highlighted)<br>Aligned text: "Protected resources: no agent touches a critical file or workflow without an active access grant. Blocked at the system level. Audit trail: append-only, tamper-evident, every LLM call logged."<br>Pain branch: none<br>Breakoff handling: rescue chip "Get the architecture overview" (opens Architecture)</p>
+
+<hr>
+
+<p><strong>Screen 3</strong><br>Chip label: "What does the audit trail actually look like?"<br>MAX response: "Here's the live feed. Every blocked action, every rerouted call, every flagged claim. In a real production environment. This is not a demo environment."<br>Module: Live Feed (Enterprise variant with compliance events added)<br>Sub-anchor: none<br>Visual asset: Live Feed streaming events (BLOCKED + GDPR events)<br>Aligned text: "Every governance event logged. Every cost tracked. Every model decision recorded. The audit trail is append-only and tamper-evident. Available to your compliance team on request."<br>Pain branch: none<br>Breakoff handling: rescue chip "See the full architecture" (opens Architecture)</p>
+
+<hr>
+
+<p><strong>Screen 4</strong><br>Chip label: "Explain the architecture without marketing language"<br>MAX response: "Four pressure points: decide, coordinate, execute, measure. Eight operating layers underneath. Your agents plug into the execution layer. Governance runs across all of them. The StackFlow shows how it fits."<br>Module: Architecture<br>Sub-anchor: none<br>Visual asset: StackFlow + DecisionTrace<br>Aligned text: "You plug your existing agents in. The governance layer sits across all of them. No rebuild. No lock-in to Level9OS infrastructure. If you leave, your agents keep running."<br>Pain branch: none<br>Breakoff handling: email capture "Get the architecture brief (PDF). Security-team ready."</p>
+
+<hr>
+
+<p><strong>Screen 5</strong><br>Chip label: "How do you compare to the vendors we're already evaluating?"<br>MAX response: "Honest answer: Microsoft Agent 365, Salesforce Agentforce, and Workday ASOR are built for enterprises, but they only govern their own agents. We govern all of yours. Here's the full analysis."<br>Module: Compare<br>Sub-anchor: compare#anti-lockout<br>Visual asset: Compare module (no specific motion)<br>Aligned text: "Microsoft: ~$1M/yr, Microsoft agents only. Salesforce: ~$850K/yr, Salesforce agents only. Level9OS: $499/mo, any agent, no vendor lock-in."<br>Pain branch: none<br>Breakoff handling: rescue chip "See the price race in 30 seconds" (opens Why Us Race)</p>
+
+<hr>
+
+<p><strong>Screen 6</strong><br>Chip label: "What is the actual competitive position?"<br>MAX response: "30 seconds. Four contestants. One finish line. The price gap is the point. But the architecture gap is what matters."<br>Module: Why Us Race Walkthrough<br>Sub-anchor: none<br>Visual asset: Why Us Race animated bar race<br>Aligned text: "$499/mo vs $1M/yr. The price is real. But the architecture difference is what you're actually buying: multi-vendor governance they don't offer."<br>Pain branch: none<br>Breakoff handling: Compare chip "See the 9-section breakdown" (links back to Compare)</p>
+
+<hr>
+
+<p><strong>Screen 7</strong><br>Chip label: "What does an enterprise evaluation look like?"<br>MAX response: "Custom evaluation. We start with your current AI stack, map your compliance requirements, and build a governance overlay. No commitment until you've seen it running on your own data."<br>Module: Paths (Enterprise card)<br>Sub-anchor: paths#enterprise<br>Visual asset: None (Paths module; timeline visual recommended)<br>Aligned text: "30-day: AI stack audit + compliance map. 90-day: governance overlay running on your current agents. 180-day: full control plane. Custom pricing available above 200 people."<br>Pain branch: none<br>Breakoff handling: Contact chip "Start the enterprise evaluation"</p>
+
+<hr>
+
+<p><strong>Screen 8</strong><br>Chip label: "What does the product catalog look like?"<br>MAX response: "Three tiers. Core is the platform: CommandOS, LucidORG, MAX. Plugins extend it. Department Wrappers deploy in a specific business function. All of it runs on The Vault governance chassis."<br>Module: Products<br>Sub-anchor: products#catalog<br>Visual asset: ForgeCube<br>Aligned text: "CommandOS: multi-agent coordination. LucidORG: measurement and reporting. MAX: the AI interface. The Vault: 18 governance services under all of it."<br>Pain branch: none<br>Breakoff handling: rescue chip "See the governance architecture" (opens Governance)</p>
+
+<hr>
+
+<p><strong>Screen 9</strong><br>Chip label: "Who built this and what's the track record?"<br>MAX response: "Eric Hathaway. 20 years of executive operating leadership across Microsoft, Credit Suisse, T-Mobile, and S&amp;P Global. Level9OS is the product built from running AI at production scale and measuring every failure mode."<br>Module: About (founder context card)<br>Sub-anchor: about#origin<br>Visual asset: Proof stats grid<br>Aligned text: "299 production sessions. 90 days. 826 governance events measured. $52,686 prevented. This is not projected ROI. It is production data from the operator who built the system."<br>Pain branch: none<br>Breakoff handling: email capture "Get the full governance impact analysis (PDF)."</p>
+
+<hr>
+
+<p><strong>Screen 10</strong><br>Chip label: "Start the evaluation"<br>MAX response: "Enterprise evaluation is a custom process. We start with your AI stack and compliance requirements. No standardized contract until we've scoped your specific environment. Start here."<br>Module: Try It (Enterprise CTA / custom contact)<br>Sub-anchor: try-it#enterprise<br>Visual asset: Try It Enterprise tier card<br>Aligned text: "Custom pricing above 200 people. 30-day evaluation period. We provide a governance architecture brief before any contract discussion. No lock-in at any stage."<br>Pain branch: none<br>Breakoff handling: none (conversion screen)</p>
+
+<hr>
+
+<p><strong>Through-line summary (Enterprise):</strong> The visitor arrives in evaluation mode. They are skeptical of vendor claims, have a security team to satisfy, and are comparing multiple options. The arc opens immediately with compliance credentials (continuous compliance, SOC2/NIST/ISO), shows the live audit trail as evidence, explains the architecture honestly (including the no-lock-in commitment), benchmarks against the major competitors they're already evaluating, and closes with a custom evaluation path. The emotional destination is confidence: "This is architecturally sound, honestly compared, and the evaluation has no commitment gates." The anti-lock-in message repeats at screens 1, 4, 5, and 10. This is the Enterprise visitor's primary concern and needs to be present throughout.</p>
+
+<p><strong>Conversion target:</strong> Enterprise evaluation request (custom contact form).</p>
+
+<hr>
+
+<h2>4. Pre-Built Tour Entry Mechanic</h2>
+
+<p><strong>Where the tour buttons live:</strong></p>
+
+<p>The four tour buttons ("Founder Tour," "Growth Tour," "Enterprise Tour," "Individual Tour") should be visible in the splash state before any first interaction. Not after a first message. Not after the diagnostic. From the first second.</p>
+
+<p>Placement: below the MAX input field, in a horizontal row of four pill-shaped buttons. They sit between the input field and the suggested chips row. On mobile, they stack 2x2.</p>
+
+<p>They remain visible throughout the dashboard state as a collapsible row. Collapsed by default after the visitor has been in the path for more than 3 screens. A "Change tour" chip at the bottom of the chip set re-expands them.</p>
+
+<p><strong>What happens when clicked:</strong></p>
+
+<p>Clicking a tour button:<br><ol><br><li>1. Sets the ICP state immediately (solo / smb / growth / enterprise)</li><br><li>2. Injects a MAX response: the Screen 1 agent response for that ICP (see Section 3)</li><br><li>3. Surfaces the Screen 1 module immediately without waiting for a chip click</li><br><li>4. Advances the chip set to the Screen 1 chip options for that ICP</li><br></ol></p>
+
+<p>The visitor does not need to click a chip to see content. The button click is the first chip click. Screen 1 content is visible immediately.</p>
+
+<p><strong>Interaction with the diagnostic path:</strong></p>
+
+<p>The diagnostic path ("How big is your operation?") is the default first-time experience when no tour button has been clicked. It offers 4 size buckets:<br><ul><br><li>"Just me or one other person" (routes to Individual)</li><br><li>"10 to 50 people" (routes to Founder/SMB)</li><br><li>"50 to 200 people" (routes to Growth)</li><br><li>"More than 200 people" (routes to Enterprise)</li><br></ul></p>
+
+<p>If the visitor has clicked a tour button, the diagnostic is skipped. The tour button is the explicit override.</p>
+
+<p>If the visitor completed the diagnostic and was routed, but then clicks a different tour button, the ICP state resets and the new path starts from Screen 1 with a brief MAX note: "Switching to the [X] tour. Here's where we start."</p>
+
+<p>The diagnostic and the tour buttons coexist. The diagnostic is the passive path for visitors who don't self-identify. The tour buttons are the active path for visitors who know who they are.</p>
+
+<p><strong>Visual treatment of the tour buttons:</strong></p>
+
+<p>Each button uses the ICP accent color at low opacity with a colored left border accent:<br><ul><br><li>Individual: emerald #10b981 background at 8% opacity, emerald border</li><br><li>Founder: red #ef4444 at 8%, red border</li><br><li>Growth: violet #8b5cf6 at 8%, violet border</li><br><li>Enterprise: cyan #06b6d4 at 8%, cyan border</li><br></ul></p>
+
+<p>Button text is monospace, small caps, 11px. Label format: "Individual Tour" / "Founder Tour" / "Growth Tour" / "Enterprise Tour". No emoji. No icons. Clean label only.</p>
+
+<p>On hover, border brightens to 40% opacity and a subtle MagneticButton pull effect is appropriate here since the brand package exposes it.</p>
+
+<hr>
+
+<h2>5. Chip Discipline Ruleset</h2>
+
+<p><strong>Rules for a chip to earn a slot:</strong></p>
+
+<ol>
+<li>1. Every chip must advance the ICP path. If clicking the chip does not bring the visitor closer to the conversion target for their ICP, the chip does not exist.</li>
+<li>2. Every chip must surface a specific module or sub-anchor. "General exploration" chips are retired.</li>
+<li>3. No playful chips. Group F retired entirely (see below).</li>
+<li>4. Maximum 3 chips visible at any screen. One primary path chip, one alternative/depth option, and one breakoff rescue chip. Never more than 3.</li>
+<li>5. Free-text input is always available below the chips. The chips are shortcuts, not walls.</li>
+<li>6. Chips disappear when their target module is already open and visible. Do not offer to open what's already on screen.</li>
+<li>7. Breakoff chips are rescue chips only. They appear when a visitor has been on a screen for more than 45 seconds without clicking. Not visible by default.</li>
+<li>8. "Change tour" chip is always available at the bottom of the chip set after screen 3. This is the safety valve for visitors who self-selected the wrong tour.</li>
+</ol>
+
+<p><strong>Chips retired in this redesign:</strong></p>
+
+<p>Group F (all 7 retired):<br><ul><br><li>"Show me the money." (was Group F / f-money)</li><br><li>"I have the receipts." (was Group F / f-receipts)</li><br><li>"Houston, we have a problem." (was Group F / f-houston)</li><br><li>"What is in the box?" (was Group F / f-whats-in-box)</li><br><li>"I'll be back." (was Group F / f-ill-be-back)</li><br><li>"Open the pod bay doors." (was Group F / f-pod-bay)</li><br><li>"Roll the tape." (was Group F / f-roll-tape)</li><br></ul></p>
+
+<p>Group C (personalization questions) retired as standalone chips. The content from qual-ai-tool, qual-team-size, qual-refix-loop, qual-spend, qual-vendors is absorbed into the diagnostic path and the pain branches at screen 3 of each ICP. These were valid qualification questions but they belong before module reveal, not after.</p>
+
+<p>Group D "reveal" chips (retain 2, retire 2):<br><ul><br><li>KEEP: reveal-compounding-risk ("Want to see what happens with 5 agents and no governance?") becomes the Screen 3 chip for Founder and Growth paths</li><br><li>KEEP: reveal-architecture-layers (becomes supporting chip in Growth and Enterprise paths)</li><br><li>RETIRE: reveal-lie-catch (content absorbed into Live Feed module introduction)</li><br><li>RETIRE: reveal-block-demo (content absorbed into Live Feed module introduction)</li><br><li>RETIRE: reveal-receipt (absorbed into Counter module via ICP routing)</li><br><li>RETIRE: reveal-compare-ai-wrapper (absorbed into Compare module chip)</li><br></ul></p>
+
+<p>Group B (specific angles): most retained as supporting/depth chips within the ICP path chip sets. The following are cut:<br><ul><br><li>angle-onboarding-room: content not yet built. Remove until the multi-party room is live.</li><br><li>angle-single-vendor: absorbed into Architecture screen for Growth/Enterprise paths.</li><br><li>angle-founder-vs-operator: absorbed into the diagnostic routing. Not needed as a chip.</li><br></ul></p>
+
+<p>Group A (deep dives after module seen): retained for all rich modules. These become the "go deeper" secondary chip after a module has been surfaced.</p>
+
+<hr>
+
+<h2>6. Content Reorganization Recommendations</h2>
+
+<p><strong>Modules that need to split:</strong></p>
+
+<p>Products should split into:<br><ul><br><li><code>Products (catalog)</code>: ForgeCube hero + product cards only. Surfaced as the "What's in the box?" moment.</li><br><li><code>Products (vault)</code>: The governance chassis expandable section. This duplicates Governance and should not render inside Products when the visitor is in a path that also shows the Governance module. Create a prop <code>showVault={false}</code> for path contexts where Governance is a separate screen.</li><br></ul></p>
+
+<p>About should split into:<br><ul><br><li><code>About (summary)</code>: 60-word founder context + 2 proof stats. This is the path-facing surface. Used in screens 8-9 of Individual and Founder.</li><br><li><code>About (full)</code>: The current full module. Accessible via free-text or a "full story" chip. Never surfaced as a primary screen in any guided path.</li><br></ul></p>
+
+<p>Paths should split into:<br><ul><br><li><code>Paths (single)</code>: One card for the ICP's relevant entry point. Takes a <code>path="startup"|"growth"|"enterprise"</code> prop.</li><br><li><code>Paths (full)</code>: All three cards. Accessible via free-text. Not surfaced in guided paths.</li><br></ul></p>
+
+<p><strong>Modules that need to merge:</strong></p>
+
+<p>None recommended. The current module inventory maps cleanly to path screens when properly sequenced.</p>
+
+<p><strong>Modules that need new sub-anchors for deep-linking:</strong></p>
+
+<ul>
+<li><code>governance#lie-detector</code>: scrolls to Truth Enforcement grid (IDs already exist on GOV_CAPABILITIES cards, verify DOM)</li>
+<li><code>governance#continuous-compliance</code>: scrolls to Identity + Access / continuous-compliance card</li>
+<li><code>governance#protected-resources</code>: scrolls to Protected Resources card</li>
+<li><code>article#governance-breakdown</code>: scrolls to the breakdown table</li>
+<li><code>compare#pricing</code>: scrolls to the pricing comparison section</li>
+<li><code>compare#anti-lockout</code>: scrolls to the vendor lock-in section</li>
+<li><code>products#catalog</code>: scrolls to the ForgeCube + product card tier section</li>
+<li><code>products#vault</code>: scrolls to governance chassis expandable (for contexts where it's the focus)</li>
+<li><code>paths#startup</code>: scrolls to Startup path card</li>
+<li><code>paths#growth</code>: scrolls to Growth path card</li>
+<li><code>paths#enterprise</code>: scrolls to Enterprise path card</li>
+<li><code>try-it#free-tier</code>: scrolls to the free-tier card</li>
+<li><code>try-it#startup</code>: scrolls to $499/mo tier</li>
+<li><code>try-it#growth</code>: scrolls to Growth tier</li>
+<li><code>try-it#enterprise</code>: scrolls to Enterprise / custom tier</li>
+<li><code>about#origin</code>: scrolls to origin story paragraph</li>
+<li><code>wrappers#outboundos-wrapper</code>: scrolls to OutboundOS card in Wrappers module</li>
+</ul>
+
+<p><strong>Modules whose hero visual needs reassignment:</strong></p>
+
+<p>The Architecture module currently opens with a badge row ("4 / 8 / 8 / 1"). For the Enterprise path, the hero visual should be StackFlow, not the badge row. The StackFlow should be the first visual visible when Architecture opens in the Enterprise context, framed as "your existing agents plug into the execution layer." The current orientation blurb is good but buried.</p>
+
+<p>The Paths module has no hero visual. For Founder, Growth, and Enterprise path contexts at screen 8, this module needs a new visual: a horizontal phase timeline (30 days / 90 days / 180 days) with phase labels. This is a new component that does not exist. It should be a simple CSS/SVG timeline, not a canvas animation. It can reuse the Counter animation pattern.</p>
+
+<p>The Voice Pitch module needs a waveform placeholder visual while audio is pending. This is a thin CSS component (3 horizontal bars at different heights, pulsing slowly). Without it, the transcript accordion looks like a text-only dump.</p>
+
+<hr>
+
+<h2>7. Open Questions for Eric</h2>
+
+<p><strong>1. 10 screens per ICP or 8?</strong></p>
+
+<p>Recommendation: 8. Here is the rationale.</p>
+
+<p>Screen 8 in every path is where conversion pressure arrives ("How do we start?"). Screens 9 and 10 are post-decision cleanup for visitors who need confidence, not conversion. Analytics will show that most visitors who reach screen 8 either convert or leave within the next 2 interactions. Screens 9 and 10 are serving a minority.</p>
+
+<p>The 10-screen design is presented in full here because you asked for it and it ensures nothing important is missing from the arc. But in implementation, screens 9 and 10 of each ICP should be positioned as optional depth screens behind a "Tell me more first" chip, not as mandatory steps in the path progression.</p>
+
+<p>The counter-argument for 10: About and Try It (screens 9-10 for Individual) are important conversion elements and should not be buried. For Individual specifically, keeping the full 10 is justified because the conversion moment (free-tier signup) benefits from the trust-building at screen 8 (founder story).</p>
+
+<p><strong>2. Should ICPs share screens?</strong></p>
+
+<p>Recommended: Yes for Why Us Race and Compounding Risk. No for Counter, Live Feed, and Calculator.</p>
+
+<p>Why Us Race appears in Founder (screen 6), Growth (screen 6), and Enterprise (screen 6). That's fine. The module is generic enough. For Growth, the competitor set should swap Workday for "Zapier/n8n/Make" but this is a prop change, not a new module.</p>
+
+<p>Compounding Risk appears in Founder (screen 3), Growth (screen 1), and as a supporting chip in Enterprise. That's also fine. It's the universal visual proof of the core problem.</p>
+
+<p>Counter, Live Feed, and Calculator should NOT be shared across paths without ICP adaptation. Counter already has ICP frames coded. Live Feed needs the Enterprise compliance events added. Calculator needs ICP-aware default seeding. If these appear in multiple paths, they must render with ICP context.</p>
+
+<p><strong>3. Diagnostic AND direct tour buttons, or one or the other?</strong></p>
+
+<p>Recommended: Both, with the direct tour buttons visible from the first second.</p>
+
+<p>The diagnostic path is valuable for visitors who arrive without context and don't know which ICP they are. The direct tour buttons are valuable for visitors who self-identify immediately. These are complementary, not competitive.</p>
+
+<p>The visual risk is clutter. The splash state currently has: MAX message, input field, suggested chips. Adding 4 tour buttons below the input could crowd the first impression. A clean solution: the 4 tour buttons live in a separate row labeled "Pick your path:" at 11px monospace above the chips. They are visually distinct from the chips (pill border style vs chip background style).</p>
+
+<p>If Eric finds the diagnostic redundant because the tour buttons cover the same routing, the diagnostic can be demoted to screen 1 of the "no tour selected" path only, which means visitors who arrive cold see one diagnostic question, and visitors who click a tour button skip it entirely.</p>
+
+<p><strong>4. Should Voice Pitch surface in any guided path now?</strong></p>
+
+<p>Recommended: Yes, in Founder and Growth only, as a depth option at screens 6-7. Position it as "Hear the 1:30 pitch" not "Roll the tape."</p>
+
+<p>The transcript-only state is acceptable for these ICPs because they are more patient than Individual and more open to depth than Enterprise. The "Voice render coming soon" banner is honest and does not damage credibility if the surrounding content is strong.</p>
+
+<p>Voice Pitch should NOT surface in Individual (too long, wrong format for the attention span) or Enterprise (transcript view does not meet the visual quality bar for an enterprise evaluation context).</p>
+
+<p><strong>5. The "3,464x" vs "2698x" ROI discrepancy.</strong></p>
+
+<p>The counter module displays 3,464x. The Governance Impact Analysis (Section D) shows 2698x as the defensible monthly ROI and notes that this is the "honest number for the pitch." The 3,464x appears in the article module breakdown tables as a hard-coded number.</p>
+
+<p>These two numbers need reconciliation before the guided paths go live. The plan uses "3,464x" in the Counter module description here because that's what's coded, but Eric should decide which number to canonicalize and update all three places: the counter stat trio, the article breakdown, and the governance analysis pitch section.</p>
+
+<p><strong>6. Try It module timing.</strong></p>
+
+<p>The Try It module is listed as "in build" with a sandbox state pending. If the guided paths launch before the sandbox is live, the Individual path's screen 9 conversion moment (free-tier signup) points to a dead link. Options:</p>
+
+<p>Option A: Launch Individual path pointing to a waitlist form instead of the sandbox. Update chips when sandbox goes live.<br>Option B: Delay Individual path launch until the sandbox is ready.<br>Option C: Individual path's screen 9 becomes an email capture ("Notify me when the sandbox is live") and the CTA becomes the free-tier informational card without the interactive sandbox.</p>
+
+<p>Recommendation: Option C. It is the least dependent on the sandbox timeline and the email capture has genuine value.</p>
+
+<p><strong>7. Does the Architecture module belong in Founder path?</strong></p>
+
+<p>The current design puts Architecture in the Growth and Enterprise paths but cuts it from Individual and Founder. The counter-argument: the "plug any agent" concept is the Founder ICP's most important "why not just use Claude" answer, and Architecture is where that answer lives most completely.</p>
+
+<p>Decision point: if the Governance module carries the "plug any agent, one control plane" message effectively (it does, via the multi-vendor orchestration capability card), then Architecture is not needed in the Founder path and should stay cut. If the Founder ICP frequently asks "but how does this actually work under the hood," Architecture at screen 7 or 8 as an optional depth chip would address that without making it a mandatory screen.</p>
+
+<hr>
+
+<h2>Appendix: Module-to-ICP Screen Matrix</h2>
+
+<p>For quick implementation reference:</p>
+
+<table><thead><tr><th>Module</th><th>Individual</th><th>Founder</th><th>Growth</th><th>Enterprise</th></tr></thead><tbody><tr><td>Counter (ICP-adapted)</td><td>Screen 1</td><td>Screen 1</td><td>Supporting</td><td>Supporting</td></tr><tr><td>Live Feed</td><td>Screen 2</td><td>Screen 7 (sup.)</td><td>Supporting</td><td>Screen 3</td></tr><tr><td>Try It</td><td>Screen 3, 9</td><td>Screen 10</td><td>CTA only</td><td>Screen 10</td></tr><tr><td>Compounding Risk</td><td>Screen 4</td><td>Screen 3</td><td>Screen 1</td><td>Supporting</td></tr><tr><td>Governance</td><td>Screen 5</td><td>Screen 7</td><td>Screen 2</td><td>Screen 1, 2</td></tr><tr><td>GTM Hook Card</td><td>Screen 6</td><td>--</td><td>--</td><td>--</td></tr><tr><td>Paths (single)</td><td>Screen 7</td><td>Screen 8</td><td>Screen 8</td><td>Screen 7</td></tr><tr><td>About (summary)</td><td>Screen 8</td><td>Screen 9</td><td>--</td><td>Screen 9</td></tr><tr><td>Calculator</td><td>--</td><td>Screen 4</td><td>Screen 5</td><td>--</td></tr><tr><td>Article</td><td>--</td><td>Screen 2</td><td>--</td><td>--</td></tr><tr><td>Products</td><td>--</td><td>Screen 5</td><td>--</td><td>Screen 8</td></tr><tr><td>Why Us Race</td><td>--</td><td>Screen 6</td><td>Screen 6</td><td>Screen 6</td></tr><tr><td>Architecture</td><td>--</td><td>--</td><td>Screen 3</td><td>Screen 4</td></tr><tr><td>Wrappers</td><td>--</td><td>--</td><td>Screen 4</td><td>--</td></tr><tr><td>Wrapper Story</td><td>--</td><td>--</td><td>Screen 9</td><td>--</td></tr><tr><td>Compare</td><td>--</td><td>Supporting</td><td>Screen 7</td><td>Screen 5</td></tr><tr><td>Walkthroughs</td><td>Breakoff rescue</td><td>Supporting</td><td>Supporting</td><td>--</td></tr><tr><td>Voice Pitch</td><td>--</td><td>Screen 6 (depth)</td><td>Screen 7 (depth)</td><td>--</td></tr><tr><td>Comparison</td><td>--</td><td>Screen 5 (sup.)</td><td>Supporting</td><td>--</td></tr></tbody></table><hr>
+
+<h2>Output Report</h2>
+
+<p>This document covers the full planning deliverable as requested. Because this is a READ-ONLY planning session, the file could not be written to disk. The document text above should be saved to <code>/Users/erichathaway/claude code 1/LEVEL9OS-ICP-FLOW-DESIGN-2026-05-13.md</code> by the implementation agent.</p>
+
+<p><strong>Approximate word count:</strong> 9,800 words<br><strong>Sections:</strong> 7 sections + appendix<br><strong>Screens designed:</strong> 40 (10 per ICP, all specified in full)<br><strong>Open questions for Eric:</strong> 7</p>
+
+<p><strong>Most important design decisions:</strong></p>
+
+<ol>
+<li>1. Group F chips are retired entirely. "Show me the money" and the other playful prompts were entertainment, not engagement. Removing them is not a loss of personality. It's a gain in path coherence.</li>
+<li>2. Counter module is the ICP anchor for every path. The ICP<em>COUNTER</em>FRAMES are already coded. This personalization is the highest-value thing already in the codebase that the current design underuses.</li>
+<li>3. Tour buttons must be visible before any first interaction. Not after. The visitor who arrives knowing they're a Growth company should not have to discover a self-selection mechanism.</li>
+<li>4. The About and Paths modules are weak in their current form. Both need structural changes (About: summary card split; Paths: single-card ICP-focused view + phase timeline visual) before they can carry a screen in a guided path.</li>
+<li>5. Screens 9-10 across all paths are optional depth, not mandatory. The conversion moment in every ICP is screen 8. Everything after that is retention and confidence-building for the minority who need it.</li>
+</ol>
+
+<p><strong>Watch-out list:</strong></p>
+
+<ol>
+<li>1. The 3,464x vs 2698x ROI number exists in at least 3 places in the codebase with different values. Canonicalize before launch.</li>
+<li>2. The Try It sandbox is IN BUILD. Individual path screen 9 cannot point to a dead link. Design around it now (Option C: email capture for waitlist).</li>
+<li>3. ICP state propagation to the Counter module must be synchronous with the tour button click. A race condition here means the wrong number renders on the most visible proof screen in every path.</li>
+<li>4. The Paths module has no motion. It cannot carry a screen without a phase timeline graphic being built. Block path screen 8 implementation in all three commercial ICPs on this dependency.</li>
+<li>5. Voice Pitch transcript view needs a waveform placeholder before it surfaces in Founder/Growth paths. Without it, the module looks unfinished relative to the surrounding content quality.</li>
+</ol>
+
+<hr>
+
+<h3>Critical Files for Implementation</h3>
+
+<ul>
+<li><code>/Users/erichathaway/claude code 1/level9os-site/src/app/_components/ConversationHomepage.tsx</code></li>
+<li><code>/Users/erichathaway/claude code 1/level9os-site/src/app/_components/ConsoleGraphicLite.tsx</code></li>
+<li><code>/Users/erichathaway/claude code 1/level9os-site/src/app/_components/CompoundingRiskWalkthrough.tsx</code></li>
+<li><code>/Users/erichathaway/claude code 1/level9os-site/src/components/motion/DecisionTrace.tsx</code></li>
+<li><code>/Users/erichathaway/claude code 1/level9os-site/src/components/motion/StackFlow.tsx</code></li>
+</ul>
+</body>
+</html>
