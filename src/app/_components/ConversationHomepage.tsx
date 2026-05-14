@@ -71,6 +71,10 @@ interface PoolPrompt {
   action?: "cta-person" | "cta-voice" | "reopen-module";
   /** ICP relevance tags — if set, only show for these ICPs (or when ICP is null) */
   icpTags?: ICP[];
+  /** Soft-probability affinity weights per ICP segment (0.0–1.0 each) */
+  icpAffinity?: { solo: number; smb: number; growth: number; enterprise: number };
+  /** Universal chips surface for everyone in screens 1-2 regardless of ICP inference */
+  universal?: boolean;
 }
 
 type VisitorState = "splash" | "dashboard" | "transitioning";
@@ -3081,140 +3085,112 @@ function clearState() {
 // ─── Content pool ─────────────────────────────────────────────────────────────
 
 const CONTENT_POOL: PoolPrompt[] = [
-  // Group A: deep dives into seen modules
+  // ── Universal chips (screens 1-2, surface regardless of ICP inference) ────────
+  {
+    id: "u-done-without-verify",
+    label: "Has an agent ever said done before it actually was?",
+    group: "D",
+    universal: true,
+    opensModule: "compounding-risk",
+    icpAffinity: { solo: 0.8, smb: 0.9, growth: 0.85, enterprise: 0.75 },
+  },
+  {
+    id: "u-cleaning-mistakes",
+    label: "Watched your team spend hours cleaning up an agent mistake?",
+    group: "D",
+    universal: true,
+    opensModule: "live-feed",
+    icpAffinity: { solo: 0.7, smb: 0.9, growth: 0.9, enterprise: 0.8 },
+  },
+  {
+    id: "u-bills-dont-make-sense",
+    label: "Tired of AI bills that don't make sense?",
+    group: "D",
+    universal: true,
+    opensModule: "calculator",
+    icpAffinity: { solo: 0.9, smb: 0.85, growth: 0.8, enterprise: 0.7 },
+  },
+  {
+    id: "u-dont-trust-ai",
+    label: "Don't actually trust your AI yet?",
+    group: "D",
+    universal: true,
+    opensModule: "governance",
+    icpAffinity: { solo: 0.8, smb: 0.85, growth: 0.8, enterprise: 0.85 },
+  },
+  {
+    id: "u-not-watching",
+    label: "Worried about what your agents do when you're not watching?",
+    group: "D",
+    universal: true,
+    opensModule: "compounding-risk",
+    icpAffinity: { solo: 0.75, smb: 0.85, growth: 0.9, enterprise: 0.85 },
+  },
+  {
+    id: "u-shipped-before-review",
+    label: "Caught an agent shipping output before you reviewed it?",
+    group: "D",
+    universal: true,
+    opensModule: "live-feed",
+    icpAffinity: { solo: 0.75, smb: 0.9, growth: 0.85, enterprise: 0.8 },
+  },
+
+  // ── Group A: deep dives into seen modules ─────────────────────────────────────
   {
     id: "deep-live-feed",
-    label: "Want to see the actual audit log behind a $4,284 day?",
+    label: "That blocked event — want to see the audit log behind a $4,284 day?",
     group: "A",
     requiresModule: "live-feed",
     opensModule: "live-feed",
+    icpAffinity: { solo: 0.7, smb: 0.85, growth: 0.8, enterprise: 0.75 },
   },
   {
     id: "deep-calculator",
-    label: "Want the full math on your calculator output?",
+    label: "Want to run the numbers against your real spend?",
     group: "A",
     requiresModule: "calculator",
     opensModule: "calculator",
+    icpAffinity: { solo: 0.8, smb: 0.9, growth: 0.75, enterprise: 0.5 },
   },
   {
     id: "deep-article",
-    label: "Want the citations behind the article?",
+    label: "Want every receipt behind that $52,686 number?",
     group: "A",
     requiresModule: "article",
     opensModule: "article",
+    icpAffinity: { solo: 0.6, smb: 0.9, growth: 0.7, enterprise: 0.6 },
   },
   {
     id: "deep-comparison",
-    label: "Want to see how that comparison was scored?",
+    label: "Want to know exactly how each vendor was scored?",
     group: "A",
     requiresModule: "comparison",
     opensModule: "comparison",
+    icpAffinity: { solo: 0.4, smb: 0.7, growth: 0.8, enterprise: 0.9 },
   },
   {
     id: "deep-voice",
-    label: "Want to hear the 5-minute pitch over voice?",
+    label: "Want to hear the full 5-minute pitch instead of reading it?",
     group: "A",
     requiresModule: "voice-pitch",
     opensModule: "voice-pitch",
+    icpAffinity: { solo: 0.5, smb: 0.75, growth: 0.7, enterprise: 0.5 },
   },
-
-  // Group B: specific angles
-  {
-    id: "angle-single-vendor",
-    label: "Curious how this changes if you are on Anthropic only versus multi-vendor?",
-    group: "B",
-  },
-  {
-    id: "angle-soc2",
-    label: "What about the SOC2 angle? We can show our 18-service governance grouping.",
-    group: "B",
-  },
-  {
-    id: "angle-founder-vs-operator",
-    label: "Want the founder vs operator framing? They land differently.",
-    group: "B",
-  },
-  {
-    id: "angle-wrapper",
-    label: "We have a wrapper for finance, sales, and product. Want to see which fits you?",
-    group: "B",
-    opensModule: "wrapper-story",
-  },
-  {
-    id: "angle-onboarding-room",
-    label: "How does the multi-party onboarding room work? It is the demo a lot of people ask about.",
-    group: "B",
-  },
-
-  // Group C: personalization questions
-  {
-    id: "qual-ai-tool",
-    label: "What is your biggest AI tool right now? I can show you how we plug into that.",
-    group: "C",
-  },
-  {
-    id: "qual-team-size",
-    label: "How big is your team? The path shifts a bit at 5, 20, and 50 people.",
-    group: "C",
-  },
-  {
-    id: "qual-refix-loop",
-    label: "What is the most painful refix loop you have hit lately?",
-    group: "C",
-  },
-  {
-    id: "qual-spend",
-    label: "What is your current monthly AI spend? Roughly?",
-    group: "C",
-  },
-  {
-    id: "qual-vendors",
-    label: "Are you running your AI through one vendor or several?",
-    group: "C",
-  },
-
-  // Group D: reveal / surprise factor
-  {
-    id: "reveal-lie-catch",
-    label: "Did you know we catch claim-without-evidence lies in chat threads? Want to see a real one?",
-    group: "D",
-    opensModule: "live-feed",
-  },
-  {
-    id: "reveal-block-demo",
-    label: "Have you seen what happens when an agent tries to send an unverified market claim? We block it. Want a demo?",
-    group: "D",
-    opensModule: "live-feed",
-  },
-  {
-    id: "reveal-receipt",
-    label: "Want the receipt? It is a single page that pretty much tells our story.",
-    group: "D",
-    opensModule: "counter",
-  },
-
-  // Group D compounding risk
-  {
-    id: "reveal-compounding-risk",
-    label: "Want to see what happens with 5 agents and no governance?",
-    group: "D",
-    opensModule: "compounding-risk",
-  },
-
-  // Group A (continued): deep dives into new rich modules
   {
     id: "deep-products",
-    label: "Want the full product catalog: Core, Plugins, and Wrappers?",
+    label: "Want the full catalog: which product solves which problem?",
     group: "A",
     requiresModule: "products",
     opensModule: "products",
+    icpAffinity: { solo: 0.5, smb: 0.75, growth: 0.85, enterprise: 0.8 },
   },
   {
     id: "deep-governance",
-    label: "Want to see the 18-service governance chassis that runs under everything?",
+    label: "Want to see the 18-service governance chassis under the hood?",
     group: "A",
     requiresModule: "governance",
     opensModule: "governance",
+    icpAffinity: { solo: 0.4, smb: 0.7, growth: 0.85, enterprise: 0.95 },
   },
   {
     id: "deep-paths",
@@ -3222,160 +3198,223 @@ const CONTENT_POOL: PoolPrompt[] = [
     group: "A",
     requiresModule: "paths",
     opensModule: "paths",
+    icpAffinity: { solo: 0.3, smb: 0.7, growth: 0.85, enterprise: 0.8 },
   },
   {
     id: "deep-architecture",
-    label: "Want the full 8-layer architecture breakdown and how each layer maps to a pressure point?",
+    label: "Want the full 8-layer architecture and how each layer maps to a pressure point?",
     group: "A",
     requiresModule: "architecture",
     opensModule: "architecture",
+    icpAffinity: { solo: 0.3, smb: 0.5, growth: 0.8, enterprise: 0.95 },
   },
 
-  // Group B (continued): specific angles for new modules
+  // ── Group B: specific angles ───────────────────────────────────────────────────
+  {
+    id: "angle-single-vendor",
+    label: "Running on one vendor and wondering if that's enough protection?",
+    group: "B",
+    icpAffinity: { solo: 0.8, smb: 0.7, growth: 0.5, enterprise: 0.3 },
+  },
+  {
+    id: "angle-soc2",
+    label: "Need continuous compliance state, not a once-a-year audit scramble?",
+    group: "B",
+    opensModule: "governance",
+    icpAffinity: { solo: 0.2, smb: 0.4, growth: 0.75, enterprise: 0.95 },
+  },
+  {
+    id: "angle-founder-vs-operator",
+    label: "Are you the one building this, or the one accountable when it breaks?",
+    group: "B",
+    icpAffinity: { solo: 0.7, smb: 0.85, growth: 0.6, enterprise: 0.5 },
+  },
+  {
+    id: "angle-wrapper",
+    label: "Tired of rebuilding the same governance logic for every department?",
+    group: "B",
+    opensModule: "wrappers",
+    icpAffinity: { solo: 0.2, smb: 0.5, growth: 0.85, enterprise: 0.9 },
+  },
+  {
+    id: "angle-onboarding-room",
+    label: "Legal, ops, and finance all need to sign off on AI. Is that slowing you down?",
+    group: "B",
+    icpAffinity: { solo: 0.1, smb: 0.4, growth: 0.75, enterprise: 0.95 },
+  },
   {
     id: "angle-products-catalog",
-    label: "Want to see what each product actually does? Full catalog with the problem and answer for each.",
+    label: "What does each product actually solve? Catalog with the problem and the answer.",
     group: "B",
     opensModule: "products",
+    icpAffinity: { solo: 0.5, smb: 0.75, growth: 0.85, enterprise: 0.75 },
   },
   {
     id: "angle-governance-vault",
-    label: "What does The Vault look like in practice? It is the chassis that runs under every product.",
+    label: "Worried an agent will act on something it was never supposed to touch?",
     group: "B",
     opensModule: "governance",
+    icpAffinity: { solo: 0.6, smb: 0.8, growth: 0.85, enterprise: 0.95 },
   },
   {
     id: "angle-compare-market",
-    label: "How does Level9OS actually sit relative to other AI platforms? We mapped it out.",
+    label: "How does Level9OS actually sit relative to everything else out there?",
     group: "B",
     opensModule: "compare",
+    icpAffinity: { solo: 0.4, smb: 0.65, growth: 0.8, enterprise: 0.9 },
   },
   {
     id: "angle-about-company",
-    label: "Who is behind Level9OS? The origin story is short and the reason we built it is specific.",
+    label: "Want to know who built this and why it was painful enough to warrant building?",
     group: "B",
     opensModule: "about",
+    icpAffinity: { solo: 0.7, smb: 0.75, growth: 0.5, enterprise: 0.4 },
   },
   {
     id: "angle-paths-entry",
-    label: "There are three ways into Level9OS. Want to see which one fits where you are right now?",
+    label: "Not sure where to start? Three entry points. One will fit where you are right now.",
     group: "B",
     opensModule: "paths",
+    icpAffinity: { solo: 0.6, smb: 0.75, growth: 0.7, enterprise: 0.6 },
   },
   {
     id: "angle-wrappers-pods",
-    label: "The OutboundOS pods hit different parts of the revenue motion. Want to see how they split?",
+    label: "Does your revenue motion have parts that keep breaking because AI can't coordinate them?",
     group: "B",
     opensModule: "wrappers",
+    icpAffinity: { solo: 0.15, smb: 0.5, growth: 0.85, enterprise: 0.8 },
   },
-
-  // Group D (continued): reveal prompts for new modules
-  {
-    id: "reveal-architecture-layers",
-    label: "Did you know there are 8 operating layers between a pressure point and a deployed product? Want to see the stack?",
-    group: "D",
-    opensModule: "architecture",
-  },
-  {
-    id: "reveal-compare-ai-wrapper",
-    label: "Most AI platforms are wrappers. Level9OS is different. Want to see exactly how we positioned that?",
-    group: "D",
-    opensModule: "compare",
-  },
-
-  // Group E: conversion gates (appear after 4+ modules unlocked)
-  {
-    id: "gate-60s-pitch",
-    label: "Have you got 60 seconds for the full pitch? Voice or text?",
-    group: "E",
-    opensModule: "voice-pitch",
-  },
-  {
-    id: "gate-talk-person",
-    label: "Want to talk to an actual person? Takes about 5 minutes to intake.",
-    group: "E",
-    action: "cta-person",
-  },
-
-  // Try It — surfaces via keyword or chip
   {
     id: "angle-try-it",
-    label: "What does the trial actually look like?",
+    label: "Want to run one agent under real governance for a week before committing?",
     group: "B",
     opensModule: "try-it",
+    icpAffinity: { solo: 0.9, smb: 0.7, growth: 0.5, enterprise: 0.3 },
   },
   {
     id: "angle-try-it-solo",
-    label: "Can I try this for free?",
+    label: "Can one person actually run this without a team?",
     group: "B",
     opensModule: "try-it",
     icpTags: ["solo", "smb"],
+    icpAffinity: { solo: 0.95, smb: 0.7, growth: 0.3, enterprise: 0.1 },
   },
   {
     id: "angle-try-it-growth",
-    label: "What does the eval setup look like?",
+    label: "What does an eval setup look like for a team already running multiple agents?",
     group: "B",
     opensModule: "try-it",
     icpTags: ["growth", "enterprise"],
+    icpAffinity: { solo: 0.1, smb: 0.3, growth: 0.85, enterprise: 0.9 },
+  },
+
+  // ── Group C: personalization questions ────────────────────────────────────────
+  {
+    id: "qual-ai-tool",
+    label: "What AI tool is causing you the most headaches right now?",
+    group: "C",
+    icpAffinity: { solo: 0.7, smb: 0.8, growth: 0.75, enterprise: 0.6 },
+  },
+  {
+    id: "qual-team-size",
+    label: "How many people are touching your AI workflows daily?",
+    group: "C",
+    icpAffinity: { solo: 0.5, smb: 0.8, growth: 0.85, enterprise: 0.7 },
+  },
+  {
+    id: "qual-refix-loop",
+    label: "What is the rework loop that keeps coming back no matter what you do?",
+    group: "C",
+    icpAffinity: { solo: 0.7, smb: 0.85, growth: 0.8, enterprise: 0.65 },
+  },
+  {
+    id: "qual-spend",
+    label: "How much are you spending on AI monthly — roughly?",
+    group: "C",
+    icpAffinity: { solo: 0.75, smb: 0.85, growth: 0.8, enterprise: 0.55 },
+  },
+  {
+    id: "qual-vendors",
+    label: "Are your AI tools talking to each other, or is everything siloed?",
+    group: "C",
+    icpAffinity: { solo: 0.4, smb: 0.65, growth: 0.9, enterprise: 0.85 },
+  },
+
+  // ── Group D: reveal / surprise factor ─────────────────────────────────────────
+  {
+    id: "reveal-lie-catch",
+    label: "Feel like your agents are lying to you? We catch that. Want to see a real intercept?",
+    group: "D",
+    opensModule: "live-feed",
+    icpAffinity: { solo: 0.75, smb: 0.85, growth: 0.8, enterprise: 0.75 },
+  },
+  {
+    id: "reveal-block-demo",
+    label: "Ever had an agent send something it absolutely should not have? We block that before it leaves.",
+    group: "D",
+    opensModule: "live-feed",
+    icpAffinity: { solo: 0.65, smb: 0.8, growth: 0.85, enterprise: 0.9 },
+  },
+  {
+    id: "reveal-receipt",
+    label: "Want the single page that explains the $52,686 number?",
+    group: "D",
+    opensModule: "counter",
+    icpAffinity: { solo: 0.6, smb: 0.9, growth: 0.75, enterprise: 0.6 },
+  },
+  {
+    id: "reveal-compounding-risk",
+    label: "Do you know what happens to your error rate when you go from one agent to five?",
+    group: "D",
+    opensModule: "compounding-risk",
+    icpAffinity: { solo: 0.6, smb: 0.85, growth: 0.9, enterprise: 0.8 },
+  },
+  {
+    id: "reveal-architecture-layers",
+    label: "Curious why every AI platform you've tried still leaks risk? Eight layers explain it.",
+    group: "D",
+    opensModule: "architecture",
+    icpAffinity: { solo: 0.3, smb: 0.5, growth: 0.8, enterprise: 0.95 },
+  },
+  {
+    id: "reveal-compare-ai-wrapper",
+    label: "Your current AI platform — is it governing your agents, or just wrapping them?",
+    group: "D",
+    opensModule: "compare",
+    icpAffinity: { solo: 0.4, smb: 0.65, growth: 0.85, enterprise: 0.95 },
   },
   {
     id: "angle-why-us-race",
-    label: "Who wins when you race all of them?",
+    label: "Want to watch Level9OS race Microsoft, Salesforce, and Workday on price and coverage?",
     group: "D",
     opensModule: "why-us-race",
+    icpAffinity: { solo: 0.4, smb: 0.7, growth: 0.85, enterprise: 0.9 },
   },
 
-  // ICP solo: "Can I solo this?" — setup walkthrough entry
+  // ── Group E: conversion gates (appear after 4+ modules unlocked) ──────────────
+  {
+    id: "gate-60s-pitch",
+    label: "Tired of figuring this out yourself? Hear the 60-second version.",
+    group: "E",
+    opensModule: "voice-pitch",
+    icpAffinity: { solo: 0.6, smb: 0.8, growth: 0.7, enterprise: 0.5 },
+  },
+  {
+    id: "gate-talk-person",
+    label: "Done researching. Ready to talk to the person who built this?",
+    group: "E",
+    action: "cta-person",
+    icpAffinity: { solo: 0.5, smb: 0.8, growth: 0.85, enterprise: 0.75 },
+  },
+
+  // ── ICP solo: solo-specific entry ──────────────────────────────────────────────
   {
     id: "f-try-it-solo",
-    label: "Can I solo this?",
+    label: "Can one person actually run this without a team?",
     group: "B",
     opensModule: "try-it",
     icpTags: ["solo"],
-  },
-
-  // Group F: playful pop culture openers — rotate in the 4th chip slot, never repeat back-to-back
-  {
-    id: "f-show-money",
-    label: "Show me the money.",
-    group: "F",
-    opensModule: "counter",
-  },
-  {
-    id: "f-receipts",
-    label: "I have the receipts.",
-    group: "F",
-    opensModule: "article",
-  },
-  {
-    id: "f-houston",
-    label: "Houston, we have a problem.",
-    group: "F",
-    opensModule: "live-feed",
-  },
-  {
-    id: "f-whats-in-box",
-    label: "What is in the box?",
-    group: "F",
-    opensModule: "governance",
-  },
-  {
-    id: "f-ill-be-back",
-    label: "I'll be back.",
-    group: "F",
-    action: "cta-person",
-  },
-  {
-    id: "f-pod-bay",
-    label: "Open the pod bay doors.",
-    group: "F",
-    opensModule: "wrappers",
-  },
-  {
-    id: "f-roll-tape",
-    label: "Roll the tape.",
-    group: "F",
-    opensModule: "voice-pitch",
+    icpAffinity: { solo: 0.95, smb: 0.4, growth: 0.1, enterprise: 0.05 },
   },
 ];
 
@@ -3412,6 +3451,8 @@ function getPoolSuggestions(
   const candidates = CONTENT_POOL.filter((p) => {
     // Skip if shown recently
     if (poolHistory.includes(p.id)) return false;
+    // Universal chips are handled by INITIAL_4_CHIPS / slot 4 rotation, not the pool engine
+    if (p.universal) return false;
     // Group A: only if required module is revealed
     if (p.requiresModule && !unlockedModules.includes(p.requiresModule)) return false;
     // Group E: only after 4+ modules unlocked
@@ -4063,8 +4104,8 @@ export default function ConversationHomepage() {
       if (poolPrompt) {
         addMessage({ role: "user", content: replyLabel });
         recordPoolShown([poolPrompt.id], poolPrompt.group);
-        // Track playful chip for rotation
-        if (poolPrompt.group === "F") {
+        // Track universal chip for rotation (avoids same chip back-to-back in slot 4)
+        if (poolPrompt.universal) {
           setLastPlayfulLabel(replyLabel);
         }
 
@@ -4088,6 +4129,13 @@ export default function ConversationHomepage() {
         } else {
           // Conversational response for non-module pool prompts
           const responses: Record<string, string> = {
+            // Universal chips route to modules so these are fallback text-only paths
+            "u-done-without-verify": "Yes. Every time. The done-claim-without-verify loop is the most common failure we see. The Stop hook blocks it at the source. Want to see it live?",
+            "u-cleaning-mistakes": "That cleanup cost is the number nobody talks about. An agent makes a confident mistake. Someone spends two hours undoing it. We intercept before the mistake leaves. Want to see the live feed?",
+            "u-bills-dont-make-sense": "They don't make sense because there's no routing layer. Your agents are spending premium tokens on work that costs a tenth as much on a different model. The cost router fixes that.",
+            "u-dont-trust-ai": "That's the right instinct. Trust should be earned with evidence, not assumed. The governance layer is how you get from instinct to proof. Want to see what runs under the hood?",
+            "u-not-watching": "They do things you didn't ask for. They touch files they were not supposed to touch. They claim done on work that isn't done. The Live Feed shows you exactly what happened while you were away.",
+            "u-shipped-before-review": "That's the Stop hook failure. An agent reached a decision point, didn't wait for your sign-off, and shipped anyway. We block that. Want to see a real intercept?",
             "angle-single-vendor": "Single-vendor shops still benefit. The governance layer routes within that vendor. The real difference is audit fidelity. Multi-vendor adds routing intelligence on top of that.",
             "angle-soc2": "The 18-service grouping maps each service to a control domain. Every governance hook generates an event log entry. That log is the audit trail. Want to see the coverage breakdown?",
             "angle-founder-vs-operator": "Founders care about the moat. Operators care about the rework loop. Same product, different entry point. Which lens is yours?",
@@ -4097,12 +4145,7 @@ export default function ConversationHomepage() {
             "qual-refix-loop": "The most common one we see is the done-claim-without-verify loop. Agent says done. Nobody checks. Something breaks downstream. We block the done-claim at the source.",
             "qual-spend": "If you are spending more than $500 a month on AI, the ROI math on governance starts working in your favor almost immediately. The $5.07 infrastructure cost is not a typo.",
             "qual-vendors": "Multi-vendor setups get more value from the routing layer. We can show you the routing policy logic if you want.",
-            "reveal-lie-catch": "Opening the live feed. You can see real blocked events including claim-without-evidence intercepts.",
-            "reveal-block-demo": "Opening the live feed so you can see a blocked unverified claim in real time.",
-            "reveal-receipt": "Opening the counter. One number, full breakdown, three decimal places of receipts.",
-            "angle-wrapper": "Opening the wrapper story. OutboundOS is live. FinanceOS and SalesOS are next.",
             "gate-60s-pitch": "Opening the pitch player. Three versions. Start with 30 seconds.",
-            "f-ill-be-back": "Eric runs the product. He is also the customer. Contact him at biz@erichathaway.com.",
           };
           const response = responses[poolPrompt.id] ?? "Good question. Let me pull that up.";
           await agentSay(response, 200);
@@ -4188,37 +4231,37 @@ export default function ConversationHomepage() {
 
   // ── ICP detection chips — shown before any ICP is set ───────────────────────
   const ICP_DETECTION_CHIPS: { id: string; label: string; icp: ICP }[] = [
-    { id: "icp-solo", label: "Just me", icp: "solo" },
-    { id: "icp-smb", label: "Small team (10-50)", icp: "smb" },
-    { id: "icp-growth", label: "Growing fast (50-200)", icp: "growth" },
-    { id: "icp-enterprise", label: "Big org (200+)", icp: "enterprise" },
+    { id: "icp-solo", label: "Just me. I'm building this alone.", icp: "solo" },
+    { id: "icp-smb", label: "Small team. We're patching it together.", icp: "smb" },
+    { id: "icp-growth", label: "Growing fast. Things are starting to break.", icp: "growth" },
+    { id: "icp-enterprise", label: "Big org. I need to evaluate without getting locked in.", icp: "enterprise" },
   ];
 
   // ── ICP-adapted initial chip sets ────────────────────────────────────────────
   const ICP_CHIPS: Record<NonNullable<ICP>, { id: string; label: string }[]> = {
     solo: [
-      { id: "compounding-risk", label: "Show me the 1-agent risk math." },
-      { id: "calculator", label: "What is the ROI at my size?" },
-      { id: "f-try-it-solo", label: "Can I solo this?" },
-      { id: "f-show-money", label: "Show me what is cheap." },
+      { id: "compounding-risk", label: "What goes wrong when I add a second agent?" },
+      { id: "calculator", label: "Is $580/month in wasted AI spend real for someone my size?" },
+      { id: "f-try-it-solo", label: "Can one person run this without a team?" },
+      { id: "u-bills-dont-make-sense", label: "Tired of AI bills that don't make sense?" },
     ],
     smb: [
-      { id: "calculator", label: "How much would I save?" },
-      { id: "article", label: "Show me the receipts." },
-      { id: "compare", label: "Who do you beat?" },
-      { id: "counter", label: "Show me the money." },
+      { id: "counter", label: "Show me the $52,686 number with receipts." },
+      { id: "calculator", label: "How much am I losing with my current setup?" },
+      { id: "compounding-risk", label: "What does the failure look like when agents compound?" },
+      { id: "u-cleaning-mistakes", label: "Watched your team spend hours cleaning up agent mistakes?" },
     ],
     growth: [
-      { id: "architecture", label: "How does this bridge to my stack?" },
-      { id: "wrappers", label: "Department-level governance?" },
-      { id: "governance", label: "Multi-vendor support?" },
-      { id: "live-feed", label: "Houston we have a problem." },
+      { id: "compounding-risk", label: "Do you know what your error rate is across five agents right now?" },
+      { id: "architecture", label: "How does governance sit on top of tools you already have?" },
+      { id: "wrappers", label: "Can each department get its own governed agent layer?" },
+      { id: "u-not-watching", label: "Worried about what your agents do when you're not watching?" },
     ],
     enterprise: [
-      { id: "compare", label: "How do you neutralize lock-in?" },
-      { id: "governance", label: "Is compliance state continuous?" },
-      { id: "compare", label: "How do you compare to Workday or Microsoft?" },
-      { id: "live-feed", label: "Take me to the audit room." },
+      { id: "governance", label: "Is compliance state continuous, or do you scramble once a year?" },
+      { id: "compare", label: "How do you sit relative to Microsoft, Salesforce, and Workday?" },
+      { id: "architecture", label: "Does this require rebuilding what we already have?" },
+      { id: "u-dont-trust-ai", label: "Don't actually trust your AI yet?" },
     ],
   };
 
@@ -4227,20 +4270,21 @@ export default function ConversationHomepage() {
   // Level 3-5: slot 3 becomes a yes/no question from MAX
   // Level 6+:  slot 3 becomes a MAX guess prompt
   const INITIAL_4_CHIPS: { id: string; label: string }[] = [
-    { id: "governance", label: "How does governance actually work?" },
-    { id: "calculator", label: "How much would I save?" },
-    { id: "compare", label: "Who else does this?" },
-    { id: "f-show-money", label: "Show me the money." },
+    { id: "u-done-without-verify", label: "Has an agent ever said done before it actually was?" },
+    { id: "u-bills-dont-make-sense", label: "Tired of AI bills that don't make sense?" },
+    { id: "u-dont-trust-ai", label: "Don't actually trust your AI yet?" },
+    { id: "u-not-watching", label: "Worried about what your agents do when you're not watching?" },
   ];
   const YES_NO_QUESTIONS: { id: string; label: string }[] = [
     { id: "yn-multi-vendor", label: "Are you on multiple AI vendors right now?" },
     { id: "yn-existing-stack", label: "Does your team already have an AI governance layer?" },
     { id: "yn-growth-stage", label: "Are you a growth-stage team (10-50 people)?" },
   ];
-  const PLAYFUL_F_IDS = ["f-show-money", "f-receipts", "f-houston", "f-whats-in-box", "f-ill-be-back", "f-pod-bay", "f-roll-tape"];
+  // Group F (playful) is retired. Slot 4 at low engagement now rotates universal pain hooks.
+  const UNIVERSAL_IDS = ["u-done-without-verify", "u-cleaning-mistakes", "u-bills-dont-make-sense", "u-dont-trust-ai", "u-not-watching", "u-shipped-before-review"];
 
-  function pickPlayfulChip(exclude?: string): { id: string; label: string } {
-    const pool = CONTENT_POOL.filter((p) => PLAYFUL_F_IDS.includes(p.id) && p.label !== exclude);
+  function pickUniversalChip(exclude?: string): { id: string; label: string } {
+    const pool = CONTENT_POOL.filter((p) => UNIVERSAL_IDS.includes(p.id) && p.label !== exclude);
     const pick = pool[Math.floor(Date.now() / 1000) % pool.length] ?? pool[0];
     return { id: pick.id, label: pick.label };
   }
@@ -4301,8 +4345,8 @@ export default function ConversationHomepage() {
         const q = YES_NO_QUESTIONS[engagementLevel % YES_NO_QUESTIONS.length];
         chips.push(q);
       } else {
-        // Level 0-2: playful chip
-        chips.push(pickPlayfulChip(lastPlayfulLabel));
+        // Level 0-2: universal pain hook chip
+        chips.push(pickUniversalChip(lastPlayfulLabel));
       }
       return chips.slice(0, 4);
     }
