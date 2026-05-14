@@ -262,9 +262,9 @@ const MODULE_ORDER: ModuleId[] = [
   "calculator",
   "article",
   "live-feed",
-  "comparison",
+  // "comparison" retired — redundant with rich CompareModule. Kept as ModuleId for backward compat.
   "voice-pitch",
-  "wrapper-story",
+  // "wrapper-story" retired — redundant with rich WrappersModule. Kept as ModuleId for backward compat.
   "products",
   "governance",
   "paths",
@@ -301,7 +301,7 @@ const MODULE_COLOR: Record<ModuleId, string> = {
 };
 
 // Pre-surfaced tabs for State 3 (skipped)
-const SKIP_DEFAULT_TABS: ModuleId[] = ["counter", "calculator", "comparison", "article"];
+const SKIP_DEFAULT_TABS: ModuleId[] = ["counter", "calculator", "compare", "article"];
 
 // ─── Module components (reused from pure/tabs variants) ────────────────────────
 
@@ -1102,8 +1102,9 @@ function VoicePitchModule() {
   return (
     <div className="hb-module-voice">
       <div className="hbvoice-label">Three versions. Same message, different depth.</div>
-      <div className="hbvoice-note-top" style={{ marginBottom: "0.75rem", fontSize: "0.72rem", color: "rgba(255,255,255,0.35)", fontFamily: "ui-monospace,monospace", background: "rgba(236,72,153,0.06)", border: "1px solid rgba(236,72,153,0.15)", borderRadius: "6px", padding: "0.4rem 0.75rem" }}>
-        Voice render coming soon. Read the script while we record in Eric&apos;s voice.
+      <div className="hbvoice-note-top" style={{ marginBottom: "0.75rem", fontSize: "0.68rem", color: "rgba(255,255,255,0.3)", fontFamily: "ui-monospace,monospace", background: "rgba(236,72,153,0.04)", border: "1px solid rgba(236,72,153,0.1)", borderRadius: "6px", padding: "0.35rem 0.7rem", display: "flex", alignItems: "center", gap: "0.4rem" }}>
+        <span style={{ display: "inline-block", width: "6px", height: "6px", borderRadius: "50%", background: "rgba(236,72,153,0.5)", animation: "hb-bounce 2.5s ease-in-out infinite" }} />
+        Voice render in production queue. Read the script while we finish recording.
       </div>
       {(Object.entries(VOICE_SCRIPTS) as [string, typeof VOICE_SCRIPTS["30s"]][]).map(([id, track]) => (
         <div key={id} className="hbvoice-track" style={{ flexDirection: "column", alignItems: "stretch" }}>
@@ -1123,7 +1124,7 @@ function VoicePitchModule() {
           {expanded === id && (
             <div className="hbvoice-script" style={{ borderTop: `1px solid ${track.color}20`, paddingTop: "0.75rem", marginTop: "0.25rem" }}>
               {track.script.map((line, i) => (
-                <div key={i} style={{ display: "flex", gap: "0.6rem", marginBottom: "0.65rem", alignItems: "flex-start" }}>
+                <div key={i} style={{ display: "flex", gap: "0.6rem", marginBottom: "0.65rem", alignItems: "flex-start", animation: `hb-fade-in 0.3s ease ${i * 0.07}s both`, opacity: 0 }}>
                   <span style={{ fontSize: "0.6rem", fontFamily: "ui-monospace,monospace", color: `${track.color}70`, minWidth: "1.4rem", marginTop: "0.25rem", flexShrink: 0 }}>
                     {String(i + 1).padStart(2, "0")}
                   </span>
@@ -1685,7 +1686,126 @@ const PHASES_DATA = [
   { phase: 180, title: "Optimization + Scale", items: ["All pods measured by LucidORG", "Friction patterns identified and addressed", "Innovation pipeline running", "Handoff to internal team or ongoing partnership"] },
 ];
 
+// Path card mini-timelines
+const PATH_TIMELINES: Record<string, { day: number; title: string; note: string }[]> = {
+  startup: [
+    { day: 1, title: "Intake agent live", note: "Reads your current ops. Returns a plain-English report." },
+    { day: 7, title: "First pod deployed", note: "One autonomous pod running before the first week ends." },
+    { day: 30, title: "Governance baseline", note: "ECI baseline measured. Governance chassis confirmed running." },
+  ],
+  growth: [
+    { day: 1, title: "Agent reads your docs", note: "No discovery meeting before the discovery meeting." },
+    { day: 3, title: "Report back", note: "Plain-English: what it found, what it flagged, what it would fix." },
+    { day: 14, title: "Remediation started", note: "Top 3 friction points from the report, addressed." },
+  ],
+  enterprise: [
+    { day: 1, title: "OutboundOS in one dept", note: "Pods running, governance on, audit trail live." },
+    { day: 14, title: "Mid-trial audit", note: "30-day report preview: what ran, what cost what." },
+    { day: 30, title: "Production read", note: "ECI baseline + full 30-day department-level proof." },
+  ],
+};
+
+// Path card motion background canvases
+function PathCardCanvas({ pathId, accent, hovered }: { pathId: string; accent: string; hovered: boolean }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const frameRef = useRef(0);
+  const rafRef = useRef(0);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    const W = canvas.offsetWidth || 320;
+    const H = canvas.offsetHeight || 80;
+    canvas.width = W;
+    canvas.height = H;
+    const rgb = accent === "#8b5cf6" ? [139, 92, 246] : accent === "#10b981" ? [16, 185, 129] : [245, 158, 11];
+    frameRef.current = 0;
+    function draw() {
+      if (!ctx || !canvas) return;
+      ctx.clearRect(0, 0, W, H);
+      const t = frameRef.current / 60;
+      const alpha = hovered ? 0.18 : 0.07;
+      if (pathId === "startup") {
+        // Spinning pod: concentric rings that spin up
+        const cx = W * 0.85, cy = H / 2;
+        for (let r = 0; r < 3; r++) {
+          ctx.beginPath();
+          ctx.arc(cx, cy, 16 + r * 12, t * (r % 2 === 0 ? 0.8 : -0.6), t * (r % 2 === 0 ? 0.8 : -0.6) + Math.PI * 1.6);
+          ctx.strokeStyle = `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${alpha + r * 0.02})`;
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+        }
+        // Dot in center that pulses
+        ctx.beginPath();
+        ctx.arc(cx, cy, 4 + Math.sin(t * 2) * 1.5, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${alpha * 2.5})`;
+        ctx.fill();
+      } else if (pathId === "growth") {
+        // Multi-vendor arrows converging to a point
+        const cx = W * 0.85, cy = H / 2;
+        const numArrows = 3;
+        for (let i = 0; i < numArrows; i++) {
+          const angle = (i / numArrows) * Math.PI * 2 + t * 0.4;
+          const dist = 38 - (t * 5 % 38);
+          const x = cx + Math.cos(angle) * dist;
+          const y = cy + Math.sin(angle) * (dist * 0.5);
+          ctx.beginPath();
+          ctx.arc(x, y, 3.5, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${alpha + 0.05})`;
+          ctx.fill();
+          ctx.beginPath();
+          ctx.moveTo(x, y);
+          ctx.lineTo(cx + Math.cos(angle) * 8, cy + Math.sin(angle) * 4);
+          ctx.strokeStyle = `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${alpha})`;
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+        ctx.beginPath();
+        ctx.arc(cx, cy, 6 + Math.sin(t * 1.8) * 2, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${alpha * 3})`;
+        ctx.fill();
+      } else {
+        // Enterprise: vendor lock-in shield cracking
+        const cx = W * 0.85, cy = H / 2;
+        const crackProgress = hovered ? Math.min((t % 3) / 1.5, 1.0) : 0;
+        // Shield outline
+        ctx.beginPath();
+        ctx.moveTo(cx, cy - 22);
+        ctx.lineTo(cx + 16, cy - 10);
+        ctx.lineTo(cx + 16, cy + 8);
+        ctx.lineTo(cx, cy + 22);
+        ctx.lineTo(cx - 16, cy + 8);
+        ctx.lineTo(cx - 16, cy - 10);
+        ctx.closePath();
+        ctx.strokeStyle = `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${alpha + 0.05})`;
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        // Crack line
+        if (crackProgress > 0) {
+          ctx.beginPath();
+          ctx.moveTo(cx, cy - 18);
+          ctx.lineTo(cx + 3, cy - 5 * crackProgress);
+          ctx.lineTo(cx - 2, cy + 8 * crackProgress);
+          ctx.lineTo(cx, cy + 18 * crackProgress);
+          ctx.strokeStyle = `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${crackProgress * 0.8})`;
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+        }
+      }
+      frameRef.current++;
+      rafRef.current = requestAnimationFrame(draw);
+    }
+    rafRef.current = requestAnimationFrame(draw);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [pathId, accent, hovered]);
+  return <canvas ref={canvasRef} style={{ position: "absolute", top: 0, right: 0, width: "120px", height: "100%", pointerEvents: "none", opacity: hovered ? 1 : 0.6, transition: "opacity 0.3s ease" }} />;
+}
+
 function PathsModule() {
+  const [expandedPath, setExpandedPath] = useState<string | null>(null);
+  const [hoveredPath, setHoveredPath] = useState<string | null>(null);
+
   return (
     <div className="hb-rich-module">
       <div className="hb-rich-eyebrow" style={{ color: "#8b5cf6" }}>Work With Us</div>
@@ -1693,41 +1813,88 @@ function PathsModule() {
       <p className="hb-rich-sub">Same governance chassis. Different entry. Introduce an agent. Give it access. Give it a day.</p>
 
       <div className="hb-rich-stack">
-        {PATHS_DATA.map((path) => (
-          <div key={path.id} className="hb-rich-card" style={{ borderColor: `${path.accent}22` }}>
-            <div className="hb-rich-card-bar" style={{ background: path.accent }} />
-            <div style={{ display: "inline-flex", alignItems: "center", padding: "0.2rem 0.6rem", borderRadius: "99px", fontSize: "0.65rem", fontFamily: "ui-monospace,monospace", letterSpacing: "0.18em", textTransform: "uppercase", background: `${path.accent}12`, border: `1px solid ${path.accent}35`, color: path.accent, marginBottom: "0.5rem" }}>
-              {path.label}
-            </div>
-            <p style={{ fontSize: "0.72rem", fontFamily: "ui-monospace,monospace", color: `${path.accent}cc`, marginBottom: "0.4rem" }}>&ldquo;{path.tag}&rdquo;</p>
-            <h3 style={{ fontSize: "0.95rem", fontWeight: 700, color: "rgba(255,255,255,0.9)", marginBottom: "0.35rem" }}>{path.headline}</h3>
-            <p style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.6)", lineHeight: 1.6, marginBottom: "0.75rem" }}>{path.body}</p>
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.35rem", marginBottom: "0.75rem" }}>
-              {path.deliverables.map((item) => (
-                <div key={item} style={{ display: "flex", alignItems: "flex-start", gap: "0.4rem" }}>
-                  <span style={{ width: "5px", height: "5px", borderRadius: "50%", background: path.accent, flexShrink: 0, marginTop: "0.45rem" }} />
-                  <span style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.5)", lineHeight: 1.5 }}>{item}</span>
-                </div>
-              ))}
-            </div>
-            <HowExplainer label="What do I get on day 1?">
-              <div style={{ fontSize: "0.73rem", color: "rgba(255,255,255,0.55)", lineHeight: 1.65 }}>
-                <p style={{ margin: "0 0 0.4rem" }}>First-week deliverables:</p>
-                <div style={{ display: "flex", flexDirection: "column", gap: "0.3rem" }}>
-                  {path.deliverables.slice(0, 2).map((d) => (
-                    <div key={d} style={{ display: "flex", gap: "0.5rem", alignItems: "flex-start" }}>
-                      <span style={{ color: path.accent, flexShrink: 0, marginTop: "0.05rem" }}>→</span>
-                      <span>{d}</span>
-                    </div>
-                  ))}
-                </div>
+        {PATHS_DATA.map((path) => {
+          const isHovered = hoveredPath === path.id;
+          const isExpanded = expandedPath === path.id;
+          const timeline = PATH_TIMELINES[path.id] ?? [];
+          return (
+            <div
+              key={path.id}
+              className="hb-rich-card hb-path-card"
+              style={{
+                borderColor: `${path.accent}22`,
+                position: "relative",
+                overflow: "hidden",
+                transform: isHovered ? "translateY(-2px) scale(1.005)" : "none",
+                transition: "transform 0.2s cubic-bezier(0.16,1,0.3,1), border-color 0.2s ease, box-shadow 0.2s ease",
+                boxShadow: isHovered ? `0 4px 24px ${path.accent}18` : "none",
+              }}
+              onMouseEnter={() => setHoveredPath(path.id)}
+              onMouseLeave={() => setHoveredPath(null)}
+            >
+              <PathCardCanvas pathId={path.id} accent={path.accent} hovered={isHovered} />
+              <div className="hb-rich-card-bar" style={{ background: path.accent }} />
+              <div style={{ display: "inline-flex", alignItems: "center", padding: "0.2rem 0.6rem", borderRadius: "99px", fontSize: "0.65rem", fontFamily: "ui-monospace,monospace", letterSpacing: "0.18em", textTransform: "uppercase", background: `${path.accent}12`, border: `1px solid ${path.accent}35`, color: path.accent, marginBottom: "0.5rem" }}>
+                {path.label}
               </div>
-            </HowExplainer>
-            <a href={path.href} style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem", padding: "0.5rem 1rem", borderRadius: "99px", background: path.accent, color: "white", fontSize: "0.78rem", fontWeight: 600, textDecoration: "none" }}>
-              Start here →
-            </a>
-          </div>
-        ))}
+              <p style={{ fontSize: "0.72rem", fontFamily: "ui-monospace,monospace", color: `${path.accent}cc`, marginBottom: "0.4rem" }}>&ldquo;{path.tag}&rdquo;</p>
+              <h3 style={{ fontSize: "0.95rem", fontWeight: 700, color: "rgba(255,255,255,0.9)", marginBottom: "0.35rem" }}>{path.headline}</h3>
+              <p style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.6)", lineHeight: 1.6, marginBottom: "0.75rem" }}>{path.body}</p>
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.35rem", marginBottom: "0.75rem" }}>
+                {path.deliverables.map((item) => (
+                  <div key={item} style={{ display: "flex", alignItems: "flex-start", gap: "0.4rem" }}>
+                    <span style={{ width: "5px", height: "5px", borderRadius: "50%", background: path.accent, flexShrink: 0, marginTop: "0.45rem" }} />
+                    <span style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.5)", lineHeight: 1.5 }}>{item}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Click-to-expand 30/90/180 mini-timeline */}
+              {timeline.length > 0 && (
+                <div style={{ marginBottom: "0.75rem" }}>
+                  <button
+                    onClick={() => setExpandedPath(isExpanded ? null : path.id)}
+                    style={{ background: "none", border: `1px solid ${path.accent}25`, borderRadius: "6px", padding: "0.3rem 0.65rem", cursor: "pointer", fontSize: "0.65rem", color: `${path.accent}cc`, fontFamily: "inherit", display: "flex", alignItems: "center", gap: "0.35rem" }}
+                  >
+                    {isExpanded ? "↑ Hide" : "↓ Show"} {timeline[timeline.length - 1].day}-day timeline
+                  </button>
+                  {isExpanded && (
+                    <div style={{ marginTop: "0.5rem", display: "flex", flexDirection: "column", gap: "0.35rem", animation: "hb-fade-in 0.25s ease" }}>
+                      {timeline.map((step, i) => (
+                        <div key={step.day} style={{ display: "flex", gap: "0.6rem", alignItems: "flex-start", animation: `hb-fade-in 0.2s ease ${i * 0.06}s both` }}>
+                          <div style={{ flexShrink: 0, width: "36px", height: "36px", borderRadius: "8px", background: `${path.accent}10`, border: `1px solid ${path.accent}25`, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "ui-monospace,monospace", fontSize: "0.65rem", color: path.accent, fontWeight: 700 }}>
+                            D{step.day}
+                          </div>
+                          <div>
+                            <div style={{ fontSize: "0.76rem", fontWeight: 700, color: "rgba(255,255,255,0.85)" }}>{step.title}</div>
+                            <div style={{ fontSize: "0.68rem", color: "rgba(255,255,255,0.42)", lineHeight: 1.4 }}>{step.note}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <HowExplainer label="What do I get on day 1?">
+                <div style={{ fontSize: "0.73rem", color: "rgba(255,255,255,0.55)", lineHeight: 1.65 }}>
+                  <p style={{ margin: "0 0 0.4rem" }}>First-week deliverables:</p>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "0.3rem" }}>
+                    {path.deliverables.slice(0, 2).map((d) => (
+                      <div key={d} style={{ display: "flex", gap: "0.5rem", alignItems: "flex-start" }}>
+                        <span style={{ color: path.accent, flexShrink: 0, marginTop: "0.05rem" }}>→</span>
+                        <span>{d}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </HowExplainer>
+              <a href={path.href} style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem", padding: "0.5rem 1rem", borderRadius: "99px", background: path.accent, color: "white", fontSize: "0.78rem", fontWeight: 600, textDecoration: "none" }}>
+                Start here →
+              </a>
+            </div>
+          );
+        })}
       </div>
 
       {/* 30/90/180 methodology */}
@@ -2019,11 +2186,7 @@ const CHARTER_VALUES_DATA = [
   { label: "LLC separation.", desc: "Each operating LLC is governed separately. Obligations under one entity don't cross to another without explicit authorization.", color: "#64748b" },
 ];
 
-const LLC_ENTITIES_DATA = [
-  { name: "Level9OS LLC", role: "Umbrella brand and consulting entity.", desc: "Level9OS.com describes the product family. Consulting engagements and brand-level relationships run through this entity.", accent: "#8b5cf6" },
-  { name: "LucidORG LLC", role: "Commercial product operations.", desc: "Operates LinkupOS, LucidORG.com, COO Playbook, and StratOS. Customer data and commercial product obligations are under this entity.", accent: "#06b6d4" },
-  { name: "NextGen Interns LLC", role: "Education platform.", desc: "Operates the NextGen Interns platform. COPPA-sensitive. Student and intern audience. Kept fully separate from commercial product operations.", accent: "#10b981" },
-];
+// LLC_ENTITIES_DATA replaced by inline org chart in AboutModule (see hb-about-orgchart)
 
 const PROOF_STATS_DATA = [
   { num: "20+", label: "Years Experience", color: "#f59e0b" },
@@ -2032,7 +2195,28 @@ const PROOF_STATS_DATA = [
   { num: "138", label: "Workflows Live", color: "#8b5cf6" },
 ];
 
+const FOUNDER_CREDENTIALS = [
+  { name: "Microsoft", color: "#0078d4", desc: "Global enterprise ops" },
+  { name: "Credit Suisse", color: "#004C97", desc: "Financial systems governance" },
+  { name: "T-Mobile", color: "#E20074", desc: "Workforce transformation" },
+  { name: "S&P Global", color: "#ef4444", desc: "Data intelligence at scale" },
+];
+
 function AboutModule() {
+  const [credentialsVisible, setCredentialsVisible] = useState(false);
+  const credRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = credRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setCredentialsVisible(true); },
+      { threshold: 0.3 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <div className="hb-rich-module">
       <div className="hb-rich-eyebrow" style={{ color: "#10b981" }}>Level9OS · The Company</div>
@@ -2041,20 +2225,40 @@ function AboutModule() {
 
       {/* Proof stats */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "0.5rem", marginBottom: "1.25rem" }}>
-        {PROOF_STATS_DATA.map((s) => (
-          <div key={s.label} style={{ textAlign: "center", padding: "0.75rem", borderRadius: "10px", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
+        {PROOF_STATS_DATA.map((s, i) => (
+          <div key={s.label} style={{ textAlign: "center", padding: "0.75rem", borderRadius: "10px", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", animation: `hb-fade-in 0.4s ease ${i * 0.1}s both` }}>
             <div style={{ fontSize: "1.5rem", fontWeight: 900, color: s.color, letterSpacing: "-0.02em" }}>{s.num}</div>
             <div style={{ fontSize: "0.62rem", color: "rgba(255,255,255,0.3)", textTransform: "uppercase", letterSpacing: "0.12em", fontFamily: "ui-monospace,monospace" }}>{s.label}</div>
           </div>
         ))}
       </div>
 
-      {/* Origin */}
+      {/* Origin with stagger-animated founder credentials */}
       <div className="hb-rich-section-label" style={{ color: "rgba(16,185,129,0.5)" }}>The Origin</div>
       <div className="hb-rich-card" style={{ borderColor: "rgba(255,255,255,0.07)" }}>
         <p style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.55)", lineHeight: 1.75, marginBottom: "0.75rem" }}>
-          Eric Hathaway built Level9OS from 20+ years of executive operating leadership across Microsoft, Credit Suisse, T-Mobile, and S&amp;P Global. Six continents. Sixty countries. Deployments at scale across every kind of operating complexity.
+          Eric Hathaway built Level9OS from 20+ years of executive operating leadership. Six continents. Sixty countries. Deployments at scale across every kind of operating complexity.
         </p>
+        {/* Founder credential logos with stagger */}
+        <div ref={credRef} style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem", marginBottom: "0.75rem" }}>
+          {FOUNDER_CREDENTIALS.map((cred, i) => (
+            <div
+              key={cred.name}
+              style={{
+                padding: "0.3rem 0.7rem",
+                borderRadius: "6px",
+                background: `${cred.color}0f`,
+                border: `1px solid ${cred.color}30`,
+                opacity: credentialsVisible ? 1 : 0,
+                transform: credentialsVisible ? "translateY(0)" : "translateY(8px)",
+                transition: `opacity 0.4s ease ${i * 0.12}s, transform 0.4s ease ${i * 0.12}s`,
+              }}
+            >
+              <div style={{ fontSize: "0.72rem", fontWeight: 700, color: cred.color }}>{cred.name}</div>
+              <div style={{ fontSize: "0.6rem", color: "rgba(255,255,255,0.35)" }}>{cred.desc}</div>
+            </div>
+          ))}
+        </div>
         <p style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.55)", lineHeight: 1.75, marginBottom: "0.75rem" }}>
           One pattern kept repeating. Strategy failures are almost never about strategy. They&apos;re about the layer beneath it: how decisions get made, how work gets coordinated, how alignment gets measured.
         </p>
@@ -2083,17 +2287,34 @@ function AboutModule() {
         ))}
       </div>
 
-      {/* LLC clarity */}
+      {/* LLC clarity — animated org chart */}
       <div className="hb-rich-section-label" style={{ color: "rgba(255,255,255,0.35)" }}>Legal Structure</div>
-      <div className="hb-rich-stack">
-        {LLC_ENTITIES_DATA.map((llc) => (
-          <div key={llc.name} className="hb-rich-card" style={{ borderColor: `${llc.accent}20` }}>
-            <div className="hb-rich-card-bar" style={{ background: llc.accent }} />
-            <h4 style={{ fontSize: "0.9rem", fontWeight: 700, color: llc.accent, marginBottom: "0.15rem" }}>{llc.name}</h4>
-            <p style={{ fontSize: "0.65rem", fontFamily: "ui-monospace,monospace", textTransform: "uppercase", color: `${llc.accent}80`, marginBottom: "0.4rem" }}>{llc.role}</p>
-            <p style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.55)", lineHeight: 1.55 }}>{llc.desc}</p>
-          </div>
-        ))}
+      <div className="hb-about-orgchart" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0", marginBottom: "0.75rem" }}>
+        {/* Level9OS LLC — top (umbrella) */}
+        <div style={{ padding: "0.6rem 1.25rem", borderRadius: "10px", background: "rgba(139,92,246,0.07)", border: "1px solid rgba(139,92,246,0.2)", textAlign: "center", minWidth: "200px", animation: "hb-fade-in 0.4s ease" }}>
+          <div style={{ fontSize: "0.78rem", fontWeight: 700, color: "#8b5cf6" }}>Level9OS LLC</div>
+          <div style={{ fontSize: "0.62rem", color: "rgba(255,255,255,0.35)" }}>Umbrella brand + consulting</div>
+        </div>
+        {/* Connector line */}
+        <div style={{ width: "1px", height: "20px", background: "rgba(255,255,255,0.1)" }} />
+        {/* Two children */}
+        <div style={{ display: "flex", gap: "1rem", alignItems: "flex-start", position: "relative" }}>
+          {/* Horizontal connector */}
+          <div style={{ position: "absolute", top: 0, left: "50%", width: "calc(50% - 20px)", height: "1px", background: "rgba(255,255,255,0.1)", transform: "translateX(-100%)" }} />
+          <div style={{ position: "absolute", top: 0, left: "50%", width: "calc(50% - 20px)", height: "1px", background: "rgba(255,255,255,0.1)" }} />
+          {[
+            { name: "LucidORG LLC", desc: "Commercial products", accent: "#06b6d4", note: "LinkUpOS, LucidORG, COO Playbook, StratOS" },
+            { name: "NextGen Interns LLC", desc: "Education platform", accent: "#10b981", note: "COPPA-sensitive. Students + interns." },
+          ].map((child, i) => (
+            <div key={child.name} style={{ padding: "0.5rem 0.875rem", borderRadius: "8px", background: `${child.accent}07`, border: `1px solid ${child.accent}20`, textAlign: "center", flex: 1, animation: `hb-fade-in 0.4s ease ${0.2 + i * 0.1}s both` }}>
+              <div style={{ fontSize: "0.72rem", fontWeight: 700, color: child.accent }}>{child.name}</div>
+              <div style={{ fontSize: "0.58rem", color: "rgba(255,255,255,0.35)", marginTop: "0.1rem" }}>{child.note}</div>
+            </div>
+          ))}
+        </div>
+        <div style={{ marginTop: "0.5rem", fontSize: "0.62rem", color: "rgba(255,255,255,0.2)", fontFamily: "ui-monospace,monospace", textAlign: "center" }}>
+          Three legally separate entities. Obligations under one do not cross to another.
+        </div>
       </div>
 
       {/* Learning capabilities */}
@@ -3495,8 +3716,8 @@ const CONTENT_POOL: PoolPrompt[] = [
     id: "deep-comparison",
     label: "Want to know exactly how each vendor was scored?",
     group: "A",
-    requiresModule: "comparison",
-    opensModule: "comparison",
+    requiresModule: "compare",
+    opensModule: "compare",
     icpAffinity: { solo: 0.4, smb: 0.7, growth: 0.8, enterprise: 0.9 },
   },
   {
@@ -4347,12 +4568,12 @@ export default function ConversationHomepage() {
   // ── Keyword router ────────────────────────────────────────────────────────────
   const KEYWORD_MAP: Array<{ patterns: string[]; moduleId: ModuleId; anchor?: string }> = [
     { patterns: ["cost", "save", "saving", "pricing", "price"], moduleId: "calculator" },
-    { patterns: ["compare", "alternative", "versus", " vs ", "competitor"], moduleId: "compare" },
+    { patterns: ["compare", "alternative", "versus", " vs ", "competitor", "comparison"], moduleId: "compare" },
     { patterns: ["audit", "log", "trail", "events", "feed"], moduleId: "live-feed" },
     { patterns: ["article", "read", "story", "case study"], moduleId: "article" },
     { patterns: ["voice", "listen", "audio", "pitch", "MAX", "talk to my operation"], moduleId: "voice-pitch" },
     { patterns: ["number", "roi", "saving", "52686", "52,686"], moduleId: "counter" },
-    { patterns: ["wrapper", "outbound", "finance", "sales"], moduleId: "wrappers" },
+    { patterns: ["wrapper", "outbound", "finance", "sales", "wrapper-story", "wrapper story"], moduleId: "wrappers" },
     { patterns: ["product", "catalog", "what do you build", "what you build"], moduleId: "products" },
     { patterns: ["lie detector", "lying", "fact check", "auto doc", "library", "documentation", "trust score", "promotion", "officer", "CoS", "COO", "management team"], moduleId: "governance" },
     { patterns: ["governance", "vault", "compliance", "soc2", "security", "policy"], moduleId: "governance" },
