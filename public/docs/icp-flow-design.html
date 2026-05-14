@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Level9OS ICP Flow Design — v2 Emotional Voice + Probability Ranking</title>
+<title>Level9OS ICP Flow Design — v3 ICP Order Fix + Calculator Expansion + Module Upgrades</title>
 <style>
   :root {
     --bg-root: #030306;
@@ -72,18 +72,50 @@
 <body>
 <div class="meta">
   <span class="badge">PLANNING DOC</span>
-  <span class="badge">v2</span>
+  <span class="badge">v3</span>
   <span class="badge">2026-05-13</span>
   <br><br>
   Source: <code>LEVEL9OS-ICP-FLOW-DESIGN-2026-05-13.md</code><br>
-  Branch: <code>rebuild</code> &mdash; Phase 1 <code>eec19ad</code> &middot; Phase 2 <code>600511a</code>
+  Branch: <code>rebuild</code> &mdash; Phase 1 <code>248b10e</code> &middot; Phase 2 <code>3a9b8b5</code> &middot; Phase 3 <code>c264fe2</code>
 </div>
 <h1>LEVEL9OS-ICP-FLOW-DESIGN-2026-05-13</h1>
 
 <p><strong>File target:</strong> <code>/Users/erichathaway/claude code 1/LEVEL9OS-ICP-FLOW-DESIGN-2026-05-13.md</code><br>
-<strong>Status:</strong> <strong style="color:#10b981">v2 — emotional voice + probability ranking. Shipped to <code>rebuild</code> branch.</strong><br>
-<strong>Generated:</strong> 2026-05-13 &nbsp; <strong>Updated:</strong> 2026-05-13<br>
-<strong>Source inputs read:</strong> ConversationHomepage.tsx (6500+ lines), CLAUDE.md, GOVERNANCE_IMPACT_ANALYSIS_2026-05-12.md</p>
+<strong>Status:</strong> <strong style="color:#10b981">v3 — ICP detection order fix + Calculator 6-section expansion + module upgrade pass. Shipped to <code>rebuild</code> branch.</strong><br>
+<strong>Generated:</strong> 2026-05-13 &nbsp; <strong>Updated:</strong> 2026-05-13 (Phase 1 + Phase 2 + Phase 3 implementation complete)<br>
+<strong>Source inputs read:</strong> ConversationHomepage.tsx (6800+ lines), CLAUDE.md, GOVERNANCE_IMPACT_ANALYSIS_2026-05-12.md</p>
+
+<hr>
+
+<h2>v3 Change Summary</h2>
+
+<p><strong>Phase 1 &mdash; ICP detection moves to Screen 1</strong> (commit <code>248b10e</code>):</p>
+<ul>
+<li>Removed <code>engagementLevel &lt; 2</code> universal-first override. ICP detection chips now always appear first, regardless of engagement depth.</li>
+<li>Universal chips retain their <code>universalBonus</code> and surface from Screen 2 onward via the probability ranking engine. They are not suppressed; they are sequenced correctly.</li>
+<li>Opening message rewritten with soft emotional framing: "Hi. Your AI agents are running. But nobody is watching them yet. Before I show you what that costs, one question: how big is your operation?"</li>
+<li>ICP confirmation messages updated to empathetic segment-specific language. <em>solo</em>: "Got it. Building alone means every wasted hour is yours. Let me show you what's actually worth your time here." <em>smb</em>: "Got it. You're patching it together and you know something isn't right. Here's what the problem costs and what fixes it." <em>growth</em>: "Got it. Growing fast means agent mistakes scale with you. Let me show you the most relevant angles for where you are." <em>enterprise</em>: "Got it. Evaluating without getting locked in is the right posture. Here's what we surface for teams your size."</li>
+</ul>
+
+<p><strong>Phase 2 &mdash; Calculator deep expansion: 6-section diagnostic</strong> (commit <code>3a9b8b5</code>):</p>
+<ul>
+<li>Old 3-slider calculator replaced with a 6-section progressive diagnostic. No submit button. Diagnosis reveals automatically when all sections have input.</li>
+<li>Section 1: team headcount (slider, 1-500, ICP-aware default), monthly AI spend (free-text + presets: $500/$1k/$5k/$10k+), AI agent count (slider, 1-50).</li>
+<li>Section 2: pain sliders with color-coded <code>SliderBar</code> visualization. Fix time % / review time % / monitoring %. Bars fill amber/red at high values.</li>
+<li>Section 3: workplace tool multi-select chips (Desktop / Terminal / VS Code / Cursor / Windsurf / GitHub Copilot / Slack / Linear / Custom).</li>
+<li>Section 4: model multi-select chips (Claude / ChatGPT / Gemini / Llama / Mistral / Custom).</li>
+<li>Section 5: trust signals. Hallucination frequency select. Shipped-without-review yes/no. Unauthorized cost yes/no.</li>
+<li>Section 6: diagnosis panel. Appears when all 5 prior sections have input. Shows monthly savings prevented, hours returned, risk score 0-100 with color band, governance gap cards, tier recommendation, pain match %, and CTA.</li>
+<li><code>buildDiagnosis()</code> pure function drives all outputs. <code>SliderBar</code> and <code>MultiChip</code> sub-components added inside CalculatorModule.</li>
+</ul>
+
+<p><strong>Phase 3 &mdash; Module upgrade pass</strong> (commit <code>c264fe2</code>):</p>
+<ul>
+<li>Paths module: hover tilt transform per card, per-card canvas background animation via <code>requestAnimationFrame</code> (startup=spinning rings, growth=converging arrows, enterprise=shield cracking), click-to-expand 30/90/180-day timeline with <code>PATH_TIMELINES</code> data. Paths bar upgraded from Weak to Acceptable.</li>
+<li>About module: <code>IntersectionObserver</code> stagger-animated founder credential badges (Microsoft / Credit Suisse / T-Mobile / S&amp;P Global). Badges reveal at 0.3 threshold with 80ms stagger per badge. Inline LLC org chart with animated connector lines replaces static LLC entity card stack. <code>LLC_ENTITIES_DATA</code> const deleted.</li>
+<li><code>MODULE_ORDER</code>: <code>comparison</code> retired (redundant with richer <code>CompareModule</code>). <code>wrapper-story</code> retired (redundant with richer <code>WrappersModule</code>). Both remain valid <code>ModuleId</code> TypeScript types and valid <code>ModuleRenderer</code> cases for backward compat with saved localStorage sessions. Not surfaced in chip suggestions.</li>
+<li>Voice Pitch: script lines stagger-fade in when pitch accordion expands (0.3s fade, 70ms per-line offset, <code>hb-fade-in</code> keyframe). "Coming soon" badge softened with pulsing dot animation.</li>
+</ul>
 
 <hr>
 
@@ -196,31 +228,27 @@
 
 <h3>Comparison</h3>
 
-<p><strong>Bar:</strong> Acceptable. The hover-table is clean and the 6-row comparison is accurate. But it only compares Microsoft / Salesforce / Workday. No mid-market or AI-native competitors.</p>
+<p><strong>Bar:</strong> Retired from MODULE_ORDER (v3). The <code>comparison</code> module is redundant with the richer <code>CompareModule</code> (9-section competitive analysis). Removed from chip suggestions in commit <code>c264fe2</code>. Remains a valid <code>ModuleId</code> type and a valid <code>ModuleRenderer</code> case for backward compat with saved localStorage sessions from prior visits.</p>
 
-<p><strong>Use in flow:</strong> Supporting in Enterprise and Growth paths. Leads into the full Compare module.</p>
-
-<p><strong>Recommended changes:</strong> Add a row for "Zapier / n8n / Make" as a combined row labeled "Automation tools" with honest values. These are the actual competitors for Individual and Founder ICPs. Without them, the comparison feels aimed at enterprise evaluators only.</p>
+<p><strong>Recommended path:</strong> Route visitors who previously saw <code>comparison</code> content to the full <code>compare</code> module instead. No rebuild needed; the <code>ModuleRenderer</code> case can re-alias as a future cleanup pass.</p>
 
 <hr>
 
 <h3>Voice Pitch</h3>
 
-<p><strong>Bar:</strong> Weak (current state). The transcript view with "Voice render coming soon" banner is functional but it is not a WOW moment. The accordion expand-to-read is acceptable UX but the visual does not match the quality of the surrounding modules. There is nothing to look at while you read.</p>
+<p><strong>Bar:</strong> Acceptable (upgraded v3). Script lines now stagger-fade in when the pitch accordion is expanded (0.3s fade, 70ms per-line offset using <code>hb-fade-in</code> keyframe). "Coming soon" badge softened with a pulsing dot animation (commit <code>c264fe2</code>). Previously Weak.</p>
 
 <p><strong>Use in flow:</strong> Supporting only. Founder path (screen 6 as a depth option). Growth path (screen 7). Cut from Individual and Enterprise paths entirely.</p>
 
-<p><strong>Recommended changes:</strong> The "Voice render coming soon" note is honest and should stay. But the module needs one visual element while it waits for audio: a static waveform placeholder that animates at low fidelity while the visitor reads. This is a 2-hour build and upgrades Weak to Acceptable. If voice renders ship before the path redesign, this upgrades to Strong automatically. The 5-minute script in particular is the most compelling because the competitive demolition and governance numbers land in sequence the way a live pitch does.</p>
+<p><strong>Remaining work:</strong> A waveform placeholder visual while audio is pending would complete the upgrade from Acceptable toward Strong. If voice renders ship before the path redesign, the module upgrades to Strong automatically. The 5-minute script is the most compelling because the competitive demolition and governance numbers land in sequence the way a live pitch does.</p>
 
 <hr>
 
 <h3>Wrapper Story</h3>
 
-<p><strong>Bar:</strong> Acceptable. The four wrapper cards with live/planned status and hover transform are clean. The "Level9OS is the governance layer. Wrappers sit on top" framing is the right setup.</p>
+<p><strong>Bar:</strong> Retired from MODULE_ORDER (v3). The <code>wrapper-story</code> module is redundant with the richer <code>WrappersModule</code>. Removed from chip suggestions in commit <code>c264fe2</code>. Remains a valid <code>ModuleId</code> type and a valid <code>ModuleRenderer</code> case for backward compat with saved localStorage sessions.</p>
 
-<p><strong>Use in flow:</strong> Supporting in Growth and Founder paths. The OutboundOS pod is the proof-of-concept that the pattern works.</p>
-
-<p><strong>Recommended changes:</strong> This module needs a sub-anchor for the OutboundOS card specifically (<code>id="outboundos-wrapper"</code>) so chips can deep-link to the live instance rather than the full wrapper architecture. The ghost cards (FinanceOS, SalesOS, ProductOS) reinforce roadmap credibility but should not be the focus of a chip label.</p>
+<p><strong>Recommended path:</strong> Route visitors who previously saw <code>wrapper-story</code> to the full <code>wrappers</code> module. The OutboundOS pod grid with ForgeCube hero is a clear upgrade over the static wrapper-story card layout.</p>
 
 <hr>
 
@@ -246,11 +274,11 @@
 
 <h3>Paths</h3>
 
-<p><strong>Bar:</strong> Weak. The Startup / Growth / Enterprise three-card layout has no motion. The content is a word-heavy methodology breakdown (30/90/180-day). For a non-ops audience, the phase breakdown is text-dense without a visual hierarchy that rewards scanning.</p>
+<p><strong>Bar:</strong> Acceptable (upgraded v3). Hover tilt transform per card, per-card canvas background animation (startup=spinning rings, growth=converging arrows, enterprise=shield cracking), and click-to-expand 30/90/180-day phase timeline added (commit <code>c264fe2</code>). Previously Weak.</p>
 
 <p><strong>Use in flow:</strong> Cut from screens 1-5 of all paths. Surfaces at screen 8-9 in Founder, Growth, and Enterprise as the "how do I actually start" module. Not used in Individual path.</p>
 
-<p><strong>Recommended changes:</strong> The Paths module needs a redesign or at minimum a motion element. A timeline visualization (horizontal track with phase markers) would upgrade this from Weak to Acceptable. The three-card layout should collapse to a single focused card per ICP rather than showing all three paths at once. If the visitor is in the Founder path, they should see the Startup entry card, not all three.</p>
+<p><strong>Remaining work:</strong> The three-card layout still shows all three paths at once in guided contexts. Adding a <code>path="startup"|"growth"|"enterprise"</code> prop to render a single focused card remains a future build. The current state is visually differentiated enough to anchor a screen; the single-card ICP focus is a polish pass.</p>
 
 <hr>
 
@@ -266,11 +294,11 @@
 
 <h3>About</h3>
 
-<p><strong>Bar:</strong> Weak. Lots of content: proof stats, origin story, charter values, LLC entities, learning capabilities, partner network. All of it is legitimate. None of it has strong motion. The 2-column proof stats grid is the closest thing to a visual anchor. For a visitor in the middle of a guided path, this module is likely to kill momentum.</p>
+<p><strong>Bar:</strong> Acceptable (upgraded v3). <code>IntersectionObserver</code> stagger-animated founder credential badges (Microsoft / Credit Suisse / T-Mobile / S&amp;P Global) added. Badges reveal at 0.3 threshold with 80ms stagger per badge. Inline LLC org chart with animated connector lines replaces the static LLC entity card stack. <code>LLC_ENTITIES_DATA</code> const deleted (commit <code>c264fe2</code>). Previously Weak.</p>
 
 <p><strong>Use in flow:</strong> Supporting at screen 9 (near the close) in Founder and Individual paths only. Cut from Growth and Enterprise path screens entirely. They can find it via free-text.</p>
 
-<p><strong>Recommended changes:</strong> The About module needs a 60-word ICP-adapted summary card that surfaces before the full module, so visitors can decide whether to go deeper. Currently there is no preview mode. For the guided paths, create a "founder context" summary card (just the origin paragraph + two proof stats) as the surfaced content, with a "full story" chip that opens the complete module.</p>
+<p><strong>Remaining work:</strong> The "founder context" summary card (60-word preview + 2 proof stats, with a "full story" chip) remains a future build. The full module is still the only surface; a preview mode would allow it to anchor path screens more cleanly without overwhelming momentum.</p>
 
 <hr>
 
@@ -569,8 +597,8 @@ universalBonus     = +0.1 if chip.universal === true, else 0</code></pre>
 <h3>Diversification (slot 4 &mdash; "we leave a way out")</h3>
 <p>Slots 1-3: top 3 chips by score. Slot 4: highest-scoring chip whose <strong>dominant ICP</strong> is different from slot 1's dominant ICP. A visitor inferred as solo always sees one growth/enterprise chip. Prevents the interface from collapsing entirely into one segment's voice before explicit self-identification.</p>
 
-<h3>Universal-first on screens 1-2</h3>
-<p>For fresh sessions where <code>engagementLevel &lt; 2</code>: ICP detection chips or <code>ICP_CHIPS[icp]</code> are shown. The probability engine does not pick chips until the visitor has had 2+ interactions. This preserves the emotional hook layer before segmentation logic kicks in.</p>
+<h3>ICP-first on screen 1 (v3 update)</h3>
+<p>For fresh sessions with no modules unlocked and no ICP set: ICP detection chips always appear first. The <code>engagementLevel &lt; 2</code> universal-first override was removed in v3 Phase 1 (commit <code>248b10e</code>). Universal chips surface from Screen 2 onward via the probability engine ranking with their <code>universalBonus</code> intact. ICP detection chips always have priority on Screen 1.</p>
 
 <h3>Dev debug overlay</h3>
 <p>Set <code>NEXT_PUBLIC_DEBUG_ICP=true</code> in <code>.env.local</code> to enable a fixed bottom-right overlay showing live probability percentages and dominant ICP. Hidden in production.</p>
@@ -688,7 +716,7 @@ universalBonus     = +0.1 if chip.universal === true, else 0</code></pre>
 
 <hr>
 
-<h2>8. Open Questions for Eric (v2 updated)</h2>
+<h2>8. Open Questions for Eric (v3 updated)</h2>
 
 <p><strong>1. 10 screens per ICP or 8?</strong></p>
 
@@ -756,9 +784,17 @@ universalBonus     = +0.1 if chip.universal === true, else 0</code></pre>
 
 <p>At 0.05 learning rate, it takes approximately 8-10 chip clicks for a strong affinity signal to meaningfully shift the distribution. If average session depth is fewer than 5 clicks, consider raising to 0.10 or 0.15. Monitor via debug overlay + session analytics before locking the rate.</p>
 
-<p><strong>10. Should the probability distribution be reflected in any visible UI element?</strong> (new &mdash; v2)</p>
+<p><strong>10. Should the probability distribution be reflected in any visible UI element?</strong> (new &mdash; v2; deferred to v4)</p>
 
-<p>Not in production. But a subtle accent color shift as probability builds could reinforce that the interface is adapting to the visitor. Out of scope for v2. Flag for v3 consideration.</p>
+<p>Not in production. But a subtle accent color shift as probability builds could reinforce that the interface is adapting to the visitor. Out of scope for v3. Flag for v4 consideration.</p>
+
+<p><strong>11. Calculator default seeding by ICP.</strong> (new &mdash; v3)</p>
+
+<p>The 6-section Calculator now shows for any ICP but does not yet pre-seed Section 1 defaults based on confirmed ICP. Founder path should default to employees=20, Growth to employees=75, Enterprise to employees=200. A <code>defaultEmployees</code> prop is already threaded into <code>CalculatorModule</code> from the <code>icp</code> state but the mapping is not yet wired. This is a 10-line follow-up.</p>
+
+<p><strong>12. Module order after comparison + wrapper-story retirement.</strong> (new &mdash; v3)</p>
+
+<p>With <code>comparison</code> and <code>wrapper-story</code> removed from <code>MODULE_ORDER</code>, two chip slots freed up in the probability ranking pool. Whether to fill these slots with new modules or leave the pool leaner is an open question. Current recommendation: leave leaner. The existing pool already surfaces 17 modules; adding more chips increases cognitive load without adding conversion probability.</p>
 
 <hr>
 
@@ -768,14 +804,15 @@ universalBonus     = +0.1 if chip.universal === true, else 0</code></pre>
 
 <table><thead><tr><th>Module</th><th>Individual</th><th>Founder</th><th>Growth</th><th>Enterprise</th></tr></thead><tbody><tr><td>Counter (ICP-adapted)</td><td>Screen 1</td><td>Screen 1</td><td>Supporting</td><td>Supporting</td></tr><tr><td>Live Feed</td><td>Screen 2</td><td>Screen 7 (sup.)</td><td>Supporting</td><td>Screen 3</td></tr><tr><td>Try It</td><td>Screen 3, 9</td><td>Screen 10</td><td>CTA only</td><td>Screen 10</td></tr><tr><td>Compounding Risk</td><td>Screen 4</td><td>Screen 3</td><td>Screen 1</td><td>Supporting</td></tr><tr><td>Governance</td><td>Screen 5</td><td>Screen 7</td><td>Screen 2</td><td>Screen 1, 2</td></tr><tr><td>GTM Hook Card</td><td>Screen 6</td><td>--</td><td>--</td><td>--</td></tr><tr><td>Paths (single)</td><td>Screen 7</td><td>Screen 8</td><td>Screen 8</td><td>Screen 7</td></tr><tr><td>About (summary)</td><td>Screen 8</td><td>Screen 9</td><td>--</td><td>Screen 9</td></tr><tr><td>Calculator</td><td>--</td><td>Screen 4</td><td>Screen 5</td><td>--</td></tr><tr><td>Article</td><td>--</td><td>Screen 2</td><td>--</td><td>--</td></tr><tr><td>Products</td><td>--</td><td>Screen 5</td><td>--</td><td>Screen 8</td></tr><tr><td>Why Us Race</td><td>--</td><td>Screen 6</td><td>Screen 6</td><td>Screen 6</td></tr><tr><td>Architecture</td><td>--</td><td>--</td><td>Screen 3</td><td>Screen 4</td></tr><tr><td>Wrappers</td><td>--</td><td>--</td><td>Screen 4</td><td>--</td></tr><tr><td>Wrapper Story</td><td>--</td><td>--</td><td>Screen 9</td><td>--</td></tr><tr><td>Compare</td><td>--</td><td>Supporting</td><td>Screen 7</td><td>Screen 5</td></tr><tr><td>Walkthroughs</td><td>Breakoff rescue</td><td>Supporting</td><td>Supporting</td><td>--</td></tr><tr><td>Voice Pitch</td><td>--</td><td>Screen 6 (depth)</td><td>Screen 7 (depth)</td><td>--</td></tr><tr><td>Comparison</td><td>--</td><td>Screen 5 (sup.)</td><td>Supporting</td><td>--</td></tr></tbody></table><hr>
 
-<h2>Output Report (v2 &mdash; 2026-05-13)</h2>
+<h2>Output Report (v3 &mdash; 2026-05-13)</h2>
 
-<p><strong>v2 implementation status:</strong> Phases 1 and 2 shipped to <code>rebuild</code> branch.<br>
-Phase 1 commit: <code>eec19ad</code> &mdash; chip copy rewrite<br>
-Phase 2 commit: <code>600511a</code> &mdash; probability ranking engine<br>
-Build: 14/14 routes clean on both commits. Both SHAs confirmed on origin/rebuild.</p>
+<p><strong>v3 implementation status:</strong> Phases 1, 2, and 3 shipped to <code>rebuild</code> branch.<br>
+Phase 1 commit: <code>248b10e</code> &mdash; ICP detection moves to Screen 1, updated opening message + confirmation messages<br>
+Phase 2 commit: <code>3a9b8b5</code> &mdash; Calculator 6-section diagnostic expansion<br>
+Phase 3 commit: <code>c264fe2</code> &mdash; Module upgrade pass: Paths motion, About founder anim, retire comparison + wrapper-story, Voice Pitch polish<br>
+Build: 14/14 routes clean on all three commits. All SHAs confirmed on origin/rebuild.</p>
 
-<p><strong>Approximate word count:</strong> 12,400 words (v2)<br><strong>Sections:</strong> 8 sections + appendix<br><strong>Screens designed:</strong> 40 (10 per ICP, all specified in full)<br><strong>Open questions for Eric:</strong> 10 (7 original + 3 new v2)</p>
+<p><strong>Approximate word count:</strong> 13,200 words (v3)<br><strong>Sections:</strong> 8 sections + appendix + v3 change summary<br><strong>Screens designed:</strong> 40 (10 per ICP, all specified in full)<br><strong>Open questions for Eric:</strong> 10 (7 original + 3 new v2; updated with v3 notes below)</p>
 
 <p><strong>Most important design decisions:</strong></p>
 
@@ -783,7 +820,7 @@ Build: 14/14 routes clean on both commits. Both SHAs confirmed on origin/rebuild
 <li>1. Group F chips are retired entirely. "Show me the money" and the other playful prompts were entertainment, not engagement. Removing them is not a loss of personality. It's a gain in path coherence.</li>
 <li>2. Counter module is the ICP anchor for every path. The ICP<em>COUNTER</em>FRAMES are already coded. This personalization is the highest-value thing already in the codebase that the current design underuses.</li>
 <li>3. Tour buttons must be visible before any first interaction. Not after. The visitor who arrives knowing they're a Growth company should not have to discover a self-selection mechanism.</li>
-<li>4. The About and Paths modules are weak in their current form. Both need structural changes (About: summary card split; Paths: single-card ICP-focused view + phase timeline visual) before they can carry a screen in a guided path.</li>
+<li>4. The Paths module now has hover tilt, per-card canvas animation, and an expandable 30/90/180-day timeline (v3). The About module now has stagger-animated founder credentials and an inline LLC org chart (v3). Both upgraded from Weak to Acceptable. The deeper splits (Paths single-card, About summary card) remain as future builds.</li>
 <li>5. Screens 9-10 across all paths are optional depth, not mandatory. The conversion moment in every ICP is screen 8. Everything after that is retention and confidence-building for the minority who need it.</li>
 </ol>
 
@@ -793,8 +830,8 @@ Build: 14/14 routes clean on both commits. Both SHAs confirmed on origin/rebuild
 <li>1. The 3,464x vs 2698x ROI number exists in at least 3 places in the codebase with different values. Canonicalize before launch.</li>
 <li>2. The Try It sandbox is IN BUILD. Individual path screen 9 cannot point to a dead link. Design around it now (Option C: email capture for waitlist).</li>
 <li>3. ICP state propagation to the Counter module must be synchronous with the tour button click. A race condition here means the wrong number renders on the most visible proof screen in every path.</li>
-<li>4. The Paths module has no motion. It cannot carry a screen without a phase timeline graphic being built. Block path screen 8 implementation in all three commercial ICPs on this dependency.</li>
-<li>5. Voice Pitch transcript view needs a waveform placeholder before it surfaces in Founder/Growth paths. Without it, the module looks unfinished relative to the surrounding content quality.</li>
+<li>4. The Paths module now has canvas-based per-card animation and a click-to-expand 30/90/180-day phase timeline (shipped v3). Still needs a single-card ICP-focused prop for guided path contexts where only the relevant entry type should display.</li>
+<li>5. Voice Pitch now has stagger-fade-in on script lines and a softer "coming soon" badge (shipped v3). A waveform placeholder graphic remains a future build if voice rendering is further delayed.</li>
 </ol>
 
 <hr>
