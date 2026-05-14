@@ -67,6 +67,8 @@ interface PoolPrompt {
   requiresModule?: ModuleId;
   /** If set, triggers this module reveal when clicked */
   opensModule?: ModuleId;
+  /** If set, after the module is revealed, scroll to this anchor id within it */
+  anchor?: string;
   /** Handler key for special behaviors */
   action?: "cta-person" | "cta-voice" | "reopen-module";
   /** ICP relevance tags — if set, only show for these ICPs (or when ICP is null) */
@@ -589,32 +591,125 @@ function SliderBar({ pct, color, inverse }: { pct: number; color: string; invers
   );
 }
 
+// ICP seed defaults — applied once when the module first mounts (if not manually touched)
+const ICP_CALC_SEEDS: Record<NonNullable<ICP>, {
+  employees: number;
+  spendInput: string;
+  aiAgentCount: number;
+  fixTimePct: number;
+  reviewTimePct: number;
+  monitoringPct: number;
+  workplaceChips: string[];
+  modelChips: string[];
+  hallucFreq: string;
+  shippedWithoutReview: string | null;
+  unauthorizedCost: string | null;
+}> = {
+  solo: {
+    employees: 1,
+    spendInput: "200",
+    aiAgentCount: 2,
+    fixTimePct: 35,
+    reviewTimePct: 40,
+    monitoringPct: 50,
+    workplaceChips: ["Browser tab"],
+    modelChips: ["Claude"],
+    hallucFreq: "Rarely",
+    shippedWithoutReview: "no",
+    unauthorizedCost: "no",
+  },
+  smb: {
+    employees: 25,
+    spendInput: "2000",
+    aiAgentCount: 5,
+    fixTimePct: 25,
+    reviewTimePct: 30,
+    monitoringPct: 35,
+    workplaceChips: ["Browser tab", "Slack"],
+    modelChips: ["Claude", "ChatGPT"],
+    hallucFreq: "Sometimes",
+    shippedWithoutReview: "no",
+    unauthorizedCost: "no",
+  },
+  growth: {
+    employees: 100,
+    spendInput: "10000",
+    aiAgentCount: 8,
+    fixTimePct: 18,
+    reviewTimePct: 20,
+    monitoringPct: 25,
+    workplaceChips: ["Browser tab", "VS Code", "Slack"],
+    modelChips: ["Claude", "ChatGPT", "Gemini"],
+    hallucFreq: "Often",
+    shippedWithoutReview: "yes",
+    unauthorizedCost: "yes",
+  },
+  enterprise: {
+    employees: 500,
+    spendInput: "50000",
+    aiAgentCount: 12,
+    fixTimePct: 15,
+    reviewTimePct: 15,
+    monitoringPct: 15,
+    workplaceChips: ["Browser tab", "VS Code", "Slack", "Custom code"],
+    modelChips: ["Claude", "ChatGPT", "Gemini", "Copilot"],
+    hallucFreq: "Often",
+    shippedWithoutReview: "yes",
+    unauthorizedCost: "yes",
+  },
+};
+
 function CalculatorModule({
   defaultEmployees,
   defaultTools,
+  icpProbability,
 }: {
   defaultEmployees?: number;
   defaultTools?: number;
+  icpProbability?: IcpProbability;
 }) {
+  // Determine dominant ICP for auto-seed (only if icpProbability provided)
+  const seedIcp: NonNullable<ICP> | null = icpProbability
+    ? (["solo", "smb", "growth", "enterprise"] as NonNullable<ICP>[]).reduce(
+        (best, k) => icpProbability[k] > icpProbability[best] ? k : best,
+        "smb" as NonNullable<ICP>
+      )
+    : null;
+  const seed = seedIcp ? ICP_CALC_SEEDS[seedIcp] : null;
+
+  // Track whether visitor has manually changed any input
+  const [touched, setTouched] = useState(false);
+  const [seedBannerVisible, setSeedBannerVisible] = useState(!!seed);
+
   // Section 1: Your operation
-  const [employees, setEmployees] = useState(defaultEmployees ?? 10);
-  const [aiAgentCount, setAiAgentCount] = useState(3);
-  const [spendInput, setSpendInput] = useState("");
+  const [employees, setEmployees] = useState(seed?.employees ?? defaultEmployees ?? 10);
+  const [aiAgentCount, setAiAgentCount] = useState(seed?.aiAgentCount ?? 3);
+  const [spendInput, setSpendInput] = useState(seed?.spendInput ?? "");
 
   // Section 2: Where the pain is
-  const [fixTimePct, setFixTimePct] = useState(20);
-  const [reviewTimePct, setReviewTimePct] = useState(35);
-  const [monitoringPct, setMonitoringPct] = useState(40);
+  const [fixTimePct, setFixTimePct] = useState(seed?.fixTimePct ?? 20);
+  const [reviewTimePct, setReviewTimePct] = useState(seed?.reviewTimePct ?? 35);
+  const [monitoringPct, setMonitoringPct] = useState(seed?.monitoringPct ?? 40);
 
   // Section 3: Where you work (multi-select)
-  const [workplaceChips, setWorkplaceChips] = useState<string[]>([]);
+  const [workplaceChips, setWorkplaceChips] = useState<string[]>(seed?.workplaceChips ?? []);
   // Section 4: Models (multi-select)
-  const [modelChips, setModelChips] = useState<string[]>([]);
+  const [modelChips, setModelChips] = useState<string[]>(seed?.modelChips ?? []);
 
   // Section 5: Trust signals
-  const [hallucFreq, setHallucFreq] = useState("");
-  const [shippedWithoutReview, setShippedWithoutReview] = useState<string | null>(null);
-  const [unauthorizedCost, setUnauthorizedCost] = useState<string | null>(null);
+  const [hallucFreq, setHallucFreq] = useState(seed?.hallucFreq ?? "");
+  const [shippedWithoutReview, setShippedWithoutReview] = useState<string | null>(seed?.shippedWithoutReview ?? null);
+  const [unauthorizedCost, setUnauthorizedCost] = useState<string | null>(seed?.unauthorizedCost ?? null);
+
+  // Auto-dismiss seed banner after 5 seconds
+  useEffect(() => {
+    if (!seedBannerVisible) return;
+    const t = setTimeout(() => setSeedBannerVisible(false), 5000);
+    return () => clearTimeout(t);
+  }, [seedBannerVisible]);
+
+  // Mark touched on first manual change
+  const markTouched = () => { if (!touched) setTouched(true); setSeedBannerVisible(false); };
 
   // Legacy tools slider retained for compatibility with calcProjection
   const tools = defaultTools ?? aiAgentCount;
@@ -640,30 +735,39 @@ function CalculatorModule({
   const MODEL_OPTIONS = ["Claude", "ChatGPT", "Gemini", "Llama", "Mistral", "Copilot", "Custom", "Other"];
   const HALLUC_OPTIONS = ["Never", "Rarely", "Sometimes", "Often", "Constantly"];
 
-  const toggleWorkplace = (v: string) => setWorkplaceChips((prev) => prev.includes(v) ? prev.filter((x) => x !== v) : [...prev, v]);
-  const toggleModel = (v: string) => setModelChips((prev) => prev.includes(v) ? prev.filter((x) => x !== v) : [...prev, v]);
+  const toggleWorkplace = (v: string) => { markTouched(); setWorkplaceChips((prev) => prev.includes(v) ? prev.filter((x) => x !== v) : [...prev, v]); };
+  const toggleModel = (v: string) => { markTouched(); setModelChips((prev) => prev.includes(v) ? prev.filter((x) => x !== v) : [...prev, v]); };
 
   const RISK_COLORS: Record<CalcDiagnosis["riskBand"], string> = { green: "#10b981", amber: "#f59e0b", red: "#ef4444" };
   const RISK_LABELS: Record<CalcDiagnosis["riskBand"], string> = { green: "Low risk", amber: "Moderate risk", red: "High risk" };
 
+  const ICP_LABELS: Record<NonNullable<ICP>, string> = { solo: "a solo operator", smb: "a small team", growth: "a growth-stage team", enterprise: "a large org" };
+
   return (
     <div className="hb-module-calc hbcalc-v2">
+      {/* Auto-seed banner */}
+      {seedBannerVisible && seedIcp && (
+        <div style={{ padding: "0.45rem 0.875rem", marginBottom: "0.75rem", borderRadius: "8px", background: "rgba(6,182,212,0.07)", border: "1px solid rgba(6,182,212,0.18)", fontSize: "0.72rem", color: "rgba(6,182,212,0.85)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.5rem", animation: "hb-fade-in 0.4s ease" }}>
+          <span>Pre-filled for {ICP_LABELS[seedIcp]}. Drag any slider to refine.</span>
+          <button onClick={() => setSeedBannerVisible(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(6,182,212,0.5)", fontSize: "0.8rem", padding: "0.1rem 0.3rem", fontFamily: "inherit" }}>×</button>
+        </div>
+      )}
       {/* Section 1: Your operation */}
       <div className="hbcalc-section">
         <div className="hbcalc-section-label">01 — Your operation</div>
         <div className="hbcalc-row">
           <label className="hbcalc-label">Team size: <strong style={{ color: "rgba(255,255,255,0.9)" }}>{employees}</strong></label>
-          <input type="range" min={1} max={200} value={employees} onChange={(e) => setEmployees(+e.target.value)} className="hbcalc-slider" />
+          <input type="range" min={1} max={200} value={employees} onChange={(e) => { markTouched(); setEmployees(+e.target.value); }} className="hbcalc-slider" />
         </div>
         <div className="hbcalc-row">
           <label className="hbcalc-label">Monthly AI spend</label>
           <div style={{ display: "flex", gap: "0.35rem", alignItems: "center" }}>
             <span style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.85rem" }}>$</span>
-            <input type="text" placeholder="e.g. 2000" value={spendInput} onChange={(e) => setSpendInput(e.target.value)} className="hbcalc-input" style={{ flex: 1 }} />
+            <input type="text" placeholder="e.g. 2000" value={spendInput} onChange={(e) => { markTouched(); setSpendInput(e.target.value); }} className="hbcalc-input" style={{ flex: 1 }} />
           </div>
           <div style={{ display: "flex", gap: "0.35rem", flexWrap: "wrap", marginTop: "0.4rem" }}>
             {["500", "2000", "5000", "10000"].map((v) => (
-              <button key={v} onClick={() => setSpendInput(v)} style={{ fontSize: "0.65rem", padding: "0.15rem 0.5rem", borderRadius: "99px", border: "1px solid rgba(255,255,255,0.12)", background: spendInput === v ? "rgba(6,182,212,0.12)" : "transparent", color: spendInput === v ? "#06b6d4" : "rgba(255,255,255,0.4)", cursor: "pointer", fontFamily: "inherit" }}>
+              <button key={v} onClick={() => { markTouched(); setSpendInput(v); }} style={{ fontSize: "0.65rem", padding: "0.15rem 0.5rem", borderRadius: "99px", border: "1px solid rgba(255,255,255,0.12)", background: spendInput === v ? "rgba(6,182,212,0.12)" : "transparent", color: spendInput === v ? "#06b6d4" : "rgba(255,255,255,0.4)", cursor: "pointer", fontFamily: "inherit" }}>
                 ${v}
               </button>
             ))}
@@ -671,7 +775,7 @@ function CalculatorModule({
         </div>
         <div className="hbcalc-row">
           <label className="hbcalc-label">AI agents / tools in use: <strong style={{ color: "rgba(255,255,255,0.9)" }}>{aiAgentCount}</strong></label>
-          <input type="range" min={1} max={15} value={aiAgentCount} onChange={(e) => setAiAgentCount(+e.target.value)} className="hbcalc-slider" />
+          <input type="range" min={1} max={15} value={aiAgentCount} onChange={(e) => { markTouched(); setAiAgentCount(+e.target.value); }} className="hbcalc-slider" />
         </div>
       </div>
 
@@ -682,14 +786,14 @@ function CalculatorModule({
           <label className="hbcalc-label" style={{ color: "#ef4444" }}>
             Time spent fixing AI errors: <strong style={{ color: "rgba(255,255,255,0.9)" }}>{fixTimePct}%</strong>
           </label>
-          <input type="range" min={0} max={100} value={fixTimePct} onChange={(e) => setFixTimePct(+e.target.value)} className="hbcalc-slider" />
+          <input type="range" min={0} max={100} value={fixTimePct} onChange={(e) => { markTouched(); setFixTimePct(+e.target.value); }} className="hbcalc-slider" />
           <SliderBar pct={fixTimePct} color="#ef4444" />
         </div>
         <div className="hbcalc-row">
           <label className="hbcalc-label" style={{ color: "#f59e0b" }}>
             Time spent reviewing AI output before it ships: <strong style={{ color: "rgba(255,255,255,0.9)" }}>{reviewTimePct}%</strong>
           </label>
-          <input type="range" min={0} max={100} value={reviewTimePct} onChange={(e) => setReviewTimePct(+e.target.value)} className="hbcalc-slider" />
+          <input type="range" min={0} max={100} value={reviewTimePct} onChange={(e) => { markTouched(); setReviewTimePct(+e.target.value); }} className="hbcalc-slider" />
           <SliderBar pct={reviewTimePct} color="#f59e0b" />
         </div>
         <div className="hbcalc-row">
@@ -697,7 +801,7 @@ function CalculatorModule({
             Agent actions you actually monitor: <strong style={{ color: "rgba(255,255,255,0.9)" }}>{monitoringPct}%</strong>
             {monitoringPct < 30 && <span style={{ marginLeft: "0.5rem", fontSize: "0.65rem", color: "#ef4444" }}>blind spot</span>}
           </label>
-          <input type="range" min={0} max={100} value={monitoringPct} onChange={(e) => setMonitoringPct(+e.target.value)} className="hbcalc-slider" />
+          <input type="range" min={0} max={100} value={monitoringPct} onChange={(e) => { markTouched(); setMonitoringPct(+e.target.value); }} className="hbcalc-slider" />
           <SliderBar pct={monitoringPct} color="#06b6d4" inverse />
         </div>
       </div>
@@ -734,7 +838,7 @@ function CalculatorModule({
           <label className="hbcalc-label">How often have you caught an agent making things up?</label>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "0.35rem", marginTop: "0.3rem" }}>
             {HALLUC_OPTIONS.map((v) => (
-              <button key={v} onClick={() => setHallucFreq(v)} style={{ height: "28px", padding: "0 0.65rem", borderRadius: "99px", border: `1px solid ${hallucFreq === v ? "#ef4444" : "rgba(255,255,255,0.12)"}`, background: hallucFreq === v ? "rgba(239,68,68,0.15)" : "transparent", color: hallucFreq === v ? "#ef4444" : "rgba(255,255,255,0.45)", fontSize: "0.68rem", cursor: "pointer", fontFamily: "inherit", fontWeight: hallucFreq === v ? 700 : 400 }}>{v}</button>
+              <button key={v} onClick={() => { markTouched(); setHallucFreq(v); }} style={{ height: "28px", padding: "0 0.65rem", borderRadius: "99px", border: `1px solid ${hallucFreq === v ? "#ef4444" : "rgba(255,255,255,0.12)"}`, background: hallucFreq === v ? "rgba(239,68,68,0.15)" : "transparent", color: hallucFreq === v ? "#ef4444" : "rgba(255,255,255,0.45)", fontSize: "0.68rem", cursor: "pointer", fontFamily: "inherit", fontWeight: hallucFreq === v ? 700 : 400 }}>{v}</button>
             ))}
           </div>
         </div>
@@ -744,7 +848,7 @@ function CalculatorModule({
             {["Yes", "No"].map((v) => {
               const val = v.toLowerCase();
               const sel = shippedWithoutReview === val;
-              return <button key={v} onClick={() => setShippedWithoutReview(val)} style={{ height: "28px", padding: "0 0.75rem", borderRadius: "99px", border: `1px solid ${sel ? "#f59e0b" : "rgba(255,255,255,0.12)"}`, background: sel ? "rgba(245,158,11,0.15)" : "transparent", color: sel ? "#f59e0b" : "rgba(255,255,255,0.45)", fontSize: "0.7rem", cursor: "pointer", fontFamily: "inherit", fontWeight: sel ? 700 : 400 }}>{v}</button>;
+              return <button key={v} onClick={() => { markTouched(); setShippedWithoutReview(val); }} style={{ height: "28px", padding: "0 0.75rem", borderRadius: "99px", border: `1px solid ${sel ? "#f59e0b" : "rgba(255,255,255,0.12)"}`, background: sel ? "rgba(245,158,11,0.15)" : "transparent", color: sel ? "#f59e0b" : "rgba(255,255,255,0.45)", fontSize: "0.7rem", cursor: "pointer", fontFamily: "inherit", fontWeight: sel ? 700 : 400 }}>{v}</button>;
             })}
           </div>
         </div>
@@ -754,7 +858,7 @@ function CalculatorModule({
             {["Yes", "No"].map((v) => {
               const val = v.toLowerCase();
               const sel = unauthorizedCost === val;
-              return <button key={v} onClick={() => setUnauthorizedCost(val)} style={{ height: "28px", padding: "0 0.75rem", borderRadius: "99px", border: `1px solid ${sel ? "#ef4444" : "rgba(255,255,255,0.12)"}`, background: sel ? "rgba(239,68,68,0.15)" : "transparent", color: sel ? "#ef4444" : "rgba(255,255,255,0.45)", fontSize: "0.7rem", cursor: "pointer", fontFamily: "inherit", fontWeight: sel ? 700 : 400 }}>{v}</button>;
+              return <button key={v} onClick={() => { markTouched(); setUnauthorizedCost(val); }} style={{ height: "28px", padding: "0 0.75rem", borderRadius: "99px", border: `1px solid ${sel ? "#ef4444" : "rgba(255,255,255,0.12)"}`, background: sel ? "rgba(239,68,68,0.15)" : "transparent", color: sel ? "#ef4444" : "rgba(255,255,255,0.45)", fontSize: "0.7rem", cursor: "pointer", fontFamily: "inherit", fontWeight: sel ? 700 : 400 }}>{v}</button>;
             })}
           </div>
         </div>
@@ -1520,7 +1624,7 @@ const GOV_CHAPTERS = [
 function GovernanceModule() {
   return (
     <div className="hb-rich-module">
-      <div className="hb-rich-eyebrow" style={{ color: VAULT_RED }}>The Vault · Governance Chassis</div>
+      <div id="lie-detector" data-anchor="lie-detector" className="hb-rich-eyebrow" style={{ color: VAULT_RED }}>The Vault · Governance Chassis</div>
       <h2 className="hb-rich-headline">You see the AI agent.<br />You don&apos;t see what it&apos;s doing.</h2>
       <p className="hb-rich-sub" style={{ color: `${VAULT_RED}cc` }}>Level9OS makes the invisible visible.</p>
       {/* Governance radial diagram — 16 officers, 4 buckets, packet flows */}
@@ -1584,7 +1688,7 @@ function GovernanceModule() {
       <div className="hb-rich-section-label" style={{ color: VAULT_RED }}>The 18 ways we keep your agents honest, cheap, and accountable.</div>
 
       {/* Why this matters — three rows before the grid */}
-      <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem", marginBottom: "1.25rem" }}>
+      <div id="cost-router" data-anchor="cost-router" style={{ display: "flex", flexDirection: "column", gap: "0.6rem", marginBottom: "1.25rem" }}>
         {[
           { icon: "T", color: "#ef4444", bold: "When an agent lies, we catch it.", rest: " Before the email sends.", group: "Truth Enforcement" },
           { icon: "$", color: "#f59e0b", bold: "When an agent spends too much, we stop it.", rest: " Before the bill arrives.", group: "Budget + Cost Control" },
@@ -1601,7 +1705,16 @@ function GovernanceModule() {
         ))}
       </div>
 
-      <GovernanceGrid />
+      <div id="officer-system" data-anchor="officer-system" style={{ scrollMarginTop: "1rem" }}>
+        <GovernanceGrid />
+      </div>
+
+      {/* Audit trail anchor */}
+      <div id="audit-trail" data-anchor="audit-trail" style={{ scrollMarginTop: "1rem" }} />
+      <div id="trust-scores" data-anchor="trust-scores" style={{ scrollMarginTop: "1rem" }} />
+      <div id="max-voice" data-anchor="max-voice" style={{ scrollMarginTop: "1rem" }} />
+      <div id="identity-access" data-anchor="identity-access" style={{ scrollMarginTop: "1rem" }} />
+      <div id="auto-doc" data-anchor="auto-doc" style={{ scrollMarginTop: "1rem" }} />
 
       {/* Chapter links */}
       <div className="hb-rich-section-label" style={{ color: VAULT_RED }}>Four chapters</div>
@@ -1820,11 +1933,14 @@ function PathsModule() {
           return (
             <div
               key={path.id}
+              id={path.id}
+              data-anchor={path.id}
               className="hb-rich-card hb-path-card"
               style={{
                 borderColor: `${path.accent}22`,
                 position: "relative",
                 overflow: "hidden",
+                scrollMarginTop: "1rem",
                 transform: isHovered ? "translateY(-2px) scale(1.005)" : "none",
                 transition: "transform 0.2s cubic-bezier(0.16,1,0.3,1), border-color 0.2s ease, box-shadow 0.2s ease",
                 boxShadow: isHovered ? `0 4px 24px ${path.accent}18` : "none",
@@ -1898,7 +2014,7 @@ function PathsModule() {
       </div>
 
       {/* 30/90/180 methodology */}
-      <div className="hb-rich-section-label" style={{ color: "rgba(139,92,246,0.6)" }}>The Install Methodology</div>
+      <div id="methodology" data-anchor="methodology" className="hb-rich-section-label" style={{ color: "rgba(139,92,246,0.6)" }}>The Install Methodology</div>
       <div className="hb-rich-grid-3">
         {PHASES_DATA.map((ph) => (
           <div key={ph.phase} className="hb-rich-card" style={{ borderColor: "rgba(255,255,255,0.07)" }}>
@@ -2099,7 +2215,7 @@ const PATTERN_POINTS_DATA = [
 function WrappersModule() {
   return (
     <div className="hb-rich-module">
-      <div className="hb-rich-eyebrow" style={{ color: "#f59e0b" }}>Department Wrappers</div>
+      <div id="pattern" data-anchor="pattern" className="hb-rich-eyebrow" style={{ color: "#f59e0b" }}>Department Wrappers</div>
       <h2 className="hb-rich-headline">Department-level AI. Already running.</h2>
       <p className="hb-rich-sub">OutboundOS proved the pattern. Every department runs the same way: autonomous pods, shared governance, one human manager, zero daily intervention.</p>
 
@@ -2136,7 +2252,7 @@ function WrappersModule() {
         </div>
       </HowExplainer>
 
-      <div className="hb-rich-section-label" style={{ color: "#10b981" }}>OutboundOS · Live in Production</div>
+      <div id="outboundos" data-anchor="outboundos" className="hb-rich-section-label" style={{ color: "#10b981" }}>OutboundOS · Live in Production</div>
       <div className="hb-rich-stack">
         {OUTBOUND_PODS_DATA.map((pod) => (
           <div key={pod.id} className="hb-rich-card" style={{ borderColor: `${pod.color}22` }}>
@@ -2162,7 +2278,7 @@ function WrappersModule() {
       <div className="hb-rich-section-label" style={{ color: "rgba(255,255,255,0.3)" }}>On the runway</div>
       <div className="hb-rich-grid-4">
         {GHOST_WRAPPERS_DATA.map((w) => (
-          <div key={w.name} className="hb-rich-ghost-card" style={{ borderColor: "rgba(255,255,255,0.06)", opacity: 0.45 }}>
+          <div key={w.name} id={w.name.toLowerCase().replace(/\s+/g, "")} data-anchor={w.name.toLowerCase().replace(/\s+/g, "")} className="hb-rich-ghost-card" style={{ borderColor: "rgba(255,255,255,0.06)", opacity: 0.45, scrollMarginTop: "1rem" }}>
             <div className="hb-rich-ghost-bar" style={{ background: w.color }} />
             <h4 style={{ fontSize: "0.82rem", fontWeight: 700, color: `${w.color}88`, marginBottom: "0.25rem" }}>{w.name}</h4>
             <span style={{ fontSize: "0.62rem", color: "rgba(255,255,255,0.2)", fontFamily: "ui-monospace,monospace" }}>Coming</span>
@@ -2391,14 +2507,14 @@ function ArchitectureModule() {
       </div>
 
       {/* StackFlow: 4-layer hover-swap — structure */}
-      <div className="hb-rich-section-label" style={{ color: "rgba(139,92,246,0.6)" }}>Level 1: How the four layers work together</div>
+      <div id="stackflow" data-anchor="stackflow" className="hb-rich-section-label" style={{ color: "rgba(139,92,246,0.6)" }}>Level 1: How the four layers work together</div>
       <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.4)", marginBottom: "0.5rem" }}>Hover each layer to see: what goes in, what we do, what comes out.</div>
       <div style={{ width: "100%", margin: "0 0 1.5rem", overflow: "hidden", borderRadius: "14px", border: "1px solid rgba(139,92,246,0.08)" }}>
         <StackFlow />
       </div>
 
       {/* DecisionTrace: 8-stage auto-cycle — one decision in motion */}
-      <div className="hb-rich-section-label" style={{ color: "rgba(6,182,212,0.6)" }}>Level 2: One decision through all 8 layers</div>
+      <div id="decisiontrace" data-anchor="decisiontrace" className="hb-rich-section-label" style={{ color: "rgba(6,182,212,0.6)" }}>Level 2: One decision through all 8 layers</div>
       <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.4)", marginBottom: "0.5rem" }}>A decision starts in Strategy, moves to Coordination, triggers Execution, gets measured by Outcomes.</div>
       <div style={{ width: "100%", margin: "0 0 1.5rem", overflow: "hidden", borderRadius: "14px", border: "1px solid rgba(6,182,212,0.08)" }}>
         <DecisionTrace
@@ -2475,6 +2591,9 @@ function ArchitectureModule() {
         ))}
       </div>
 
+      {/* API bridge anchor */}
+      <div id="bridge" data-anchor="bridge" style={{ scrollMarginTop: "1rem" }} />
+
       {/* Governance chassis */}
       <div className="hb-rich-card" style={{ borderColor: `${chassis.color}30` }}>
         <div className="hb-rich-card-bar" style={{ background: `linear-gradient(90deg, ${chassis.color}, ${chassis.color}30, transparent)` }} />
@@ -2537,7 +2656,7 @@ function CompareModule() {
       <p className="hb-rich-sub">Mapped 70+ vendors across 8 capability layers. Seven real competitors. Honest read on each.</p>
 
       {/* Three pillars */}
-      <div className="hb-rich-section-label" style={{ color: "rgba(255,255,255,0.35)" }}>Three things that separate a production-grade AI operation from a demo</div>
+      <div id="pillars" data-anchor="pillars" className="hb-rich-section-label" style={{ color: "rgba(255,255,255,0.35)" }}>Three things that separate a production-grade AI operation from a demo</div>
       <div className="hb-rich-stack" style={{ marginBottom: "1rem" }}>
         {[
           { num: "01", title: "Multi-Step Orchestration", color: "#8b5cf6", def: "Connect Claude, GPT, Gemini, Copilot, or custom agents into a single workflow. One control plane, one audit trail, one cost dashboard running across all of them." },
@@ -2560,7 +2679,7 @@ function CompareModule() {
           const isOpen = openComp === comp.id;
           const threatColor = THREAT_COLORS_MAP[comp.threat];
           return (
-            <div key={comp.id} style={{ borderRadius: "10px", overflow: "hidden", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
+            <div key={comp.id} id={comp.id} data-anchor={comp.id} style={{ borderRadius: "10px", overflow: "hidden", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", scrollMarginTop: "1rem" }}>
               <button
                 style={{ width: "100%", textAlign: "left", padding: "0.7rem 0.875rem", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.5rem", background: "none", border: "none", cursor: "pointer", color: "inherit", fontFamily: "inherit" }}
                 onClick={() => setOpenComp(isOpen ? null : comp.id)}
@@ -3528,10 +3647,12 @@ function ModuleRenderer({
   moduleId,
   userAnswers,
   icp,
+  icpProbability,
 }: {
   moduleId: ModuleId;
   userAnswers: Record<string, unknown>;
   icp?: ICP;
+  icpProbability?: IcpProbability;
 }) {
   const [loading, setLoading] = useState(true);
   const [errored, setErrored] = useState(false);
@@ -3555,6 +3676,7 @@ function ModuleRenderer({
           <CalculatorModule
             defaultEmployees={userAnswers.employees as number | undefined}
             defaultTools={userAnswers.tools as number | undefined}
+            icpProbability={icpProbability}
           />
         );
       case "article": return <ArticleModule />;
@@ -3967,6 +4089,128 @@ const CONTENT_POOL: PoolPrompt[] = [
     opensModule: "try-it",
     icpTags: ["solo"],
     icpAffinity: { solo: 0.95, smb: 0.4, growth: 0.1, enterprise: 0.05 },
+  },
+
+  // ── Sub-anchor deep dives (Phase 2 pool expansion) ────────────────────────────
+  {
+    id: "anchor-gov-lie-detector",
+    label: "Tired of an agent making things up?",
+    group: "D",
+    opensModule: "governance",
+    anchor: "lie-detector",
+    icpAffinity: { solo: 0.85, smb: 0.9, growth: 0.85, enterprise: 0.8 },
+  },
+  {
+    id: "anchor-gov-cost-router",
+    label: "Watched costs blow up overnight?",
+    group: "D",
+    opensModule: "governance",
+    anchor: "cost-router",
+    icpAffinity: { solo: 0.9, smb: 0.85, growth: 0.75, enterprise: 0.6 },
+  },
+  {
+    id: "anchor-gov-audit-trail",
+    label: "Lost track of which agent did what?",
+    group: "B",
+    opensModule: "governance",
+    anchor: "audit-trail",
+    icpAffinity: { solo: 0.55, smb: 0.75, growth: 0.9, enterprise: 0.95 },
+  },
+  {
+    id: "anchor-gov-trust-scores",
+    label: "How do you know which agent to trust?",
+    group: "D",
+    opensModule: "governance",
+    anchor: "trust-scores",
+    icpAffinity: { solo: 0.7, smb: 0.8, growth: 0.85, enterprise: 0.9 },
+  },
+  {
+    id: "anchor-gov-officer-system",
+    label: "Who reviews what your agents do before it ships?",
+    group: "B",
+    opensModule: "governance",
+    anchor: "officer-system",
+    icpAffinity: { solo: 0.4, smb: 0.65, growth: 0.85, enterprise: 0.95 },
+  },
+  {
+    id: "anchor-compare-microsoft",
+    label: "Can you actually replace Microsoft for this?",
+    group: "B",
+    opensModule: "compare",
+    anchor: "microsoft",
+    icpAffinity: { solo: 0.25, smb: 0.55, growth: 0.8, enterprise: 0.9 },
+  },
+  {
+    id: "anchor-compare-salesforce",
+    label: "What about Salesforce's version?",
+    group: "B",
+    opensModule: "compare",
+    anchor: "salesforce",
+    icpAffinity: { solo: 0.2, smb: 0.5, growth: 0.8, enterprise: 0.9 },
+  },
+  {
+    id: "anchor-compare-pillars",
+    label: "What does a production-grade AI operation actually need?",
+    group: "B",
+    opensModule: "compare",
+    anchor: "pillars",
+    icpAffinity: { solo: 0.5, smb: 0.7, growth: 0.85, enterprise: 0.9 },
+  },
+  {
+    id: "anchor-wrappers-outboundos",
+    label: "What does an entire department of agents even look like?",
+    group: "D",
+    opensModule: "wrappers",
+    anchor: "outboundos",
+    icpAffinity: { solo: 0.4, smb: 0.85, growth: 0.9, enterprise: 0.8 },
+  },
+  {
+    id: "anchor-wrappers-financeos",
+    label: "When will finance get this?",
+    group: "B",
+    opensModule: "wrappers",
+    anchor: "financeos",
+    icpAffinity: { solo: 0.2, smb: 0.55, growth: 0.8, enterprise: 0.9 },
+  },
+  {
+    id: "anchor-arch-bridge",
+    label: "How does this plug into my existing stack?",
+    group: "B",
+    opensModule: "architecture",
+    anchor: "bridge",
+    icpAffinity: { solo: 0.35, smb: 0.6, growth: 0.85, enterprise: 0.9 },
+  },
+  {
+    id: "anchor-arch-decisiontrace",
+    label: "How does a real decision actually move through your system?",
+    group: "B",
+    opensModule: "architecture",
+    anchor: "decisiontrace",
+    icpAffinity: { solo: 0.3, smb: 0.55, growth: 0.8, enterprise: 0.9 },
+  },
+  {
+    id: "anchor-paths-startup",
+    label: "Just getting started. Where do I begin?",
+    group: "B",
+    opensModule: "paths",
+    anchor: "startup",
+    icpAffinity: { solo: 0.9, smb: 0.85, growth: 0.45, enterprise: 0.2 },
+  },
+  {
+    id: "anchor-paths-growth",
+    label: "How fast can a growing team really get this in?",
+    group: "B",
+    opensModule: "paths",
+    anchor: "growth",
+    icpAffinity: { solo: 0.35, smb: 0.75, growth: 0.95, enterprise: 0.6 },
+  },
+  {
+    id: "anchor-paths-methodology",
+    label: "What does 30/90/180 days actually look like in practice?",
+    group: "B",
+    opensModule: "paths",
+    anchor: "methodology",
+    icpAffinity: { solo: 0.3, smb: 0.65, growth: 0.85, enterprise: 0.8 },
   },
 ];
 
@@ -4830,6 +5074,13 @@ export default function ConversationHomepage() {
           }
           await agentSay(meta.agentIntro, 200);
           await revealModule(target, visitorState);
+          // Scroll to anchor if specified (after module renders)
+          if (poolPrompt.anchor) {
+            setTimeout(() => {
+              const el = document.getElementById(poolPrompt.anchor!);
+              if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+            }, 600);
+          }
         } else {
           // Conversational response for non-module pool prompts
           const responses: Record<string, string> = {
@@ -5142,7 +5393,7 @@ export default function ConversationHomepage() {
                 if (msg.isModule && msg.moduleId) {
                   return (
                     <div key={msg.id} className="hb-inline-module">
-                      <ModuleRenderer moduleId={msg.moduleId} userAnswers={userAnswers} icp={icp} />
+                      <ModuleRenderer moduleId={msg.moduleId} userAnswers={userAnswers} icp={icp} icpProbability={icpProbability} />
                     </div>
                   );
                 }
@@ -5365,7 +5616,7 @@ export default function ConversationHomepage() {
                   onInput={recordActivity}
                   onPointerDown={recordActivity}
                 >
-                  <ModuleRenderer moduleId={activeModule} userAnswers={userAnswers} icp={icp} />
+                  <ModuleRenderer moduleId={activeModule} userAnswers={userAnswers} icp={icp} icpProbability={icpProbability} />
                 </div>
               ) : unlockedModules.length === 0 ? (
                 // Empty tabs state: muted module icons that pulse
