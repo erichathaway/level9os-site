@@ -469,6 +469,126 @@ function CounterModule({ icp }: { icp?: ICP }) {
   );
 }
 
+// ─── Calculator deep-expansion helpers ────────────────────────────────────────
+
+interface CalcDiagnosis {
+  prevented: number;
+  hoursMonthly: number;
+  riskScore: number; // 0–100
+  riskBand: "green" | "amber" | "red";
+  gaps: { id: string; label: string; explainer: string }[];
+  tier: { name: string; price: string };
+  painMatchPct: number;
+}
+
+function buildDiagnosis(
+  employees: number,
+  tools: number,
+  aiAgentCount: number,
+  monthlySpend: number,
+  fixTimePct: number,
+  reviewTimePct: number,
+  monitoringPct: number,
+  workplaceChips: string[],
+  modelChips: string[],
+  hallucFreq: string,
+  shippedWithoutReview: string | null,
+  unauthorizedCost: string | null,
+): CalcDiagnosis | null {
+  if (monthlySpend <= 0) return null;
+
+  // Core savings projection, enhanced by fix-time and monitoring data
+  const complexityFactor = Math.min(1 + (tools - 1) * 0.08 + (aiAgentCount - 1) * 0.05, 2.5);
+  const wasteAtRiskFraction = Math.min(0.18 + tools * 0.015 + employees * 0.001 + (fixTimePct / 100) * 0.15, 0.65);
+  const wasteAtRisk = monthlySpend * wasteAtRiskFraction * complexityFactor;
+  const preventionRate = 0.878;
+  const blindSpotMultiplier = monitoringPct < 30 ? 1.15 : monitoringPct < 60 ? 1.05 : 1.0;
+  const prevented = Math.round(wasteAtRisk * preventionRate * blindSpotMultiplier);
+  const hoursRatio = 79 / 17562;
+  const hoursMonthly = Math.round(prevented * hoursRatio * 10) / 10;
+
+  // Risk score: 0–100
+  let riskScore = 0;
+  riskScore += Math.min(fixTimePct * 0.4, 40); // max 40 from fix time
+  riskScore += Math.min((100 - monitoringPct) * 0.25, 25); // max 25 from blind spot
+  riskScore += Math.min((modelChips.length - 1) * 5, 15); // max 15 from multi-vendor
+  if (shippedWithoutReview === "yes") riskScore += 10;
+  if (unauthorizedCost === "yes") riskScore += 10;
+  riskScore = Math.min(Math.round(riskScore), 100);
+  const riskBand: CalcDiagnosis["riskBand"] = riskScore < 35 ? "green" : riskScore < 65 ? "amber" : "red";
+
+  // Gap detection
+  const gaps: CalcDiagnosis["gaps"] = [];
+  if (modelChips.length > 1 && monitoringPct < 50) {
+    gaps.push({ id: "multi-vendor-audit", label: "Multi-vendor without unified audit trail", explainer: "You're running more than one AI model but have no single control plane. When something breaks, there's no shared trail to trace it." });
+  }
+  if (fixTimePct > 30) {
+    gaps.push({ id: "high-fix-time", label: "High fix-time burden", explainer: `${fixTimePct}% of your time goes to cleaning up AI errors. With governance, most of those errors are caught before they reach you.` });
+  }
+  if (shippedWithoutReview === "yes") {
+    gaps.push({ id: "unreviewed-shipping", label: "Unreviewed agent output reached production", explainer: "An agent shipped something without a human review gate. The Stop hook catches this pattern before it leaves the session." });
+  }
+  if (unauthorizedCost === "yes") {
+    gaps.push({ id: "cost-surprise", label: "Unauthorized cost exposure", explainer: "An agent spent money you didn't authorize. Per-agent budget caps and the Conductor service block this class of event." });
+  }
+  if (monitoringPct < 30) {
+    gaps.push({ id: "blind-spot", label: "Critical monitoring blind spot", explainer: `You're watching ${monitoringPct}% of agent actions. The other ${100 - monitoringPct}% are running unobserved. The audit trail and live feed change that.` });
+  }
+
+  // Tier recommendation
+  let tier: CalcDiagnosis["tier"];
+  if (employees <= 1 && tools <= 2) tier = { name: "Free", price: "$0/mo" };
+  else if (employees <= 5 && aiAgentCount <= 3) tier = { name: "Starter", price: "$99/mo" };
+  else if (employees <= 20 || aiAgentCount <= 8) tier = { name: "Growth", price: "$499/mo" };
+  else if (employees <= 100) tier = { name: "Pro", price: "$1,499/mo" };
+  else tier = { name: "Scale", price: "Custom" };
+
+  // Pain match: governance preventionRate × applicability of inputs
+  const hasRichInputs = (fixTimePct > 0 || reviewTimePct > 0 || monitoringPct < 100 || hallucFreq !== "" || shippedWithoutReview !== null || unauthorizedCost !== null) ? 1 : 0;
+  const inputApplicability = hasRichInputs
+    ? 0.7 + (gaps.length / 5) * 0.25
+    : 0.5;
+  const painMatchPct = Math.round(preventionRate * inputApplicability * 100);
+
+  return { prevented, hoursMonthly, riskScore, riskBand, gaps, tier, painMatchPct };
+}
+
+// Multi-select chip component for Calculator sections 3 and 4
+function MultiChip({ label, selected, onToggle }: { label: string; selected: boolean; onToggle: () => void }) {
+  return (
+    <button
+      onClick={onToggle}
+      style={{
+        height: "32px",
+        padding: "0 0.75rem",
+        borderRadius: "99px",
+        border: `1px solid ${selected ? "#8b5cf6" : "rgba(255,255,255,0.12)"}`,
+        background: selected ? "rgba(139,92,246,0.15)" : "rgba(255,255,255,0.03)",
+        color: selected ? "#8b5cf6" : "rgba(255,255,255,0.55)",
+        fontSize: "0.72rem",
+        fontWeight: selected ? 700 : 400,
+        cursor: "pointer",
+        transition: "all 0.15s ease",
+        boxShadow: selected ? "0 0 8px rgba(139,92,246,0.3)" : "none",
+        fontFamily: "inherit",
+      }}
+    >
+      {label}
+    </button>
+  );
+}
+
+// Inline bar viz for slider sections
+function SliderBar({ pct, color, inverse }: { pct: number; color: string; inverse?: boolean }) {
+  const displayPct = inverse ? 100 - pct : pct;
+  const barColor = displayPct > 66 ? (inverse ? "#10b981" : color) : displayPct > 33 ? (inverse ? color : "#f59e0b") : (inverse ? "#ef4444" : "#10b981");
+  return (
+    <div style={{ height: "4px", background: "rgba(255,255,255,0.06)", borderRadius: "99px", marginTop: "0.35rem", overflow: "hidden" }}>
+      <div style={{ height: "100%", width: `${pct}%`, background: barColor, borderRadius: "99px", transition: "width 0.2s ease, background 0.2s ease", boxShadow: `0 0 6px ${barColor}60` }} />
+    </div>
+  );
+}
+
 function CalculatorModule({
   defaultEmployees,
   defaultTools,
@@ -476,75 +596,274 @@ function CalculatorModule({
   defaultEmployees?: number;
   defaultTools?: number;
 }) {
+  // Section 1: Your operation
   const [employees, setEmployees] = useState(defaultEmployees ?? 10);
-  const [tools, setTools] = useState(defaultTools ?? 5);
+  const [aiAgentCount, setAiAgentCount] = useState(3);
   const [spendInput, setSpendInput] = useState("");
-  const [result, setResult] = useState<ReturnType<typeof calcProjection>>(null);
 
-  const calculate = () => {
-    const spend = parseFloat(spendInput.replace(/[^0-9.]/g, ""));
-    if (!spend || spend <= 0) return;
-    setResult(calcProjection(employees, tools, spend));
-  };
+  // Section 2: Where the pain is
+  const [fixTimePct, setFixTimePct] = useState(20);
+  const [reviewTimePct, setReviewTimePct] = useState(35);
+  const [monitoringPct, setMonitoringPct] = useState(40);
+
+  // Section 3: Where you work (multi-select)
+  const [workplaceChips, setWorkplaceChips] = useState<string[]>([]);
+  // Section 4: Models (multi-select)
+  const [modelChips, setModelChips] = useState<string[]>([]);
+
+  // Section 5: Trust signals
+  const [hallucFreq, setHallucFreq] = useState("");
+  const [shippedWithoutReview, setShippedWithoutReview] = useState<string | null>(null);
+  const [unauthorizedCost, setUnauthorizedCost] = useState<string | null>(null);
+
+  // Legacy tools slider retained for compatibility with calcProjection
+  const tools = defaultTools ?? aiAgentCount;
+
+  const monthlySpend = parseFloat(spendInput.replace(/[^0-9.]/g, "")) || 0;
+
+  // Diagnosis renders when all sections have at least one input
+  const allSectionsHaveInput =
+    monthlySpend > 0 &&
+    (fixTimePct > 0 || reviewTimePct < 100) &&
+    workplaceChips.length > 0 &&
+    modelChips.length > 0 &&
+    (hallucFreq !== "" || shippedWithoutReview !== null || unauthorizedCost !== null);
+
+  const diagnosis = allSectionsHaveInput
+    ? buildDiagnosis(employees, tools, aiAgentCount, monthlySpend, fixTimePct, reviewTimePct, monitoringPct, workplaceChips, modelChips, hallucFreq, shippedWithoutReview, unauthorizedCost)
+    : null;
+
+  // Legacy result for the "How is this calculated" explainer
+  const legacyResult = monthlySpend > 0 ? calcProjection(employees, tools, monthlySpend) : null;
+
+  const WORKPLACE_OPTIONS = ["Desktop apps", "Terminal", "Browser tab", "Slack", "Discord", "Custom code", "VS Code", "Cursor", "Other"];
+  const MODEL_OPTIONS = ["Claude", "ChatGPT", "Gemini", "Llama", "Mistral", "Copilot", "Custom", "Other"];
+  const HALLUC_OPTIONS = ["Never", "Rarely", "Sometimes", "Often", "Constantly"];
+
+  const toggleWorkplace = (v: string) => setWorkplaceChips((prev) => prev.includes(v) ? prev.filter((x) => x !== v) : [...prev, v]);
+  const toggleModel = (v: string) => setModelChips((prev) => prev.includes(v) ? prev.filter((x) => x !== v) : [...prev, v]);
+
+  const RISK_COLORS: Record<CalcDiagnosis["riskBand"], string> = { green: "#10b981", amber: "#f59e0b", red: "#ef4444" };
+  const RISK_LABELS: Record<CalcDiagnosis["riskBand"], string> = { green: "Low risk", amber: "Moderate risk", red: "High risk" };
 
   return (
-    <div className="hb-module-calc">
-      <div className="hbcalc-row">
-        <label className="hbcalc-label">Team size: {employees}</label>
-        <input type="range" min={1} max={200} value={employees}
-          onChange={(e) => setEmployees(+e.target.value)} className="hbcalc-slider" />
+    <div className="hb-module-calc hbcalc-v2">
+      {/* Section 1: Your operation */}
+      <div className="hbcalc-section">
+        <div className="hbcalc-section-label">01 — Your operation</div>
+        <div className="hbcalc-row">
+          <label className="hbcalc-label">Team size: <strong style={{ color: "rgba(255,255,255,0.9)" }}>{employees}</strong></label>
+          <input type="range" min={1} max={200} value={employees} onChange={(e) => setEmployees(+e.target.value)} className="hbcalc-slider" />
+        </div>
+        <div className="hbcalc-row">
+          <label className="hbcalc-label">Monthly AI spend</label>
+          <div style={{ display: "flex", gap: "0.35rem", alignItems: "center" }}>
+            <span style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.85rem" }}>$</span>
+            <input type="text" placeholder="e.g. 2000" value={spendInput} onChange={(e) => setSpendInput(e.target.value)} className="hbcalc-input" style={{ flex: 1 }} />
+          </div>
+          <div style={{ display: "flex", gap: "0.35rem", flexWrap: "wrap", marginTop: "0.4rem" }}>
+            {["500", "2000", "5000", "10000"].map((v) => (
+              <button key={v} onClick={() => setSpendInput(v)} style={{ fontSize: "0.65rem", padding: "0.15rem 0.5rem", borderRadius: "99px", border: "1px solid rgba(255,255,255,0.12)", background: spendInput === v ? "rgba(6,182,212,0.12)" : "transparent", color: spendInput === v ? "#06b6d4" : "rgba(255,255,255,0.4)", cursor: "pointer", fontFamily: "inherit" }}>
+                ${v}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="hbcalc-row">
+          <label className="hbcalc-label">AI agents / tools in use: <strong style={{ color: "rgba(255,255,255,0.9)" }}>{aiAgentCount}</strong></label>
+          <input type="range" min={1} max={15} value={aiAgentCount} onChange={(e) => setAiAgentCount(+e.target.value)} className="hbcalc-slider" />
+        </div>
       </div>
-      <div className="hbcalc-row">
-        <label className="hbcalc-label">AI tools in use: {tools}</label>
-        <input type="range" min={1} max={20} value={tools}
-          onChange={(e) => setTools(+e.target.value)} className="hbcalc-slider" />
+
+      {/* Section 2: Where the pain is */}
+      <div className="hbcalc-section">
+        <div className="hbcalc-section-label">02 — Where the pain is</div>
+        <div className="hbcalc-row">
+          <label className="hbcalc-label" style={{ color: "#ef4444" }}>
+            Time spent fixing AI errors: <strong style={{ color: "rgba(255,255,255,0.9)" }}>{fixTimePct}%</strong>
+          </label>
+          <input type="range" min={0} max={100} value={fixTimePct} onChange={(e) => setFixTimePct(+e.target.value)} className="hbcalc-slider" />
+          <SliderBar pct={fixTimePct} color="#ef4444" />
+        </div>
+        <div className="hbcalc-row">
+          <label className="hbcalc-label" style={{ color: "#f59e0b" }}>
+            Time spent reviewing AI output before it ships: <strong style={{ color: "rgba(255,255,255,0.9)" }}>{reviewTimePct}%</strong>
+          </label>
+          <input type="range" min={0} max={100} value={reviewTimePct} onChange={(e) => setReviewTimePct(+e.target.value)} className="hbcalc-slider" />
+          <SliderBar pct={reviewTimePct} color="#f59e0b" />
+        </div>
+        <div className="hbcalc-row">
+          <label className="hbcalc-label" style={{ color: "#06b6d4" }}>
+            Agent actions you actually monitor: <strong style={{ color: "rgba(255,255,255,0.9)" }}>{monitoringPct}%</strong>
+            {monitoringPct < 30 && <span style={{ marginLeft: "0.5rem", fontSize: "0.65rem", color: "#ef4444" }}>blind spot</span>}
+          </label>
+          <input type="range" min={0} max={100} value={monitoringPct} onChange={(e) => setMonitoringPct(+e.target.value)} className="hbcalc-slider" />
+          <SliderBar pct={monitoringPct} color="#06b6d4" inverse />
+        </div>
       </div>
-      <div className="hbcalc-row">
-        <label className="hbcalc-label">Monthly AI spend ($)</label>
-        <input type="text" placeholder="e.g. 2000" value={spendInput}
-          onChange={(e) => setSpendInput(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && calculate()}
-          className="hbcalc-input" />
+
+      {/* Section 3: Where you work */}
+      <div className="hbcalc-section">
+        <div className="hbcalc-section-label">03 — Where you work with AI</div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem", marginTop: "0.4rem" }}>
+          {WORKPLACE_OPTIONS.map((v) => (
+            <MultiChip key={v} label={v} selected={workplaceChips.includes(v)} onToggle={() => toggleWorkplace(v)} />
+          ))}
+        </div>
       </div>
-      <button onClick={calculate} className="hbcalc-btn">Calculate</button>
-      {result && (
-        <div className="hbcalc-result">
-          {/* Animated bar visualization */}
-          <div className="hbcalc-bars">
-            {[
-              { label: "Prevented / mo", value: result.prevented, max: Math.max(result.prevented, 10000), color: "#ef4444", prefix: "$", suffix: "" },
-              { label: "Hours returned / mo", value: result.hoursMonthly, max: Math.max(result.hoursMonthly, 10), color: "#06b6d4", prefix: "", suffix: " hrs" },
-              { label: "ROI ratio", value: Math.min(result.roiRatio, 9999), max: Math.max(result.roiRatio, 1000), color: "#8b5cf6", prefix: "", suffix: "x" },
-            ].map((bar) => {
-              const pct = Math.min((bar.value / bar.max) * 100, 100);
-              return (
-                <div key={bar.label} className="hbcalc-bar-row">
-                  <div className="hbcalc-bar-label">{bar.label}</div>
-                  <div className="hbcalc-bar-track">
-                    <div
-                      className="hbcalc-bar-fill"
-                      style={{ width: `${pct}%`, background: bar.color, boxShadow: `0 0 8px ${bar.color}60` }}
-                    />
-                  </div>
-                  <div className="hbcalc-bar-val" style={{ color: bar.color }}>
-                    {bar.prefix}{typeof bar.value === "number" && bar.value > 999 ? bar.value.toLocaleString() : bar.value}{bar.suffix}
-                  </div>
-                </div>
-              );
+
+      {/* Section 4: Models */}
+      <div className="hbcalc-section">
+        <div className="hbcalc-section-label">04 — Which models you use</div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem", marginTop: "0.4rem" }}>
+          {MODEL_OPTIONS.map((v) => (
+            <MultiChip key={v} label={v} selected={modelChips.includes(v)} onToggle={() => toggleModel(v)} />
+          ))}
+        </div>
+        {modelChips.length > 1 && (
+          <div style={{ marginTop: "0.4rem", fontSize: "0.68rem", color: "#f59e0b", fontFamily: "ui-monospace,monospace" }}>
+            {modelChips.length} models detected. Multi-vendor risk applies.
+          </div>
+        )}
+      </div>
+
+      {/* Section 5: Trust signals */}
+      <div className="hbcalc-section">
+        <div className="hbcalc-section-label">05 — Trust signals</div>
+        <div className="hbcalc-row" style={{ gap: "0.35rem" }}>
+          <label className="hbcalc-label">How often have you caught an agent making things up?</label>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "0.35rem", marginTop: "0.3rem" }}>
+            {HALLUC_OPTIONS.map((v) => (
+              <button key={v} onClick={() => setHallucFreq(v)} style={{ height: "28px", padding: "0 0.65rem", borderRadius: "99px", border: `1px solid ${hallucFreq === v ? "#ef4444" : "rgba(255,255,255,0.12)"}`, background: hallucFreq === v ? "rgba(239,68,68,0.15)" : "transparent", color: hallucFreq === v ? "#ef4444" : "rgba(255,255,255,0.45)", fontSize: "0.68rem", cursor: "pointer", fontFamily: "inherit", fontWeight: hallucFreq === v ? 700 : 400 }}>{v}</button>
+            ))}
+          </div>
+        </div>
+        <div className="hbcalc-row" style={{ gap: "0.35rem" }}>
+          <label className="hbcalc-label">Have you ever shipped agent output without reviewing it?</label>
+          <div style={{ display: "flex", gap: "0.35rem", marginTop: "0.3rem" }}>
+            {["Yes", "No"].map((v) => {
+              const val = v.toLowerCase();
+              const sel = shippedWithoutReview === val;
+              return <button key={v} onClick={() => setShippedWithoutReview(val)} style={{ height: "28px", padding: "0 0.75rem", borderRadius: "99px", border: `1px solid ${sel ? "#f59e0b" : "rgba(255,255,255,0.12)"}`, background: sel ? "rgba(245,158,11,0.15)" : "transparent", color: sel ? "#f59e0b" : "rgba(255,255,255,0.45)", fontSize: "0.7rem", cursor: "pointer", fontFamily: "inherit", fontWeight: sel ? 700 : 400 }}>{v}</button>;
             })}
           </div>
-          <div className="hbcalc-r-row" style={{ marginTop: "0.75rem" }}>
-            <span className="hbcalc-r-label">Projected monthly savings</span>
-            <span className="hbcalc-r-val">${result.prevented.toLocaleString()}</span>
+        </div>
+        <div className="hbcalc-row" style={{ gap: "0.35rem" }}>
+          <label className="hbcalc-label">Has an agent ever cost you money you didn&apos;t authorize?</label>
+          <div style={{ display: "flex", gap: "0.35rem", marginTop: "0.3rem" }}>
+            {["Yes", "No"].map((v) => {
+              const val = v.toLowerCase();
+              const sel = unauthorizedCost === val;
+              return <button key={v} onClick={() => setUnauthorizedCost(val)} style={{ height: "28px", padding: "0 0.75rem", borderRadius: "99px", border: `1px solid ${sel ? "#ef4444" : "rgba(255,255,255,0.12)"}`, background: sel ? "rgba(239,68,68,0.15)" : "transparent", color: sel ? "#ef4444" : "rgba(255,255,255,0.45)", fontSize: "0.7rem", cursor: "pointer", fontFamily: "inherit", fontWeight: sel ? 700 : 400 }}>{v}</button>;
+            })}
           </div>
-          <div className="hbcalc-r-row">
-            <span className="hbcalc-r-label">Operator hours returned / mo</span>
-            <span className="hbcalc-r-val">{result.hoursMonthly} hrs</span>
+        </div>
+      </div>
+
+      {/* Section 6: Diagnosis */}
+      <div className="hbcalc-section" style={{ borderColor: diagnosis ? "rgba(139,92,246,0.25)" : undefined }}>
+        <div className="hbcalc-section-label" style={{ color: "#8b5cf6" }}>06 — Your diagnosis</div>
+
+        {!allSectionsHaveInput && (
+          <div style={{ padding: "1rem", textAlign: "center", color: "rgba(255,255,255,0.3)", fontSize: "0.78rem", fontFamily: "ui-monospace,monospace", border: "1px dashed rgba(255,255,255,0.08)", borderRadius: "10px", background: "rgba(255,255,255,0.01)" }}>
+            Fill in the sections above. The diagnosis appears here.
           </div>
-          <div className="hbcalc-r-row">
-            <span className="hbcalc-r-label">ROI vs $5.07/mo infra</span>
-            <span className="hbcalc-r-val accent">{result.roiRatio.toLocaleString()}x</span>
+        )}
+
+        {diagnosis && (
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", animation: "hb-fade-in 0.4s ease" }}>
+            {/* Headline number */}
+            <div className="hbcalc-bars">
+              {[
+                { label: "Projected savings / mo", value: diagnosis.prevented, max: Math.max(diagnosis.prevented, 10000), color: "#ef4444", prefix: "$", suffix: "" },
+                { label: "Hours returned / mo", value: diagnosis.hoursMonthly, max: Math.max(diagnosis.hoursMonthly, 10), color: "#06b6d4", prefix: "", suffix: " hrs" },
+              ].map((bar) => {
+                const pct = Math.min((bar.value / bar.max) * 100, 100);
+                return (
+                  <div key={bar.label} className="hbcalc-bar-row">
+                    <div className="hbcalc-bar-label">{bar.label}</div>
+                    <div className="hbcalc-bar-track">
+                      <div className="hbcalc-bar-fill" style={{ width: `${pct}%`, background: bar.color, boxShadow: `0 0 8px ${bar.color}60`, transition: "width 0.6s cubic-bezier(0.16,1,0.3,1)" }} />
+                    </div>
+                    <div className="hbcalc-bar-val" style={{ color: bar.color }}>
+                      {bar.prefix}{typeof bar.value === "number" && bar.value > 999 ? bar.value.toLocaleString() : bar.value}{bar.suffix}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Risk score */}
+            <div style={{ padding: "0.75rem 1rem", borderRadius: "10px", background: `${RISK_COLORS[diagnosis.riskBand]}0a`, border: `1px solid ${RISK_COLORS[diagnosis.riskBand]}25` }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.4rem" }}>
+                <span style={{ fontSize: "0.72rem", fontFamily: "ui-monospace,monospace", textTransform: "uppercase", letterSpacing: "0.1em", color: RISK_COLORS[diagnosis.riskBand] }}>
+                  Agent risk score
+                </span>
+                <span style={{ fontSize: "1.2rem", fontWeight: 900, color: RISK_COLORS[diagnosis.riskBand] }}>
+                  {diagnosis.riskScore}/100
+                </span>
+              </div>
+              <div style={{ height: "6px", background: "rgba(255,255,255,0.06)", borderRadius: "99px", overflow: "hidden" }}>
+                <div style={{ height: "100%", width: `${diagnosis.riskScore}%`, background: RISK_COLORS[diagnosis.riskBand], borderRadius: "99px", transition: "width 0.8s cubic-bezier(0.16,1,0.3,1)" }} />
+              </div>
+              <div style={{ marginTop: "0.3rem", fontSize: "0.68rem", color: RISK_COLORS[diagnosis.riskBand] }}>{RISK_LABELS[diagnosis.riskBand]}</div>
+            </div>
+
+            {/* Governance gaps */}
+            {diagnosis.gaps.length > 0 && (
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+                <div style={{ fontSize: "0.65rem", fontFamily: "ui-monospace,monospace", textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(255,255,255,0.3)", marginBottom: "0.1rem" }}>Governance gaps detected</div>
+                {diagnosis.gaps.map((gap, i) => (
+                  <div key={gap.id} style={{ padding: "0.6rem 0.875rem", borderRadius: "8px", background: "rgba(239,68,68,0.04)", border: "1px solid rgba(239,68,68,0.12)", animation: `hb-fade-in 0.3s ease ${i * 0.08}s both` }}>
+                    <div style={{ display: "flex", alignItems: "flex-start", gap: "0.4rem" }}>
+                      <span style={{ width: "5px", height: "5px", borderRadius: "50%", background: "#ef4444", flexShrink: 0, marginTop: "0.45rem" }} />
+                      <div>
+                        <div style={{ fontSize: "0.76rem", fontWeight: 700, color: "rgba(255,255,255,0.85)", marginBottom: "0.15rem" }}>{gap.label}</div>
+                        <div style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.45)", lineHeight: 1.5 }}>{gap.explainer}</div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Tier + pain match */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem" }}>
+              <div style={{ padding: "0.65rem 0.875rem", borderRadius: "8px", background: "rgba(139,92,246,0.06)", border: "1px solid rgba(139,92,246,0.18)" }}>
+                <div style={{ fontSize: "0.62rem", fontFamily: "ui-monospace,monospace", textTransform: "uppercase", color: "rgba(139,92,246,0.7)", marginBottom: "0.2rem" }}>Recommended tier</div>
+                <div style={{ fontSize: "0.9rem", fontWeight: 800, color: "#8b5cf6" }}>{diagnosis.tier.name}</div>
+                <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.5)" }}>{diagnosis.tier.price}</div>
+              </div>
+              <div style={{ padding: "0.65rem 0.875rem", borderRadius: "8px", background: "rgba(16,185,129,0.06)", border: "1px solid rgba(16,185,129,0.18)" }}>
+                <div style={{ fontSize: "0.62rem", fontFamily: "ui-monospace,monospace", textTransform: "uppercase", color: "rgba(16,185,129,0.7)", marginBottom: "0.2rem" }}>Pain match</div>
+                <div style={{ fontSize: "0.9rem", fontWeight: 800, color: "#10b981" }}>{diagnosis.painMatchPct}%</div>
+                <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.5)" }}>of what you described</div>
+              </div>
+            </div>
+
+            {/* CTA */}
+            <div style={{ textAlign: "center", marginTop: "0.25rem" }}>
+              <div style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.5)", marginBottom: "0.5rem" }}>
+                We catch {diagnosis.painMatchPct}% of what you described above.
+              </div>
+              <button
+                onClick={() => {
+                  // Focus chat input
+                  const chatInput = document.querySelector<HTMLInputElement>(".hb-freetext-input");
+                  if (chatInput) { chatInput.focus(); chatInput.placeholder = "Tell MAX what you want fixed first."; }
+                }}
+                style={{ padding: "0.6rem 1.25rem", borderRadius: "99px", background: "#8b5cf6", color: "white", fontSize: "0.8rem", fontWeight: 700, border: "none", cursor: "pointer" }}
+              >
+                Want this for your operation? Talk to MAX.
+              </button>
+            </div>
           </div>
+        )}
+      </div>
+
+      {/* Legacy anchor + how explainer */}
+      {legacyResult && (
+        <>
           <div className="hbcalc-anchor">
             Eric&apos;s actual numbers: $52,686 prevented. $5.07/mo. 3,464x ROI.
           </div>
@@ -559,7 +878,7 @@ function CalculatorModule({
               <p style={{ margin: 0 }}>Prevention rate (87.8%) is derived from Eric&apos;s 90-day production data: $52,686 prevented out of ~$59,963 waste-at-risk.</p>
             </div>
           </HowExplainer>
-        </div>
+        </>
       )}
     </div>
   );
@@ -5848,6 +6167,28 @@ const CSS = `
   .hbcalc-r-val { font-size: 0.92rem; font-weight: 700; color: rgba(255,255,255,0.85); font-variant-numeric: tabular-nums; }
   .hbcalc-r-val.accent { color: #f59e0b; }
   .hbcalc-anchor { font-size: 0.68rem; color: rgba(255,255,255,0.22); font-style: italic; margin-top: 0.25rem; }
+
+  /* ── Calculator v2 sections ── */
+  .hbcalc-v2 { gap: 0; }
+  .hbcalc-section {
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 0.6rem;
+    background: rgba(255,255,255,0.015);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    transition: border-color 0.2s ease;
+  }
+  .hbcalc-section-label {
+    font-size: 0.62rem;
+    font-family: ui-monospace, monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: rgba(255,255,255,0.3);
+    margin-bottom: 0.1rem;
+  }
 
   /* ── Article module ── */
   .hb-module-article {
