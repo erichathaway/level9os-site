@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Level9OS ICP Flow Design — v3 ICP Order Fix + Calculator Expansion + Module Upgrades</title>
+<title>Level9OS ICP Flow Design — v4 Calculator ICP Auto-Seed + Sub-Anchor Expansion</title>
 <style>
   :root {
     --bg-root: #030306;
@@ -72,18 +72,46 @@
 <body>
 <div class="meta">
   <span class="badge">PLANNING DOC</span>
-  <span class="badge">v3</span>
+  <span class="badge">v4</span>
   <span class="badge">2026-05-13</span>
   <br><br>
   Source: <code>LEVEL9OS-ICP-FLOW-DESIGN-2026-05-13.md</code><br>
-  Branch: <code>rebuild</code> &mdash; Phase 1 <code>248b10e</code> &middot; Phase 2 <code>3a9b8b5</code> &middot; Phase 3 <code>c264fe2</code>
+  Branch: <code>rebuild</code> &mdash; v3: <code>248b10e</code> &middot; <code>3a9b8b5</code> &middot; <code>c264fe2</code> &middot; <code>1ff7f35</code> &nbsp;|&nbsp; v4: <code>f0b0a76</code>
 </div>
-<h1>LEVEL9OS-ICP-FLOW-DESIGN-2026-05-13</h1>
+<h1>LEVEL9OS-ICP-FLOW-DESIGN-2026-05-13 <span style="color:#8b5cf6;font-size:0.55em;font-weight:700;vertical-align:middle;margin-left:0.4em">v4</span></h1>
 
 <p><strong>File target:</strong> <code>/Users/erichathaway/claude code 1/LEVEL9OS-ICP-FLOW-DESIGN-2026-05-13.md</code><br>
-<strong>Status:</strong> <strong style="color:#10b981">v3 — ICP detection order fix + Calculator 6-section expansion + module upgrade pass. Shipped to <code>rebuild</code> branch.</strong><br>
-<strong>Generated:</strong> 2026-05-13 &nbsp; <strong>Updated:</strong> 2026-05-13 (Phase 1 + Phase 2 + Phase 3 implementation complete)<br>
-<strong>Source inputs read:</strong> ConversationHomepage.tsx (6800+ lines), CLAUDE.md, GOVERNANCE_IMPACT_ANALYSIS_2026-05-12.md</p>
+<strong>Status:</strong> <strong style="color:#10b981">v4 &mdash; Calculator ICP auto-seed + rich module sub-anchor expansion + 15 new pool prompts. Shipped to <code>rebuild</code> branch.</strong><br>
+<strong>Generated:</strong> 2026-05-13 &nbsp; <strong>Updated:</strong> 2026-05-13 (v4: Calculator auto-seed + sub-anchors + pool prompts)<br>
+<strong>Commits:</strong> <code>248b10e</code> (v3-P1) &middot; <code>3a9b8b5</code> (v3-P2) &middot; <code>c264fe2</code> (v3-P3) &middot; <code>1ff7f35</code> (v3-docs) &middot; <code>f0b0a76</code> (v4)<br>
+<strong>Source inputs read:</strong> ConversationHomepage.tsx (7500+ lines), CLAUDE.md, GOVERNANCE_IMPACT_ANALYSIS_2026-05-12.md</p>
+
+<hr>
+
+<h2>v4 Change Summary</h2>
+
+<p><strong>Phase 1 &mdash; Calculator auto-seed from detected ICP</strong> (commit <code>f0b0a76</code>):</p>
+<ul>
+<li><code>ICP_CALC_SEEDS</code> const: 4 seed configs covering all 5 calculator sections. solo: 1 person / $200/mo / 2 agents / 35% fix / 40% review / 50% monitoring / Browser tab / Claude / Rarely / no / no. smb: 25 / $2k / 5 / 25% / 30% / 35% / Browser+Slack / Claude+GPT / Sometimes / no / no. growth: 100 / $10k / 8 / 18% / 20% / 25% / Browser+VS Code+Slack / Claude+GPT+Gemini / Often / yes / yes. enterprise: 500 / $50k / 12 / 15% / 15% / 15% / 4 surfaces / 4 models / Often / yes / yes.</li>
+<li><code>seedIcp</code> resolved from <code>icpProbability</code> dominant key at mount; seed applied to all state initializers.</li>
+<li>Seed banner: "Pre-filled for [ICP label]. Drag any slider to refine." Cyan, auto-dismisses in 5 seconds, close button.</li>
+<li>All Section 1-5 inputs call <code>markTouched()</code> on first change; manual edits never overwritten post-touch.</li>
+<li><code>ModuleRenderer</code> updated to accept and pass <code>icpProbability</code>. Both render sites updated.</li>
+</ul>
+
+<p><strong>Phase 2 &mdash; Sub-anchor expansion + 15 new pool prompts</strong> (commit <code>f0b0a76</code>):</p>
+<ul>
+<li><code>anchor</code> field added to <code>PoolPrompt</code> interface.</li>
+<li>Sub-anchors added across 5 rich modules. Governance: <code>lie-detector</code>, <code>cost-router</code>, <code>officer-system</code>, <code>audit-trail</code>, <code>trust-scores</code>, <code>max-voice</code>, <code>identity-access</code>, <code>auto-doc</code>. Compare: <code>pillars</code>, per-competitor <code>id</code> on each accordion (microsoft / salesforce / workday / anthropic / glean). Wrappers: <code>pattern</code>, <code>outboundos</code>, ghost wrappers get id from name (financeos / salesos / executionos / productos). Architecture: <code>stackflow</code>, <code>decisiontrace</code>, <code>bridge</code>. Paths: per-path card <code>id</code> (startup / growth / enterprise), <code>methodology</code>.</li>
+<li>15 new pool prompts with <code>anchor</code> routing. All pass emotional voice + ICP-affinity discipline. Distributed across Groups B and D. New prompts target governance sub-details (lie-detector, cost-router, audit-trail, trust-scores, officer-system), competitor deep dives (microsoft, salesforce, pillars), wrapper depth (outboundos, financeos), architecture details (bridge, decisiontrace), and path entry (startup, growth, methodology).</li>
+<li>Scroll wiring: <code>poolPrompt.anchor</code> triggers <code>scrollIntoView({ behavior: "smooth" })</code> 600ms after <code>revealModule</code> resolves. Null-guarded for splash-to-dashboard transition timing.</li>
+</ul>
+
+<p><strong>Open Questions resolved:</strong></p>
+<ul>
+<li>Q11 (Calculator auto-seed on return visit): <code>touched</code> state is not persisted in localStorage; fresh mount always re-seeds from dominant ICP. Correct for majority case. Deferred: persist <code>touched</code> in localStorage for multi-visit sessions.</li>
+<li>Q12 (Anchor scroll timing in splash transition): 600ms delay is empirically sufficient for dashboard state. In splash-to-dashboard, element may not exist at 600ms if transition is slow. Null-guard prevents throw; worst case: anchor scroll silently skips. Production monitoring needed.</li>
+</ul>
 
 <hr>
 
