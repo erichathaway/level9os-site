@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Level9OS ICP Flow Design</title>
+<title>Level9OS ICP Flow Design — v2 Emotional Voice + Probability Ranking</title>
 <style>
   :root {
     --bg-root: #030306;
@@ -72,13 +72,46 @@
 <body>
 <div class="meta">
   <span class="badge">PLANNING DOC</span>
+  <span class="badge">v2</span>
   <span class="badge">2026-05-13</span>
   <br><br>
-  Source: <code>LEVEL9OS-ICP-FLOW-DESIGN-2026-05-13.md</code>
+  Source: <code>LEVEL9OS-ICP-FLOW-DESIGN-2026-05-13.md</code><br>
+  Branch: <code>rebuild</code> &mdash; Phase 1 <code>eec19ad</code> &middot; Phase 2 <code>600511a</code>
 </div>
 <h1>LEVEL9OS-ICP-FLOW-DESIGN-2026-05-13</h1>
 
-<p><strong>File target:</strong> <code>/Users/erichathaway/claude code 1/LEVEL9OS-ICP-FLOW-DESIGN-2026-05-13.md</code><br><strong>Status:</strong> Planning deliverable. Operator review required before implementation.<br><strong>Generated:</strong> 2026-05-13<br><strong>Source inputs read:</strong> ConversationHomepage.tsx (full 3900+ lines), CLAUDE.md, LEVEL9OS-VOICE-PITCH-SCRIPTS-2026-05-12.md, GOVERNANCE<em>IMPACT</em>ANALYSIS_2026-05-12.md, LEVEL9OS-DECISIONS-LOCKED-2026-05-11.md</p>
+<p><strong>File target:</strong> <code>/Users/erichathaway/claude code 1/LEVEL9OS-ICP-FLOW-DESIGN-2026-05-13.md</code><br>
+<strong>Status:</strong> <strong style="color:#10b981">v2 — emotional voice + probability ranking. Shipped to <code>rebuild</code> branch.</strong><br>
+<strong>Generated:</strong> 2026-05-13 &nbsp; <strong>Updated:</strong> 2026-05-13<br>
+<strong>Source inputs read:</strong> ConversationHomepage.tsx (6500+ lines), CLAUDE.md, GOVERNANCE_IMPACT_ANALYSIS_2026-05-12.md</p>
+
+<hr>
+
+<h2>v2 Change Summary</h2>
+
+<p><strong>Phase 1 &mdash; Chip copy rewrite</strong> (commit <code>eec19ad</code>):</p>
+<ul>
+<li>All chips rewritten with emotional-first voice. Every chip names a pain the operator has felt, not a feature description.</li>
+<li>6 universal chips added (<code>u-*</code> prefix): surface regardless of ICP before detection fires. Examples: "Has an agent ever said done before it actually was?", "Tired of AI bills that don't make sense?"</li>
+<li>ICP detection chips rewritten with emotional sizing language: "Just me. I'm building this alone." / "Small team. We're patching it together." / "Growing fast. Things are starting to break." / "Big org. I need to evaluate without getting locked in."</li>
+<li>ICP-adapted chip sets rewritten per segment with scale-specific pain hooks.</li>
+<li>Group F playful chips (7 total) retired entirely. Slot 4 now rotates universal pain hooks.</li>
+<li><code>icpAffinity</code> weights <code>{solo, smb, growth, enterprise}</code> added to every chip for ranking engine.</li>
+<li><code>universal: true</code> field added for chips that must appear in screens 1-2.</li>
+</ul>
+
+<p><strong>Phase 2 &mdash; Probability ranking engine</strong> (commit <code>600511a</code>):</p>
+<ul>
+<li>Replaced hard-bucket ICP filter with soft-probability distribution always summing to 1.0.</li>
+<li>Explicit nudge: ICP chip click &rarr; named segment 0.70, others split 0.30.</li>
+<li>Implicit nudge: any chip click with <code>icpAffinity</code> &rarr; Bayesian update at 0.05 learning rate.</li>
+<li>Decay: 5% drift back toward uniform every 10 clicks or 5 minutes idle.</li>
+<li>Chip scoring: affinity dot-product + recency penalty + closed-tab boost + universal bonus.</li>
+<li>Diversification: slot 4 always shows chip with different dominant ICP than slot 1. "We leave a way out."</li>
+<li>Screens 1-2 (<code>engagementLevel &lt; 2</code>): force universal chips before probability engine kicks in.</li>
+<li>Dev debug overlay: <code>NEXT_PUBLIC_DEBUG_ICP=true</code> shows live probability panel. Off in production.</li>
+<li><code>icpProbability</code> persisted in localStorage across sessions.</li>
+</ul>
 
 <hr>
 
@@ -513,7 +546,38 @@
 
 <hr>
 
-<h2>4. Pre-Built Tour Entry Mechanic</h2>
+<h2>4. Probability Ranking Engine (v2 &mdash; shipped)</h2>
+
+<p>The hard-bucket ICP filter has been replaced with a soft-probability distribution that evolves with every visitor interaction. This section documents the engine as shipped to the <code>rebuild</code> branch (commit <code>600511a</code>).</p>
+
+<h3>State</h3>
+<p><code>icpProbability: &#123; solo: number; smb: number; growth: number; enterprise: number &#125;</code> &mdash; always sums to 1.0. Persisted in localStorage across sessions. Initial state: uniform <code>&#123;0.25, 0.25, 0.25, 0.25&#125;</code>.</p>
+
+<h3>Update rules</h3>
+<p><strong>Explicit nudge</strong> (ICP detection chip click): Named ICP &rarr; 0.70, other three ICPs split 0.30 equally. Renormalized to sum 1.0.</p>
+<p><strong>Implicit nudge</strong> (any chip with <code>icpAffinity</code>): Bayesian update at learning rate 0.05. <code>new_prob[k] = (1 - 0.05) * current[k] + 0.05 * affinity_normalized[k]</code>. Small shift toward chip's affinity profile accumulates over multiple clicks.</p>
+<p><strong>Decay</strong> (anti-lock-in): Fires every 10 clicks and every 5 minutes of idle. Each tick: 5% drift back toward uniform. Prevents a misclick from permanently biasing the distribution.</p>
+
+<h3>Chip scoring</h3>
+<pre><code>score = affinityDotProduct + recencyPenalty + closedTabBoost + universalBonus
+
+affinityDotProduct = sum(chip.icpAffinity[k] * icpProbability[k])
+recencyPenalty     = -0.3 if chip shown in last 10, else 0
+closedTabBoost     = +0.2 if chip.opensModule in closedTabs, else 0
+universalBonus     = +0.1 if chip.universal === true, else 0</code></pre>
+
+<h3>Diversification (slot 4 &mdash; "we leave a way out")</h3>
+<p>Slots 1-3: top 3 chips by score. Slot 4: highest-scoring chip whose <strong>dominant ICP</strong> is different from slot 1's dominant ICP. A visitor inferred as solo always sees one growth/enterprise chip. Prevents the interface from collapsing entirely into one segment's voice before explicit self-identification.</p>
+
+<h3>Universal-first on screens 1-2</h3>
+<p>For fresh sessions where <code>engagementLevel &lt; 2</code>: ICP detection chips or <code>ICP_CHIPS[icp]</code> are shown. The probability engine does not pick chips until the visitor has had 2+ interactions. This preserves the emotional hook layer before segmentation logic kicks in.</p>
+
+<h3>Dev debug overlay</h3>
+<p>Set <code>NEXT_PUBLIC_DEBUG_ICP=true</code> in <code>.env.local</code> to enable a fixed bottom-right overlay showing live probability percentages and dominant ICP. Hidden in production.</p>
+
+<hr>
+
+<h2>5. Pre-Built Tour Entry Mechanic</h2>
 
 <p><strong>Where the tour buttons live:</strong></p>
 
@@ -549,7 +613,7 @@
 
 <hr>
 
-<h2>5. Chip Discipline Ruleset</h2>
+<h2>6. Chip Discipline Ruleset</h2>
 
 <p><strong>Rules for a chip to earn a slot:</strong></p>
 
@@ -578,7 +642,7 @@
 
 <hr>
 
-<h2>6. Content Reorganization Recommendations</h2>
+<h2>7. Content Reorganization Recommendations</h2>
 
 <p><strong>Modules that need to split:</strong></p>
 
@@ -624,7 +688,7 @@
 
 <hr>
 
-<h2>7. Open Questions for Eric</h2>
+<h2>8. Open Questions for Eric (v2 updated)</h2>
 
 <p><strong>1. 10 screens per ICP or 8?</strong></p>
 
@@ -684,6 +748,18 @@
 
 <p>Decision point: if the Governance module carries the "plug any agent, one control plane" message effectively (it does, via the multi-vendor orchestration capability card), then Architecture is not needed in the Founder path and should stay cut. If the Founder ICP frequently asks "but how does this actually work under the hood," Architecture at screen 7 or 8 as an optional depth chip would address that without making it a mandatory screen.</p>
 
+<p><strong>8. Should diversification be suppressed after explicit ICP self-identification?</strong> (new &mdash; v2)</p>
+
+<p>The diversification slot (slot 4) will sometimes show a chip aimed at a segment the visitor self-identified away from (e.g., an enterprise chip for a visitor who clicked "Just me"). This is intentional per spec ("we leave a way out") but may feel inconsistent to visitors who self-identified clearly. Suppressing it after an explicit nudge is a 2-line change. Recommendation: leave active and observe in real sessions first.</p>
+
+<p><strong>9. Learning rate 0.05 &mdash; is that too slow for short sessions?</strong> (new &mdash; v2)</p>
+
+<p>At 0.05 learning rate, it takes approximately 8-10 chip clicks for a strong affinity signal to meaningfully shift the distribution. If average session depth is fewer than 5 clicks, consider raising to 0.10 or 0.15. Monitor via debug overlay + session analytics before locking the rate.</p>
+
+<p><strong>10. Should the probability distribution be reflected in any visible UI element?</strong> (new &mdash; v2)</p>
+
+<p>Not in production. But a subtle accent color shift as probability builds could reinforce that the interface is adapting to the visitor. Out of scope for v2. Flag for v3 consideration.</p>
+
 <hr>
 
 <h2>Appendix: Module-to-ICP Screen Matrix</h2>
@@ -692,11 +768,14 @@
 
 <table><thead><tr><th>Module</th><th>Individual</th><th>Founder</th><th>Growth</th><th>Enterprise</th></tr></thead><tbody><tr><td>Counter (ICP-adapted)</td><td>Screen 1</td><td>Screen 1</td><td>Supporting</td><td>Supporting</td></tr><tr><td>Live Feed</td><td>Screen 2</td><td>Screen 7 (sup.)</td><td>Supporting</td><td>Screen 3</td></tr><tr><td>Try It</td><td>Screen 3, 9</td><td>Screen 10</td><td>CTA only</td><td>Screen 10</td></tr><tr><td>Compounding Risk</td><td>Screen 4</td><td>Screen 3</td><td>Screen 1</td><td>Supporting</td></tr><tr><td>Governance</td><td>Screen 5</td><td>Screen 7</td><td>Screen 2</td><td>Screen 1, 2</td></tr><tr><td>GTM Hook Card</td><td>Screen 6</td><td>--</td><td>--</td><td>--</td></tr><tr><td>Paths (single)</td><td>Screen 7</td><td>Screen 8</td><td>Screen 8</td><td>Screen 7</td></tr><tr><td>About (summary)</td><td>Screen 8</td><td>Screen 9</td><td>--</td><td>Screen 9</td></tr><tr><td>Calculator</td><td>--</td><td>Screen 4</td><td>Screen 5</td><td>--</td></tr><tr><td>Article</td><td>--</td><td>Screen 2</td><td>--</td><td>--</td></tr><tr><td>Products</td><td>--</td><td>Screen 5</td><td>--</td><td>Screen 8</td></tr><tr><td>Why Us Race</td><td>--</td><td>Screen 6</td><td>Screen 6</td><td>Screen 6</td></tr><tr><td>Architecture</td><td>--</td><td>--</td><td>Screen 3</td><td>Screen 4</td></tr><tr><td>Wrappers</td><td>--</td><td>--</td><td>Screen 4</td><td>--</td></tr><tr><td>Wrapper Story</td><td>--</td><td>--</td><td>Screen 9</td><td>--</td></tr><tr><td>Compare</td><td>--</td><td>Supporting</td><td>Screen 7</td><td>Screen 5</td></tr><tr><td>Walkthroughs</td><td>Breakoff rescue</td><td>Supporting</td><td>Supporting</td><td>--</td></tr><tr><td>Voice Pitch</td><td>--</td><td>Screen 6 (depth)</td><td>Screen 7 (depth)</td><td>--</td></tr><tr><td>Comparison</td><td>--</td><td>Screen 5 (sup.)</td><td>Supporting</td><td>--</td></tr></tbody></table><hr>
 
-<h2>Output Report</h2>
+<h2>Output Report (v2 &mdash; 2026-05-13)</h2>
 
-<p>This document covers the full planning deliverable as requested. Because this is a READ-ONLY planning session, the file could not be written to disk. The document text above should be saved to <code>/Users/erichathaway/claude code 1/LEVEL9OS-ICP-FLOW-DESIGN-2026-05-13.md</code> by the implementation agent.</p>
+<p><strong>v2 implementation status:</strong> Phases 1 and 2 shipped to <code>rebuild</code> branch.<br>
+Phase 1 commit: <code>eec19ad</code> &mdash; chip copy rewrite<br>
+Phase 2 commit: <code>600511a</code> &mdash; probability ranking engine<br>
+Build: 14/14 routes clean on both commits. Both SHAs confirmed on origin/rebuild.</p>
 
-<p><strong>Approximate word count:</strong> 9,800 words<br><strong>Sections:</strong> 7 sections + appendix<br><strong>Screens designed:</strong> 40 (10 per ICP, all specified in full)<br><strong>Open questions for Eric:</strong> 7</p>
+<p><strong>Approximate word count:</strong> 12,400 words (v2)<br><strong>Sections:</strong> 8 sections + appendix<br><strong>Screens designed:</strong> 40 (10 per ICP, all specified in full)<br><strong>Open questions for Eric:</strong> 10 (7 original + 3 new v2)</p>
 
 <p><strong>Most important design decisions:</strong></p>
 
