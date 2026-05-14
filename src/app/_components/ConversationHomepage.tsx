@@ -79,6 +79,16 @@ interface PoolPrompt {
 
 type VisitorState = "splash" | "dashboard" | "transitioning";
 
+// Soft ICP probability — always sums to 1.0
+interface IcpProbability {
+  solo: number;
+  smb: number;
+  growth: number;
+  enterprise: number;
+}
+
+const UNIFORM_ICP_PROB: IcpProbability = { solo: 0.25, smb: 0.25, growth: 0.25, enterprise: 0.25 };
+
 interface ConversationState {
   threadId: string;
   messages: ChatMessage[];
@@ -94,6 +104,8 @@ interface ConversationState {
   engagementLevel: number;
   lastPlayfulLabel?: string;
   icp?: ICP;
+  /** Soft-probability distribution across ICP segments. Always sums to 1.0. */
+  icpProbability?: IcpProbability;
 }
 
 interface ChatMessage {
@@ -3527,6 +3539,130 @@ function getPoolSuggestions(
   return result;
 }
 
+// ─── Probability ranking engine ───────────────────────────────────────────────
+
+type IcpKey = keyof IcpProbability;
+const ICP_KEYS: IcpKey[] = ["solo", "smb", "growth", "enterprise"];
+
+/** Renormalize a probability object so values sum to 1.0 */
+function normalizeProbability(p: IcpProbability): IcpProbability {
+  const total = ICP_KEYS.reduce((s, k) => s + p[k], 0);
+  if (total === 0) return { ...UNIFORM_ICP_PROB };
+  return {
+    solo: p.solo / total,
+    smb: p.smb / total,
+    growth: p.growth / total,
+    enterprise: p.enterprise / total,
+  };
+}
+
+/**
+ * Explicit nudge: visitor clicked an ICP chip.
+ * Named ICP → 0.70, others split 0.30 equally.
+ */
+function explicitIcpNudge(icp: NonNullable<ICP>): IcpProbability {
+  const others = (1 - 0.7) / (ICP_KEYS.length - 1);
+  return normalizeProbability({
+    solo: icp === "solo" ? 0.7 : others,
+    smb: icp === "smb" ? 0.7 : others,
+    growth: icp === "growth" ? 0.7 : others,
+    enterprise: icp === "enterprise" ? 0.7 : others,
+  });
+}
+
+/**
+ * Implicit nudge: visitor clicked a chip with icpAffinity.
+ * Bayesian-style update with learning rate 0.05.
+ * new_prob = (1 - lr) * current + lr * affinity_normalized
+ */
+function implicitIcpNudge(
+  current: IcpProbability,
+  affinity: IcpProbability,
+  learningRate = 0.05
+): IcpProbability {
+  const normalizedAffinity = normalizeProbability(affinity);
+  return normalizeProbability({
+    solo: (1 - learningRate) * current.solo + learningRate * normalizedAffinity.solo,
+    smb: (1 - learningRate) * current.smb + learningRate * normalizedAffinity.smb,
+    growth: (1 - learningRate) * current.growth + learningRate * normalizedAffinity.growth,
+    enterprise: (1 - learningRate) * current.enterprise + learningRate * normalizedAffinity.enterprise,
+  });
+}
+
+/**
+ * Decay: drift back toward uniform by 5% per decay tick.
+ * Fires every 10 clicks or on idle.
+ */
+function decayIcpProbability(current: IcpProbability, rate = 0.05): IcpProbability {
+  return normalizeProbability({
+    solo: current.solo * (1 - rate) + UNIFORM_ICP_PROB.solo * rate,
+    smb: current.smb * (1 - rate) + UNIFORM_ICP_PROB.smb * rate,
+    growth: current.growth * (1 - rate) + UNIFORM_ICP_PROB.growth * rate,
+    enterprise: current.enterprise * (1 - rate) + UNIFORM_ICP_PROB.enterprise * rate,
+  });
+}
+
+/** Return the ICP key with the highest probability in a distribution */
+function dominantIcp(p: IcpProbability): IcpKey {
+  return ICP_KEYS.reduce((best, k) => (p[k] > p[best] ? k : best), ICP_KEYS[0]);
+}
+
+interface ChipScoringContext {
+  icpProbability: IcpProbability;
+  poolHistory: string[];
+  closedTabs: ModuleId[];
+}
+
+/** Score a single chip against the current visitor state */
+function scoreChip(chip: PoolPrompt, ctx: ChipScoringContext): number {
+  const affinity = chip.icpAffinity ?? UNIFORM_ICP_PROB;
+  const affinityScore = ICP_KEYS.reduce(
+    (sum, k) => sum + affinity[k] * ctx.icpProbability[k],
+    0
+  );
+  const recencyPenalty = ctx.poolHistory.includes(chip.id) ? -0.3 : 0;
+  const closedTabBoost = chip.opensModule && ctx.closedTabs.includes(chip.opensModule) ? 0.2 : 0;
+  const universalBonus = chip.universal ? 0.1 : 0;
+  return affinityScore + recencyPenalty + closedTabBoost + universalBonus;
+}
+
+/**
+ * Probability-ranked chip selection with diversification in slot 4.
+ * Slots 1-3: top 3 chips by score.
+ * Slot 4: highest-scoring chip whose dominant ICP differs from slot 1's dominant ICP.
+ */
+function getRankedChips(
+  candidates: PoolPrompt[],
+  ctx: ChipScoringContext,
+  count = 4
+): PoolPrompt[] {
+  const scored = candidates
+    .map((c) => ({ chip: c, score: scoreChip(c, ctx) }))
+    .sort((a, b) => b.score - a.score);
+
+  const top = scored.slice(0, count - 1).map((s) => s.chip);
+
+  // Slot 4: diversification — different dominant ICP from slot 1
+  const slot1Dominant = top.length > 0 ? dominantIcp(top[0].icpAffinity ?? UNIFORM_ICP_PROB) : null;
+  const diverseChip = scored
+    .slice(count - 1)
+    .find(
+      (s) =>
+        !top.includes(s.chip) &&
+        (slot1Dominant === null || dominantIcp(s.chip.icpAffinity ?? UNIFORM_ICP_PROB) !== slot1Dominant)
+    );
+
+  if (diverseChip) {
+    top.push(diverseChip.chip);
+  } else {
+    // No diverse chip available — fall back to next highest scorer
+    const fallback = scored.find((s) => !top.includes(s.chip));
+    if (fallback) top.push(fallback.chip);
+  }
+
+  return top;
+}
+
 function getInitialSuggestions(
   unlockedModules: ModuleId[],
   skippedMode: boolean
@@ -3582,6 +3718,9 @@ export default function ConversationHomepage() {
   const lastVisitorActivity = useRef<number>(Date.now());
 
   const [icp, setIcp] = useState<ICP>(null);
+  const [icpProbability, setIcpProbability] = useState<IcpProbability>({ ...UNIFORM_ICP_PROB });
+  // Click counter for decay ticks (decay fires every 10 clicks)
+  const clickCount = useRef(0);
 
   const [freeText, setFreeText] = useState("");
   const [freeTextPending, setFreeTextPending] = useState(false);
@@ -3738,6 +3877,7 @@ export default function ConversationHomepage() {
       if (saved.engagementLevel) setEngagementLevel(saved.engagementLevel);
       if (saved.lastPlayfulLabel) setLastPlayfulLabel(saved.lastPlayfulLabel);
       if (saved.icp) setIcp(saved.icp);
+      if (saved.icpProbability) setIcpProbability(saved.icpProbability);
       setIsReturning(true);
       setVisitorState("dashboard");
 
@@ -3784,8 +3924,21 @@ export default function ConversationHomepage() {
       engagementLevel,
       lastPlayfulLabel,
       icp,
+      icpProbability,
     });
-  }, [messages, unlockedModules, activeModule, userAnswers, isSkipped, closedTabs, poolHistory, engagementLevel, lastPlayfulLabel, icp]);
+  }, [messages, unlockedModules, activeModule, userAnswers, isSkipped, closedTabs, poolHistory, engagementLevel, lastPlayfulLabel, icp, icpProbability]);
+
+  // ICP probability idle decay — fires every 5 minutes of inactivity
+  useEffect(() => {
+    const IDLE_DECAY_MS = 5 * 60 * 1000; // 5 minutes
+    const interval = setInterval(() => {
+      const idleMs = Date.now() - lastVisitorActivity.current;
+      if (idleMs >= IDLE_DECAY_MS) {
+        setIcpProbability((prev) => decayIcpProbability(prev));
+      }
+    }, IDLE_DECAY_MS);
+    return () => clearInterval(interval);
+  }, []);
 
   // Cmd+K / Ctrl+K listener
   useEffect(() => {
@@ -4024,8 +4177,13 @@ export default function ConversationHomepage() {
   const handleReply = useCallback(
     async (replyId: string, replyLabel: string) => {
       recordActivity();
-      // Increment engagement ladder on every chip click
+      // Increment engagement ladder and track for decay tick
       setEngagementLevel((prev) => prev + 1);
+      clickCount.current += 1;
+      // Decay probability every 10 clicks to prevent misclick lock-in
+      if (clickCount.current % 10 === 0) {
+        setIcpProbability((prev) => decayIcpProbability(prev));
+      }
 
       if (replyId === "restart") {
         clearState();
@@ -4033,11 +4191,13 @@ export default function ConversationHomepage() {
         return;
       }
 
-      // ICP detection chip handling
+      // ICP detection chip handling — explicit nudge
       if (replyId.startsWith("icp-")) {
         const detectedIcp = replyId.replace("icp-", "") as NonNullable<ICP>;
         addMessage({ role: "user", content: replyLabel });
         setIcp(detectedIcp);
+        // Explicit nudge: named ICP → 0.70
+        setIcpProbability(explicitIcpNudge(detectedIcp));
         const confirmMessages: Record<NonNullable<ICP>, string> = {
           solo: "Got it. Solo builders are who this is built for first. Let me show you what catches your eye.",
           smb: "Got it. SMB founders are who we built this for. Let me show you what catches your eye.",
@@ -4107,6 +4267,10 @@ export default function ConversationHomepage() {
         // Track universal chip for rotation (avoids same chip back-to-back in slot 4)
         if (poolPrompt.universal) {
           setLastPlayfulLabel(replyLabel);
+        }
+        // Implicit ICP nudge: chip affinity shifts probability toward its weights
+        if (poolPrompt.icpAffinity) {
+          setIcpProbability((prev) => implicitIcpNudge(prev, poolPrompt.icpAffinity!));
         }
 
         if (poolPrompt.action === "cta-person") {
@@ -4197,7 +4361,7 @@ export default function ConversationHomepage() {
       }
     },
     [addMessage, agentSay, revealModule, unlockedModules, maxSelf, visitorState,
-     closedTabs, poolHistory, lastGroupShown, userAnswers, recordActivity, recordPoolShown, setIcp]
+     closedTabs, poolHistory, lastGroupShown, userAnswers, recordActivity, recordPoolShown, setIcp, setIcpProbability]
   );
 
   // Build palette items from module metadata + content pool
@@ -4291,14 +4455,27 @@ export default function ConversationHomepage() {
 
   const suggestedReplies = typing ? [] : (() => {
     const allPrimariesUnlocked = MODULE_ORDER.every((m) => unlockedModules.includes(m));
+    const scoringCtx: ChipScoringContext = { icpProbability, poolHistory, closedTabs };
+
+    // All primaries unlocked: probability-ranked pool + restart
     if (allPrimariesUnlocked) {
-      // Pure pool mode
-      const pool = getPoolSuggestions({
+      const candidates = getPoolSuggestions({
         unlockedModules, closedTabs, poolHistory, lastGroupShown, userAnswers, icp,
-      }, 3);
-      const replies: { id: string; label: string }[] = pool.map((p) => ({ id: p.id, label: p.label }));
+      }, 20); // get broad set, then rank
+      const ranked = getRankedChips(candidates, scoringCtx, 3);
+      const replies: { id: string; label: string }[] = ranked.map((p) => ({ id: p.id, label: p.label }));
       replies.push({ id: "restart", label: "Start over" });
       return replies.slice(0, 4);
+    }
+
+    // Screens 1-2 (fresh session, no engagement yet): force universal chips
+    if (unlockedModules.length === 0 && !isSkipped && engagementLevel < 2) {
+      // Show ICP detection chips first; universal hooks appear as slot 4
+      if (icp === null) {
+        return ICP_DETECTION_CHIPS.map((c) => ({ id: c.id, label: c.label }));
+      }
+      // ICP detected but still early: show ICP chips
+      return ICP_CHIPS[icp].slice(0, 4);
     }
 
     // Fresh state (no modules unlocked yet, no ICP detected): show ICP detection chips
@@ -4311,16 +4488,18 @@ export default function ConversationHomepage() {
       return ICP_CHIPS[icp].slice(0, 4);
     }
 
-    // Modules unlocked with ICP: use ICP-filtered pool
-    if (icp !== null) {
-      const primary = getInitialSuggestions(unlockedModules, isSkipped);
-      const poolExtras = getPoolSuggestions({
+    // Modules unlocked: probability-ranked pool with diversification slot 4
+    if (unlockedModules.length > 0) {
+      const poolCandidates = getPoolSuggestions({
         unlockedModules, closedTabs, poolHistory, lastGroupShown, userAnswers, icp,
-      }, Math.max(0, 4 - primary.length));
-      const combined = [
-        ...primary,
-        ...poolExtras.map((p) => ({ id: p.id, label: p.label })),
-      ];
+      }, 20); // broad candidate set for ranking
+      const ranked = getRankedChips(poolCandidates, scoringCtx, 4);
+      if (ranked.length >= 3) {
+        return ranked.map((p) => ({ id: p.id, label: p.label }));
+      }
+      // Fallback: supplement with primary module chips if pool is thin
+      const fallback = getInitialSuggestions(unlockedModules, isSkipped);
+      const combined = [...ranked.map((p) => ({ id: p.id, label: p.label })), ...fallback];
       const seen = new Set<string>();
       return combined.filter((r) => {
         if (seen.has(r.id)) return false;
@@ -4329,7 +4508,7 @@ export default function ConversationHomepage() {
       }).slice(0, 4);
     }
 
-    // Fresh state (no modules unlocked yet, skipped): use the positional 4 chips with engagement ladder
+    // Fresh state (no modules unlocked yet, skipped): positional 4 chips with engagement ladder
     if (unlockedModules.length === 0 && !isSkipped) {
       const chips: { id: string; label: string; chipType?: ChipType }[] = [
         INITIAL_4_CHIPS[0],
@@ -4351,16 +4530,16 @@ export default function ConversationHomepage() {
       return chips.slice(0, 4);
     }
 
-    // Mixed mode: primary modules + pool prompts
+    // Fallback: primary modules + probability-ranked pool
     const primary = getInitialSuggestions(unlockedModules, isSkipped);
-    const poolExtras = getPoolSuggestions({
+    const poolCandidates = getPoolSuggestions({
       unlockedModules, closedTabs, poolHistory, lastGroupShown, userAnswers, icp,
-    }, Math.max(0, 4 - primary.length));
+    }, 20);
+    const ranked = getRankedChips(poolCandidates, scoringCtx, Math.max(0, 4 - primary.length));
     const combined = [
       ...primary,
-      ...poolExtras.map((p) => ({ id: p.id, label: p.label })),
+      ...ranked.map((p) => ({ id: p.id, label: p.label })),
     ];
-    // De-dupe
     const seen = new Set<string>();
     return combined.filter((r) => {
       if (seen.has(r.id)) return false;
@@ -4705,6 +4884,38 @@ export default function ConversationHomepage() {
                 </div>
               )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── DEV: ICP probability debug overlay (NEXT_PUBLIC_DEBUG_ICP=true only) ── */}
+      {process.env.NEXT_PUBLIC_DEBUG_ICP === "true" && (
+        <div
+          style={{
+            position: "fixed",
+            bottom: "1rem",
+            right: "1rem",
+            background: "rgba(0,0,0,0.85)",
+            border: "1px solid rgba(139,92,246,0.4)",
+            borderRadius: "0.5rem",
+            padding: "0.75rem 1rem",
+            fontSize: "0.72rem",
+            fontFamily: "monospace",
+            color: "rgba(255,255,255,0.8)",
+            zIndex: 9999,
+            minWidth: "160px",
+          }}
+          aria-hidden="true"
+        >
+          <div style={{ fontWeight: 700, marginBottom: "0.4rem", color: "#8b5cf6" }}>ICP Probability</div>
+          {(["solo","smb","growth","enterprise"] as IcpKey[]).map((k) => (
+            <div key={k} style={{ display: "flex", justifyContent: "space-between", gap: "1rem", marginBottom: "0.15rem" }}>
+              <span style={{ color: icp === k ? "#10b981" : "inherit" }}>{k}</span>
+              <span>{(icpProbability[k] * 100).toFixed(1)}%</span>
+            </div>
+          ))}
+          <div style={{ marginTop: "0.4rem", borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "0.3rem", color: "rgba(255,255,255,0.4)" }}>
+            dominant: {dominantIcp(icpProbability)}
           </div>
         </div>
       )}
