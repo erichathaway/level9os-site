@@ -1,0 +1,4 @@
+{
+  "--portal-accent": "var(--emerald)",
+  "--portal-radius": "var(--radius-md)"
+}

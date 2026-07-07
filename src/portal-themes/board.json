@@ -1,0 +1,4 @@
+{
+  "--portal-accent": "var(--slate)",
+  "--portal-radius": "var(--radius-lg)"
+}

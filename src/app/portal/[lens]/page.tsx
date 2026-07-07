@@ -12,6 +12,7 @@
  * rendered on the server before the response leaves the process.
  */
 
+import type { CSSProperties } from "react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { marked } from "marked";
@@ -21,6 +22,21 @@ import {
   VALID_LENSES,
   type Lens,
 } from "@/lib/portal/renderings";
+import internalTheme from "@/portal-themes/internal.json";
+import boardTheme from "@/portal-themes/board.json";
+import investorTheme from "@/portal-themes/investor.json";
+
+// R3 Phase 4: per-lens token theming. Each JSON file is a flat map of CSS
+// custom properties whose VALUES are existing brand tokens (var(--emerald),
+// var(--slate), var(--cyan), var(--radius-*) from globals.css) — no
+// invented hex. Injected as a scoped inline style on the page wrapper
+// below; the DOM structure never branches per lens, only these variable
+// values do.
+const LENS_THEMES: Record<Lens, Record<string, string>> = {
+  internal: internalTheme,
+  board: boardTheme,
+  investor: investorTheme,
+};
 
 // Strip raw HTML tokens from rendered markdown. content_md is composed by
 // render.mjs from our own record data (never end-user input), but some
@@ -63,15 +79,21 @@ export default async function PortalLensPage({ params }: PageProps) {
 
   const { renderings } = await getApprovedRenderingsForLens(lens);
 
+  // Scoped inline style: standard CSS custom properties plus the lens
+  // theme's vars, injected on this one wrapper. Every descendant that
+  // references var(--portal-accent) / var(--portal-radius) inherits
+  // whichever lens's values were injected here — no per-lens branching in
+  // the JSX below.
+  const wrapperStyle: CSSProperties = {
+    minHeight: "100dvh",
+    background: "var(--bg-root)",
+    color: "var(--text-primary)",
+    padding: "48px 24px",
+    ...(LENS_THEMES[lens] as CSSProperties),
+  };
+
   return (
-    <main
-      style={{
-        minHeight: "100dvh",
-        background: "var(--bg-root)",
-        color: "var(--text-primary)",
-        padding: "48px 24px",
-      }}
-    >
+    <main style={wrapperStyle}>
       <div style={{ maxWidth: 760, margin: "0 auto" }}>
         <div
           style={{
@@ -86,8 +108,8 @@ export default async function PortalLensPage({ params }: PageProps) {
               fontSize: 11,
               letterSpacing: "0.08em",
               textTransform: "uppercase",
-              color: "var(--text-muted)",
-              border: "1px solid var(--border-medium)",
+              color: "var(--portal-accent)",
+              border: "1px solid var(--portal-accent)",
               borderRadius: "var(--radius-full)",
               padding: "4px 10px",
             }}
@@ -149,7 +171,7 @@ function RenderingCard({
       style={{
         background: "var(--bg-surface)",
         border: "1px solid var(--border-subtle)",
-        borderRadius: "var(--radius-lg)",
+        borderRadius: "var(--portal-radius, var(--radius-lg))",
         padding: 32,
         boxShadow: "var(--shadow-card)",
       }}

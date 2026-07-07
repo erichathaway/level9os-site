@@ -1,0 +1,4 @@
+{
+  "--portal-accent": "var(--cyan)",
+  "--portal-radius": "var(--radius-xl)"
+}
