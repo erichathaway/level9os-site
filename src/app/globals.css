@@ -98,6 +98,15 @@ body {
   .hover\:bg-root-70:hover { background-color: color-mix(in srgb, var(--bg-root) 70%, transparent); }
   .hover\:bg-surface-60:hover { background-color: color-mix(in srgb, var(--bg-surface) 60%, transparent); }
   .hover\:bg-surface-70:hover { background-color: color-mix(in srgb, var(--bg-surface) 70%, transparent); }
+
+  /* Frosted-glass treatment for locked (existence-only) Desk results —
+     R3 Phase 3. No new colors: composes the existing bg-surface-40 tone
+     with a backdrop blur so locked tiles read as "behind glass" without
+     any invented hex. */
+  .frosted-locked {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
 }
 
 

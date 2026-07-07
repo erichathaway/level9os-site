@@ -75,12 +75,15 @@ const FALLBACK_SUPABASE_URL = "https://xwmjrphmdjhlhveyyfey.supabase.co";
 const FALLBACK_SUPABASE_ANON_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh3bWpycGhtZGpobGh2ZXl5ZmV5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE2MTc5MDgsImV4cCI6MjA4NzE5MzkwOH0.P1DfiIshwfC6Qq80q7MxmwBgy86Q9qg8d3qc_acWEuI";
 
-interface SupabaseConfig {
+// Exported: src/lib/portal/desk.ts (Living Record R3 Phase 3) reuses the
+// exact same env-resolution + fetch helper rather than re-deriving the
+// fallback URL/key a second time in this codebase.
+export interface SupabaseConfig {
   url: string;
   key: string;
 }
 
-function resolveSupabaseConfig(): SupabaseConfig {
+export function resolveSupabaseConfig(): SupabaseConfig {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL || FALLBACK_SUPABASE_URL;
   const key =
     process.env.SUPABASE_ANON_KEY ??
@@ -89,7 +92,7 @@ function resolveSupabaseConfig(): SupabaseConfig {
   return { url, key };
 }
 
-async function supabaseSelect<T>(config: SupabaseConfig, path: string): Promise<T[]> {
+export async function supabaseSelect<T>(config: SupabaseConfig, path: string): Promise<T[]> {
   const res = await fetch(`${config.url}/rest/v1/${path}`, {
     headers: { apikey: config.key },
     // Portal content changes only via render.mjs/approve.mjs runs (rare,
