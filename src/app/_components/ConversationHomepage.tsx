@@ -4500,6 +4500,12 @@ export default function ConversationHomepage() {
   const [engagementLevel, setEngagementLevel] = useState(0);
   const [lastPlayfulLabel, setLastPlayfulLabel] = useState<string | undefined>(undefined);
   const lastVisitorActivity = useRef<number>(Date.now());
+  // Hydration guard: pickUniversalChip() below uses Date.now() to rotate the
+  // default 4th suggested chip. That must stay deterministic (same pool[0])
+  // until after mount, otherwise SSR and the client's first render pick
+  // different chips based on wall-clock second and React discards the SSR HTML.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   const [icp, setIcp] = useState<ICP>(null);
   const [icpProbability, setIcpProbability] = useState<IcpProbability>({ ...UNIFORM_ICP_PROB });
@@ -5240,7 +5246,9 @@ export default function ConversationHomepage() {
 
   function pickUniversalChip(exclude?: string): { id: string; label: string } {
     const pool = CONTENT_POOL.filter((p) => UNIVERSAL_IDS.includes(p.id) && p.label !== exclude);
-    const pick = pool[Math.floor(Date.now() / 1000) % pool.length] ?? pool[0];
+    // Deterministic pool[0] until mounted so SSR and the client's first render agree;
+    // the Date.now()-based rotation only kicks in on client-only re-renders after mount.
+    const pick = mounted ? (pool[Math.floor(Date.now() / 1000) % pool.length] ?? pool[0]) : pool[0];
     return { id: pick.id, label: pick.label };
   }
 
