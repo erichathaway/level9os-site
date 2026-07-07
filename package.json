@@ -13,6 +13,7 @@
   "dependencies": {
     "@level9/brand": "github:erichathaway/level9-brand#973ba3d",
     "framer-motion": "^12.38.0",
+    "marked": "18.0.5",
     "next": "14.2.35",
     "react": "^18",
     "react-dom": "^18",
