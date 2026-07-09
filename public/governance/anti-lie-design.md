@@ -1,3 +1,26 @@
+---
+id: LVL9-L9SITE-ANTI-LIE-DESIGN
+title: "Claude Anti-Lie Governance System: Design"
+version: "0.1"
+effective: 2026-05-02
+last_verified: 2026-05-19
+owner: Eric Hathaway
+status: live
+review_cadence: quarterly
+audience: public
+authority: brand
+tags:
+  - section:governance
+  - audience:public
+  - layer:L6-governance
+  - type:md
+  - authority:brand
+  - origin:ai-drafted
+  - topic:governance
+  - topic:anti-lie
+  - topic:agent-config
+  - product:level9os
+---
 # Claude Anti-Lie Governance System: Design
 
 Author: written 2026-04-29 in response to Eric's brief.

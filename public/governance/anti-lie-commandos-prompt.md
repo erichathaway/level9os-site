@@ -1,3 +1,27 @@
+---
+id: LVL9-CMD-ANTI-LIE-COMMANDOS-PROMPT
+title: "Commandos Prompt — Strategic Report from Anti-Lie Governance Corpus"
+version: "0.1"
+effective: 2026-05-02
+last_verified: 2026-05-19
+owner: Eric Hathaway
+status: live
+review_cadence: quarterly
+audience: public
+authority: rules
+tags:
+  - section:governance
+  - audience:public
+  - layer:L6-governance
+  - type:md
+  - authority:rules
+  - origin:ai-drafted
+  - topic:governance
+  - topic:prompt-engineering
+  - topic:commandos
+  - product:commandos
+  - product:level9os
+---
 # Commandos Prompt — Strategic Report from Anti-Lie Governance Corpus
 
 **Purpose: produce an independent strategic synthesis from the same corpus

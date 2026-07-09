@@ -1,3 +1,24 @@
+---
+id: LVL9-L9SITE-CLAUDE
+title: "Level9OS Site — Agent Context"
+version: "0.1"
+effective: 2026-04-24
+last_verified: 2026-05-19
+owner: Eric Hathaway
+status: live
+review_cadence: quarterly
+audience: public
+authority: technical
+tags:
+  - section:operations
+  - audience:public
+  - layer:meta
+  - type:agent-contract
+  - authority:technical
+  - origin:ai-drafted
+  - topic:agent-config
+  - product:level9os
+---
 # Level9OS Site — Agent Context
 
 ## Project Overview

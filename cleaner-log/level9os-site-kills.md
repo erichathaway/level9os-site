@@ -1,3 +1,24 @@
+---
+id: LVL9-L9SITE-LEVEL9OS-SITE-KILLS
+title: "CLEAN-level9os-site — Kill Log"
+version: "0.1"
+effective: 2026-04-20
+last_verified: 2026-05-19
+owner: Eric Hathaway
+status: live
+review_cadence: quarterly
+audience: public
+authority: technical
+tags:
+  - section:operations
+  - audience:public
+  - layer:L4-operating
+  - type:md
+  - authority:technical
+  - origin:ai-drafted
+  - topic:agent-config
+  - product:level9os
+---
 # CLEAN-level9os-site — Kill Log
 
 **Branch:** `cleanup/level9os-site-2026-04-20`
